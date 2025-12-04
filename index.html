@@ -10,97 +10,89 @@
 
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:#ffe6ee;
-  color:#333;
-  text-align:center;
-  animation:fade 0.6s ease-in;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background:#f7f7f7;
+  color:#222;
 }
 
-/* CABEÇALHO */
+/* TOPO */
 header{
-  background:linear-gradient(90deg,#ff4d79,#ff85a2);
-  padding:16px;
+  background:#1f1f1f;
   color:white;
+  padding:20px;
+  text-align:center;
   font-size:22px;
   font-weight:bold;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  letter-spacing:2px;
 }
 
-/* MENU CORRIGIDO */
-.topmenu{
+/* MENU */
+.menu{
   display:flex;
-  gap:8px;
-  padding:10px;
-  overflow-x:auto;
-  background:linear-gradient(90deg,#ff4d79,#ff85a2);
+  justify-content:space-around;
+  background:#121212;
 }
 
-.topmenu button{
-  flex:0 0 auto;
+.menu button{
+  flex:1;
+  padding:14px;
+  background:none;
+  color:#aaa;
   border:none;
-  padding:10px 14px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.25);
-  color:#ffffff;
-  font-weight:800;
   font-size:14px;
-  cursor:pointer;
-  text-shadow:1px 1px 2px rgba(0,0,0,0.35);
+  font-weight:bold;
 }
 
-.topmenu button.active{
-  background:#ffffff;
-  color:#ff4d79;
-  text-shadow:none;
+.menu button.active{
+  color:#ffd700;
+  border-bottom:3px solid #ffd700;
 }
 
 /* TELAS */
 .tela{display:none;padding:20px}
 .tela.ativa{display:block}
 
-.box{
-  background:#fff;
+/* CARD */
+.card{
+  background:white;
   border-radius:18px;
   padding:20px;
   margin:20px auto;
   max-width:380px;
-  box-shadow:0 4px 20px rgba(0,0,0,.15);
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
 }
 
+/* BOTÕES */
 .botao{
   width:100%;
   padding:14px;
   margin-top:12px;
   border:none;
-  border-radius:12px;
-  background:#ff4d79;
-  color:white;
+  border-radius:30px;
+  background:#ffd700;
+  color:#000;
   font-size:16px;
   font-weight:bold;
-}
-
-.botao.branco{
-  background:white;
-  color:#ff4d79;
-  border:2px solid #ff4d79;
 }
 
 /* GALERIA */
 .galeria{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:10px;
+  gap:12px;
 }
 
 .galeria img{
   width:100%;
-  border-radius:12px;
-  animation:zoom .4s ease;
+  border-radius:14px;
+  transition:.2s;
 }
 
+.galeria img:hover{
+  transform:scale(1.05);
+}
+
+/* WHATSAPP */
 .whatsapp{
   position:fixed;
   bottom:15px;
@@ -113,20 +105,20 @@ header{
   border:none;
 }
 
-/* ANIMAÇÕES */
-@keyframes fade{
-  from{opacity:0}
-  to{opacity:1}
-}
-@keyframes zoom{
-  from{transform:scale(.9)}
-  to{transform:scale(1)}
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
 }
 
 footer{
+  text-align:center;
   font-size:12px;
-  margin-top:20px;
-  color:#555;
+  color:#777;
+  margin-top:30px;
 }
 </style>
 </head>
@@ -134,83 +126,81 @@ footer{
 <body>
 
 <header>
-  <span>FERNANDA ARTE</span>
-  <span>☰</span>
+  FERNANDA ARTE • DECORAÇÕES
 </header>
 
-<div class="topmenu">
+<div class="menu">
   <button class="active" onclick="trocar('inicio',this)">INÍCIO</button>
   <button onclick="trocar('galeria',this)">GALERIA</button>
   <button onclick="trocar('servicos',this)">SERVIÇOS</button>
   <button onclick="trocar('orcamento',this)">ORÇAMENTO</button>
-  <button onclick="trocar('pedidos',this)">PEDIDOS</button>
 </div>
 
 <!-- INÍCIO -->
 <div id="inicio" class="tela ativa">
-  <div class="box">
-    <h2>BEM-VINDO(A) À FERNANDA ARTE</h2>
-    <p>Decorações sob medida para momentos inesquecíveis 💖</p>
-    <button class="botao" onclick="trocar('galeria',document.querySelectorAll('.topmenu button')[1])">VER TRABALHOS</button>
-    <button class="botao branco" onclick="trocar('orcamento',document.querySelectorAll('.topmenu button')[3])">SOLICITAR ORÇAMENTO</button>
+  <div class="card">
+    <h2>FERNANDA ARTE</h2>
+    <p>Decoração elegante para transformar seu evento em um momento inesquecível.</p>
+
+    <button class="botao" onclick="trocar('galeria',document.querySelectorAll('.menu button')[1])">VER GALERIA</button>
+    <button class="botao" onclick="trocar('orcamento',document.querySelectorAll('.menu button')[3])">FAZER ORÇAMENTO</button>
   </div>
 
   <footer>
-    CRIADO POR VICTOR • FERNANDA ARTE — APP SIMULADO
+    CRIADO POR VICTOR • RESPEITA PAPAI 😁😁
   </footer>
 </div>
 
 <!-- GALERIA -->
 <div id="galeria" class="tela">
-  <div class="box">
-    <h3>GALERIA DE TRABALHOS</h3>
+  <div class="card">
+    <h3>TRABALHOS REALIZADOS</h3>
+
     <div class="galeria">
-      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+1">
-      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+2">
-      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+3">
-      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+4">
+      <img src="https://via.placeholder.com/300x300?text=EVENTO+1">
+      <img src="https://via.placeholder.com/300x300?text=EVENTO+2">
+      <img src="https://via.placeholder.com/300x300?text=EVENTO+3">
+      <img src="https://via.placeholder.com/300x300?text=EVENTO+4">
     </div>
   </div>
 </div>
 
 <!-- SERVIÇOS -->
 <div id="servicos" class="tela">
-  <div class="box">
+  <div class="card">
     <h3>SERVIÇOS</h3>
-    <p>🎈 Decoração de Aniversários</p>
-    <p>🎉 Eventos Personalizados</p>
-    <p>🎂 Temas Infantis</p>
-    <p>💍 Datas Especiais</p>
+    <p>✔ Decoração de festas infantis</p>
+    <p>✔ Casamentos</p>
+    <p>✔ Aniversários</p>
+    <p>✔ Eventos corporativos</p>
   </div>
 </div>
 
 <!-- ORÇAMENTO -->
 <div id="orcamento" class="tela">
-  <div class="box">
+  <div class="card">
     <h3>SOLICITAR ORÇAMENTO</h3>
-    <input type="text" placeholder="Seu nome">
+
+    <input type="text" placeholder="Nome">
     <input type="text" placeholder="Tipo de evento">
-    <button class="botao" onclick="alert('Orçamento enviado!')">ENVIAR</button>
+    <input type="text" placeholder="Data">
+
+    <button class="botao" onclick="alert('Pedido enviado!')">
+      ENVIAR ORÇAMENTO
+    </button>
   </div>
 </div>
 
-<!-- PEDIDOS -->
-<div id="pedidos" class="tela">
-  <div class="box">
-    <h3>MEUS PEDIDOS</h3>
-    <p>Você ainda não possui pedidos registrados.</p>
-  </div>
-</div>
-
-<!-- BOTÃO WHATSAPP -->
-<button class="whatsapp" onclick="window.location.href='https://wa.me/5599999999999'">💬</button>
+<button class="whatsapp" onclick="window.location.href='https://wa.me/5599999999999'">
+💬
+</button>
 
 <script>
 function trocar(id,botao){
   document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
   document.getElementById(id).classList.add('ativa');
 
-  document.querySelectorAll('.topmenu button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
   botao.classList.add('active');
 }
 </script>
