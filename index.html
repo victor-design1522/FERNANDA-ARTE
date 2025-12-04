@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>FERNANDA ARTE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff5f8;
+}
+
+header {
+  background: linear-gradient(90deg, #ff4d79, #ff8fab);
+  color: white;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.menu {
+  display: flex;
+  background: #ff4d79;
+}
+
+.menu button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  background: #ff4d79;
+  color: white;
+  font-size: 14px;
+}
+
+.menu .ativo {
+  background: white;
+  color: #ff4d79;
+  font-weight: bold;
+}
+
+.tela {
+  display: none;
+  padding: 15px;
+}
+
+.tela.ativa {
+  display: block;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  margin: 15px auto;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card h2, .card h3 {
+  margin-top: 0;
+  color: #ff4d79;
+}
+
+.galeria img {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.botao {
+  width: 100%;
+  padding: 16px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  background: #ff4d79;
+  color: white;
+  font-weight: bold;
+}
+
+.rodape {
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  margin: 20px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>FERNANDA ARTE</header>
+
+<div class="menu">
+  <button class="ativo" onclick="trocar('inicio', this)">Início</button>
+  <button onclick="trocar('galeria', this)">Trabalhos</button>
+  <button onclick="trocar('sobre', this)">Sobre</button>
+  <button onclick="trocar('contato', this)">Contato</button>
+</div>
+
+<!-- INÍCIO -->
+<div id="inicio" class="tela ativa">
+  <div class="card">
+    <h2>Decoração de Festas</h2>
+    <p>Transformando sonhos em realidade através da arte da decoração.</p>
+    <p>🎂 Aniversários • 🎈 Eventos • 💍 Casamentos</p>
+  </div>
+</div>
+
+<!-- GALERIA -->
+<div id="galeria" class="tela">
+  <div class="card galeria">
+    <h3>Trabalhos Realizados</h3>
+
+    <!-- COLOQUE AS FOTOS AQUI -->
+    <img src="imagens/foto1.jpg">
+    <img src="imagens/foto2.jpg">
+    <img src="imagens/foto3.jpg">
+    <img src="imagens/foto4.jpg">
+  </div>
+</div>
+
+<!-- SOBRE -->
+<div id="sobre" class="tela">
+  <div class="card">
+    <h3>Sobre a Fernanda Arte</h3>
+    <p>A Fernanda Arte é especializada em decoração de festas com carinho, criatividade e dedicação para tornar cada evento inesquecível.</p>
+  </div>
+</div>
+
+<!-- CONTATO -->
+<div id="contato" class="tela">
+  <div class="card">
+    <h3>Contato</h3>
+    <p>Faça seu orçamento diretamente pelo WhatsApp.</p>
+
+    <button class="botao" onclick="abrirWhats()">
+      CHAMAR NO WHATSAPP
+    </button>
+  </div>
+</div>
+
+<div class="rodape">
+  CRIADO POR VICTOR • FERNANDA ARTE
+</div>
+
+<script>
+function trocar(id, botao) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+
+  document.querySelectorAll('.menu button').forEach(b => b.classList.remove('ativo'));
+  botao.classList.add('ativo');
+}
+
+function abrirWhats() {
+  window.location.href = "https://wa.me/5599999999999";
+}
+</script>
+
+</body>
+</html>
