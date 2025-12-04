@@ -1,219 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>FERNANDA ARTE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FERNANDA ARTE - APP</title>
 
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#ffe6ee;
-  color:#333;
-  text-align:center;
-  animation:fade .6s ease-in;
-}
-
-/* CABEÇALHO */
+html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#fff0f5,#ffe4ec);color:#222}
+body.dark{background:linear-gradient(180deg,#0f0f14,#111217);color:#fff}
 header{
-  background:linear-gradient(90deg,#ff4d79,#ff85a2);
-  padding:16px;
-  color:white;
-  font-size:22px;
-  font-weight:bold;
+display:flex;align-items:center;gap:12px;
+padding:12px 16px;
+background:linear-gradient(90deg,#ff4d79,#ff85a2);
+color:white;position:sticky;top:0;z-index:10;
 }
-
-/* MENU */
-.topmenu{
-  display:flex;
-  gap:8px;
-  padding:10px;
-  overflow-x:auto;
-  background:linear-gradient(90deg,#ff4d79,#ff85a2);
+header img{width:40px;height:40px;border-radius:8px}
+.menu{display:flex;gap:8px;padding:10px;overflow-x:auto}
+.menu button{
+border:none;padding:10px 14px;border-radius:12px;
+background:rgba(0,0,0,.1);font-weight:bold;
 }
-
-.topmenu button{
-  flex:0 0 auto;
-  border:none;
-  padding:10px 14px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.25);
-  color:#fff;
-  font-weight:800;
-  font-size:14px;
-  cursor:pointer;
-  text-shadow:1px 1px 2px rgba(0,0,0,.35);
+.menu button.active{background:#ff4d79;color:white}
+.card{
+background:white;border-radius:14px;
+padding:18px;margin:14px;box-shadow:0 6px 20px rgba(0,0,0,.08)
 }
-
-.topmenu button.active{
-  background:#fff;
-  color:#ff4d79;
-  text-shadow:none;
+.carrossel{display:flex;gap:12px;overflow-x:auto}
+.carrossel img{width:260px;height:180px;object-fit:cover;border-radius:12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid img{width:100%;height:120px;object-fit:cover;border-radius:10px}
+.btn{
+display:inline-block;padding:12px 16px;border-radius:12px;
+border:none;background:#ff4d79;color:white;font-weight:bold;margin-top:8px
 }
-
-/* TELAS */
-.tela{display:none;padding:20px}
-.tela.ativa{display:block}
-
-.box{
-  background:#fff;
-  border-radius:18px;
-  padding:20px;
-  margin:20px auto;
-  max-width:380px;
-  box-shadow:0 4px 20px rgba(0,0,0,.15);
-}
-
-.botao{
-  width:100%;
-  padding:14px;
-  margin-top:12px;
-  border:none;
-  border-radius:12px;
-  background:#ff4d79;
-  color:white;
-  font-size:16px;
-  font-weight:bold;
-}
-
-/* GALERIA */
-.galeria{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-.galeria img{
-  width:100%;
-  border-radius:12px;
-  animation:zoom .4s ease;
-}
-
-/* REDES */
-.redes{
-  display:flex;
-  gap:10px;
-  margin-top:15px;
-}
-
-.redes a{flex:1;text-decoration:none}
-
-.redes button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  color:white;
-}
-
-.fb{background:#1877f2}
-.ig{background:#e1306c}
-.zap{background:#25d366}
-
-/* WHATSAPP FLUTUANTE */
 .whatsapp{
-  position:fixed;
-  bottom:15px;
-  right:15px;
-  background:#25d366;
-  color:white;
-  font-size:26px;
-  padding:14px 18px;
-  border-radius:50%;
-  border:none;
+position:fixed;right:18px;bottom:18px;
+background:#25d366;color:white;
+padding:14px;border-radius:50%;font-size:22px
 }
-
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes zoom{from{transform:scale(.9)}to{transform:scale(1)}}
 </style>
 </head>
 
 <body>
 
-<header>FERNANDA ARTE</header>
+<header>
+<img src="logo.png">
+<h2>FERNANDA ARTE</h2>
+</header>
 
-<div class="topmenu">
-  <button class="active" onclick="trocar('inicio',this)">INÍCIO</button>
-  <button onclick="trocar('galeria',this)">GALERIA</button>
-  <button onclick="trocar('servicos',this)">SERVIÇOS</button>
-  <button onclick="trocar('orcamento',this)">ORÇAMENTO</button>
+<div class="menu">
+<button class="active" onclick="show('home',this)">INÍCIO</button>
+<button onclick="show('galeria',this)">GALERIA</button>
+<button onclick="show('orcamento',this)">ORÇAMENTO</button>
+<button onclick="show('contato',this)">CONTATO</button>
 </div>
 
-<!-- INÍCIO -->
-<div id="inicio" class="tela ativa">
-  <div class="box">
-    <h2>BEM-VINDO(A) À FERNANDA ARTE</h2>
-    <p>Decorações sob medida para momentos inesquecíveis 💖</p>
-
-    <div class="redes">
-      <a href="https://www.facebook.com/share/1CA5gBZU9P/" target="_blank">
-        <button class="fb">FACEBOOK</button>
-      </a>
-
-      <a href="https://www.instagram.com/fernandaartes?igsh=eG96Z3FjcHRra2k4" target="_blank">
-        <button class="ig">INSTAGRAM</button>
-      </a>
-    </div>
-
-    <a href="https://wa.me/558191536381" target="_blank">
-      <button class="botao zap">CHAMAR NO WHATSAPP</button>
-    </a>
-  </div>
+<div id="home" class="card">
+<h3>Bem-vindo à Fernanda Arte</h3>
+<p>Decorações lindas para momentos especiais.</p>
+<button class="btn" onclick="show('galeria')">Ver Trabalhos</button>
+<button class="btn" onclick="abrirWhats()">Chamar no WhatsApp</button>
 </div>
 
-<!-- GALERIA -->
-<div id="galeria" class="tela">
-  <div class="box">
-    <h3>GALERIA DE TRABALHOS</h3>
-    <div class="galeria">
-      <img src="fotos/foto1.jpg">
-      <img src="fotos/foto2.jpg">
-      <img src="fotos/foto3.jpg">
-      <img src="fotos/foto4.jpg">
-      <img src="fotos/foto5.jpg">
-      <img src="fotos/foto6.jpg">
-      <img src="fotos/foto7.jpg">
-      <img src="fotos/foto8.jpg">
-      <img src="fotos/foto9.jpg">
-      <img src="fotos/foto10.jpg">
-    </div>
-  </div>
+<div id="galeria" class="card" style="display:none">
+<h3>Galeria</h3>
+
+<div class="carrossel">
+<img src="imagens/foto1.jpg">
+<img src="imagens/foto2.jpg">
+<img src="imagens/foto3.jpg">
+<img src="imagens/foto4.jpg">
+<img src="imagens/foto5.jpg">
 </div>
 
-<!-- SERVIÇOS -->
-<div id="servicos" class="tela">
-  <div class="box">
-    <h3>SERVIÇOS</h3>
-    <p>🎈 Decoração de Aniversários</p>
-    <p>🎉 Eventos Personalizados</p>
-    <p>🎂 Temas Infantis</p>
-    <p>💍 Datas Especiais</p>
-  </div>
+<h4>Mais Fotos</h4>
+<div class="grid">
+<img src="imagens/foto6.jpg">
+<img src="imagens/foto7.jpg">
+<img src="imagens/foto8.jpg">
+<img src="imagens/foto9.jpg">
+<img src="imagens/foto10.jpg">
+</div>
 </div>
 
-<!-- ORÇAMENTO -->
-<div id="orcamento" class="tela">
-  <div class="box">
-    <h3>SOLICITAR ORÇAMENTO</h3>
-    <input type="text" placeholder="Seu nome">
-    <input type="text" placeholder="Tipo de evento">
-    <button class="botao" onclick="alert('Orçamento enviado!')">ENVIAR</button>
-  </div>
+<div id="orcamento" class="card" style="display:none">
+<h3>Solicitar Orçamento</h3>
+<input placeholder="Seu nome"><br><br>
+<input placeholder="Tipo de evento"><br><br>
+<textarea placeholder="Detalhes"></textarea><br>
+<button class="btn">Enviar</button>
 </div>
 
-<button class="whatsapp" onclick="window.location.href='https://wa.me/558191536381'">💬</button>
+<div id="contato" class="card" style="display:none">
+<h3>Contato</h3>
+<button class="btn" onclick="window.open('https://www.instagram.com/fernandaartes')">Instagram</button>
+<button class="btn" onclick="window.open('https://www.facebook.com/share/1CA5gBZU9P/')">Facebook</button>
+</div>
+
+<div class="whatsapp" onclick="abrirWhats()">💬</div>
+
+<audio autoplay loop>
+<source src="musica.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-function trocar(id,botao){
-  document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
-  document.getElementById(id).classList.add('ativa');
+function show(id,btn){
+document.querySelectorAll('.card').forEach(c=>c.style.display='none');
+document.getElementById(id).style.display='block';
+document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+if(btn)btn.classList.add('active');
+}
 
-  document.querySelectorAll('.topmenu button').forEach(b=>b.classList.remove('active'));
-  botao.classList.add('active');
+function abrirWhats(){
+window.location.href="https://wa.me/558191536381";
 }
 </script>
 
