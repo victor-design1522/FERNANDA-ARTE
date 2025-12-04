@@ -9,16 +9,29 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #fff5f8;
+  background: linear-gradient(180deg, #fff0f5, #ffe4ec);
+  animation: fadeIn 1s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 header {
-  background: linear-gradient(90deg, #ff4d79, #ff8fab);
+  background: linear-gradient(90deg, #ff4d79, #ff85a2);
   color: white;
-  padding: 20px;
-  font-size: 24px;
+  padding: 22px;
+  font-size: 26px;
   font-weight: bold;
   text-align: center;
+  letter-spacing: 2px;
+  animation: descer 1s;
+}
+
+@keyframes descer {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .menu {
@@ -28,11 +41,16 @@ header {
 
 .menu button {
   flex: 1;
-  padding: 14px;
+  padding: 15px;
   border: none;
   background: #ff4d79;
   color: white;
   font-size: 14px;
+  transition: all 0.3s;
+}
+
+.menu button:hover {
+  background: #ff85a2;
 }
 
 .menu .ativo {
@@ -44,6 +62,12 @@ header {
 .tela {
   display: none;
   padding: 15px;
+  animation: aparecer 0.5s;
+}
+
+@keyframes aparecer {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .tela.ativa {
@@ -52,11 +76,16 @@ header {
 
 .card {
   background: white;
-  border-radius: 16px;
-  padding: 18px;
-  margin: 15px auto;
-  max-width: 400px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 20px;
+  margin: 16px auto;
+  max-width: 420px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
 }
 
 .card h2, .card h3 {
@@ -66,8 +95,13 @@ header {
 
 .galeria img {
   width: 100%;
-  border-radius: 12px;
+  border-radius: 14px;
   margin-top: 12px;
+  transition: transform 0.3s;
+}
+
+.galeria img:hover {
+  transform: scale(1.05);
 }
 
 .botao {
@@ -75,18 +109,23 @@ header {
   padding: 16px;
   margin-top: 15px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 16px;
-  background: #ff4d79;
+  background: linear-gradient(90deg, #ff4d79, #ff85a2);
   color: white;
   font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.botao:active {
+  transform: scale(0.95);
 }
 
 .rodape {
   text-align: center;
   font-size: 12px;
   color: #777;
-  margin: 20px 0;
+  margin: 25px 0;
 }
 </style>
 </head>
@@ -106,7 +145,7 @@ header {
 <div id="inicio" class="tela ativa">
   <div class="card">
     <h2>Decoração de Festas</h2>
-    <p>Transformando sonhos em realidade através da arte da decoração.</p>
+    <p>Transformando sonhos em realidade com arte, amor e criatividade.</p>
     <p>🎂 Aniversários • 🎈 Eventos • 💍 Casamentos</p>
   </div>
 </div>
@@ -116,7 +155,7 @@ header {
   <div class="card galeria">
     <h3>Trabalhos Realizados</h3>
 
-    <!-- COLOQUE AS FOTOS AQUI -->
+    <!-- TROQUE PELAS FOTOS REAIS -->
     <img src="imagens/foto1.jpg">
     <img src="imagens/foto2.jpg">
     <img src="imagens/foto3.jpg">
@@ -128,7 +167,7 @@ header {
 <div id="sobre" class="tela">
   <div class="card">
     <h3>Sobre a Fernanda Arte</h3>
-    <p>A Fernanda Arte é especializada em decoração de festas com carinho, criatividade e dedicação para tornar cada evento inesquecível.</p>
+    <p>Especialistas em decoração de festas, criando momentos únicos e inesquecíveis com cada detalhe feito à mão.</p>
   </div>
 </div>
 
@@ -136,7 +175,7 @@ header {
 <div id="contato" class="tela">
   <div class="card">
     <h3>Contato</h3>
-    <p>Faça seu orçamento diretamente pelo WhatsApp.</p>
+    <p>Faça seu orçamento direto pelo WhatsApp.</p>
 
     <button class="botao" onclick="abrirWhats()">
       CHAMAR NO WHATSAPP
@@ -145,7 +184,7 @@ header {
 </div>
 
 <div class="rodape">
-  CRIADO POR VICTOR • FERNANDA ARTE
+  CRIADO POR VICTOR IRMÃO DELA COM MUITO AMOR E CARINHO RESPEITA PAPAI 😁
 </div>
 
 <script>
