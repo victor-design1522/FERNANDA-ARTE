@@ -1,470 +1,218 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>FERNANDA ARTE - APP</title>
-
-<!--
-VERSÃO ULTRA COMPLETA - FERNANDA ARTE
-- Coloque logo.png, musica.mp3 e pasta imagens/* na mesma pasta do index.html
-- Ajuste links e número WhatsApp nas constantes JS
--->
+<meta charset="UTF-8">
+<title>FERNANDA ARTE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* Reset e base */
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter, Arial, sans-serif;background:var(--bg);color:var(--text);transition:background .35s,color .35s}
-:root{
-  --accent1:#ff4d79;
-  --accent2:#ff85a2;
-  --bg:linear-gradient(180deg,#fff0f5,#ffe4ec);
-  --card:#ffffff;
-  --text:#222;
-  --muted:#666;
-  --success:#25d366;
-}
-body.dark{
-  --bg:linear-gradient(180deg,#0f0f14,#111217);
-  --card:#101218;
-  --text:#e8e8ea;
-  --muted:#aaaaad;
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#ffe6ee;
+  color:#333;
+  text-align:center;
+  animation:fade 0.6s ease-in;
 }
 
-/* Splash (full screen) */
-#splash{
-  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
-  background:linear-gradient(90deg,var(--accent1),var(--accent2));
-  z-index:9999;color:#fff;
-  animation: splashFade 1s forwards;
-}
-#splash.hidden{display:none}
-#splash img{width:120px;height:120px;object-fit:contain;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
-#splash h1{margin:14px 0 6px;font-size:20px;letter-spacing:2px}
-#splash p{opacity:.9;margin:0;font-size:14px}
-
-/* Loading overlay small */
-#loadingOverlay{
-  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);z-index:9998;backdrop-filter: blur(3px);display:none;
-}
-.spinner{
-  width:60px;height:60px;border-radius:50%;border:6px solid rgba(255,255,255,0.15);border-top-color:#fff;animation:spin 1s linear infinite;
-}
-
-/* Header */
+/* CABEÇALHO */
 header{
-  display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;position:sticky;top:0;z-index:10;
+  background:linear-gradient(90deg,#ff4d79,#ff85a2);
+  padding:16px;
+  color:white;
+  font-size:22px;
+  font-weight:bold;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
-header img.logo{width:42px;height:42px;border-radius:8px;object-fit:cover}
-header h2{margin:0;font-size:18px;letter-spacing:1px}
 
-/* Menu (horizontal) */
-.topmenu{display:flex;gap:8px;padding:10px;overflow-x:auto;background:transparent}
+/* MENU CORRIGIDO */
+.topmenu{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  overflow-x:auto;
+  background:linear-gradient(90deg,#ff4d79,#ff85a2);
+}
+
 .topmenu button{
-  flex:0 0 auto;border:none;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.12);color:white;font-weight:600;cursor:pointer;transition:transform .18s,background .18s;
+  flex:0 0 auto;
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.25);
+  color:#ffffff;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  text-shadow:1px 1px 2px rgba(0,0,0,0.35);
 }
-.topmenu button.active{background:white;color:var(--accent1)}
-.topmenu button:active{transform:scale(.98)}
 
-/* Container */
-.container{padding:16px;max-width:920px;margin:18px auto}
+.topmenu button.active{
+  background:#ffffff;
+  color:#ff4d79;
+  text-shadow:none;
+}
 
-/* Card */
-.card{background:var(--card);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 8px 20px rgba(0,0,0,0.08);transition:transform .2s}
-.card .title{color:var(--accent1);margin:0 0 8px}
+/* TELAS */
+.tela{display:none;padding:20px}
+.tela.ativa{display:block}
 
-/* Carrossel - horizontal scroll */
-.carrossel{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px}
-.carrossel img{width:300px;height:200px;object-fit:cover;border-radius:12px;flex:0 0 auto;transition:transform .25s;cursor:pointer}
-.carrossel img:hover{transform:scale(1.03)}
+.box{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  margin:20px auto;
+  max-width:380px;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+}
 
-/* Grid de miniaturas */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-.grid img{width:100%;height:120px;object-fit:cover;border-radius:10px}
+.botao{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:none;
+  border-radius:12px;
+  background:#ff4d79;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+}
 
-/* Botões */
-.btn{display:inline-block;padding:12px 14px;border-radius:12px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;font-weight:700;cursor:pointer}
-.btn.alt{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text)}
+.botao.branco{
+  background:white;
+  color:#ff4d79;
+  border:2px solid #ff4d79;
+}
 
-/* WhatsApp flutuante */
-.whatsapp-fab{position:fixed;right:18px;bottom:18px;background:var(--success);color:white;padding:14px;border-radius:50%;font-size:20px;box-shadow:0 10px 30px rgba(0,0,0,0.25);cursor:pointer;z-index:99}
+/* GALERIA */
+.galeria{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
 
-/* Toggle dark mode */
-.controls{display:flex;gap:8px;align-items:center}
-.switch{display:inline-flex;align-items:center;gap:8px;background:var(--card);padding:6px;border-radius:999px}
-.switch input{display:none}
-.theme-dot{width:14px;height:14px;border-radius:50%}
+.galeria img{
+  width:100%;
+  border-radius:12px;
+  animation:zoom .4s ease;
+}
 
-/* Map */
-.mapframe{width:100%;height:240px;border-radius:12px;border:0;overflow:hidden}
+.whatsapp{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  background:#25d366;
+  color:white;
+  font-size:26px;
+  padding:14px 18px;
+  border-radius:50%;
+  border:none;
+}
 
-/* Forms */
-input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #e6e6e9;background:transparent;color:var(--text);margin-top:8px}
-label{font-weight:600;color:var(--muted);font-size:13px}
+/* ANIMAÇÕES */
+@keyframes fade{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes zoom{
+  from{transform:scale(.9)}
+  to{transform:scale(1)}
+}
 
-/* Toast notification */
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:85px;background:rgba(0,0,0,.85);color:white;padding:10px 14px;border-radius:10px;z-index:9999;display:none}
-
-/* Pedido list */
-.pedido{padding:10px;border-radius:10px;background:linear-gradient(90deg,#fff,#fff);margin-top:8px;border:1px solid #eee}
-
-/* small footer */
-.footer{font-size:12px;color:var(--muted);text-align:center;margin:20px 0}
-
-/* Animations */
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes splashFade{0%{opacity:1}100%{opacity:1}}
-@media (max-width:480px){ .carrossel img{width:220px;height:150px} }
+footer{
+  font-size:12px;
+  margin-top:20px;
+  color:#555;
+}
 </style>
 </head>
+
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splash">
-  <img src="logo.png" alt="Logo" />
-  <h1>FERNANDA ARTE</h1>
-  <p>Decor & Eventos — Aplicativo Presente</p>
-  <div style="height:12px"></div>
-  <div style="width:60px;height:6px;background:rgba(255,255,255,0.18);border-radius:4px;overflow:hidden">
-    <div id="splashBar" style="height:6px;background:rgba(255,255,255,0.95);width:0%;transition:width 1.2s"></div>
-  </div>
-</div>
-
-<!-- Loading overlay (usado ao salvar/backup) -->
-<div id="loadingOverlay"><div class="spinner"></div></div>
-
-<!-- Toast -->
-<div id="toast" class="toast"></div>
-
-<!-- Header -->
 <header>
-  <img class="logo" src="logo.png" alt="Logo" />
-  <h2>FERNANDA ARTE</h2>
-  <div style="flex:1"></div>
-  <div class="controls">
-    <div class="switch" title="Modo claro / escuro">
-      <label style="font-size:13px;color:white;margin-right:6px">Tema</label>
-      <button id="themeBtn" class="btn alt" style="padding:6px 8px">Toggle</button>
-    </div>
-  </div>
+  <span>FERNANDA ARTE</span>
+  <span>☰</span>
 </header>
 
-<!-- Menu -->
-<div class="topmenu" id="menuBar" role="navigation" aria-label="menu">
-  <button class="active" onclick="show('home', this)">INÍCIO</button>
-  <button onclick="show('galeria', this)">GALERIA</button>
-  <button onclick="show('servicos', this)">SERVIÇOS</button>
-  <button onclick="show('orcamento', this)">ORÇAMENTO</button>
-  <button onclick="show('pedidos', this)">PEDIDOS</button>
-  <button onclick="show('contato', this)">CONTATO</button>
-  <button onclick="show('local', this)">LOCALIZAÇÃO</button>
+<div class="topmenu">
+  <button class="active" onclick="trocar('inicio',this)">INÍCIO</button>
+  <button onclick="trocar('galeria',this)">GALERIA</button>
+  <button onclick="trocar('servicos',this)">SERVIÇOS</button>
+  <button onclick="trocar('orcamento',this)">ORÇAMENTO</button>
+  <button onclick="trocar('pedidos',this)">PEDIDOS</button>
 </div>
 
-<!-- Main container -->
-<div class="container" id="app">
-
-  <!-- HOME -->
-  <section id="home" class="card">
-    <h3 class="title">Bem-vindo(a) à Fernanda Arte</h3>
-    <p style="margin:6px 0;color:var(--muted)">Decorações sob medida para momentos inesquecíveis.</p>
-
-    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-      <button class="btn" onclick="show('galeria')">VER TRABALHOS</button>
-      <button class="btn alt" onclick="show('orcamento')">SOLICITAR ORÇAMENTO</button>
-      <button class="btn" onclick="abrirWhats()">CHAMAR NO WHATSAPP</button>
-    </div>
-  </section>
-
-  <!-- GALERIA -->
-  <section id="galeria" class="card" style="display:none">
-    <h3 class="title">Galeria de Trabalhos</h3>
-    <div class="carrossel" id="carousel">
-      <img src="imagens/foto1.jpg" alt="foto1" onclick="openLightbox(this.src)">
-      <img src="imagens/foto2.jpg" alt="foto2" onclick="openLightbox(this.src)">
-      <img src="imagens/foto3.jpg" alt="foto3" onclick="openLightbox(this.src)">
-      <img src="imagens/foto4.jpg" alt="foto4" onclick="openLightbox(this.src)">
-    </div>
-
-    <div style="height:10px"></div>
-    <h4 style="margin:0">Miniaturas</h4>
-    <div class="grid">
-      <img src="imagens/foto1.jpg" alt="">
-      <img src="imagens/foto2.jpg" alt="">
-      <img src="imagens/foto3.jpg" alt="">
-      <img src="imagens/foto4.jpg" alt="">
-    </div>
-  </section>
-
-  <!-- SERVIÇOS -->
-  <section id="servicos" class="card" style="display:none">
-    <h3 class="title">Serviços</h3>
-    <ul style="text-align:left;color:var(--muted);padding-left:16px">
-      <li>Decoração completa para festas</li>
-      <li>Mesas temáticas e painéis</li>
-      <li>Aluguel e montagem de balões</li>
-      <li>Consultoria de temas e paleta de cores</li>
-    </ul>
-  </section>
-
-  <!-- ORÇAMENTO -->
-  <section id="orcamento" class="card" style="display:none">
-    <h3 class="title">Solicitar Orçamento</h3>
-    <label>Nome</label><input id="o_name" placeholder="Seu nome">
-    <label>Tipo de evento</label><input id="o_type" placeholder="Ex: Aniversário">
-    <label>Data do evento</label><input id="o_date" type="date">
-    <label>Detalhes</label><textarea id="o_msg" placeholder="Descreva o evento"></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn" onclick="sendEstimate()">ENVIAR</button>
-      <button class="btn alt" onclick="saveDraft()">SALVAR RASCUNHO</button>
-    </div>
-  </section>
-
-  <!-- PEDIDOS (backup/localStorage) -->
-  <section id="pedidos" class="card" style="display:none">
-    <h3 class="title">Painel de Pedidos (Simulado)</h3>
-    <div id="pedidoList"></div>
-
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn" onclick="simulateOrder()">SIMULAR NOVO PEDIDO</button>
-      <button class="btn alt" onclick="backupPedidos()">BACKUP (SALVAR)</button>
-      <button class="btn alt" onclick="restorePedidos()">RESTORE (CARREGAR)</button>
-      <button class="btn alt" onclick="clearPedidos()">LIMPAR</button>
-    </div>
-  </section>
-
-  <!-- CONTATO -->
-  <section id="contato" class="card" style="display:none">
-    <h3 class="title">Contato</h3>
-    <p style="color:var(--muted);margin-top:6px">Redes sociais e contato rápido</p>
-
-    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-      <button class="btn" onclick="openURL(instagramURL)">INSTAGRAM</button>
-      <button class="btn" onclick="openURL(facebookURL)">FACEBOOK</button>
-      <button class="btn alt" onclick="show('local')">VER LOCALIZAÇÃO</button>
-    </div>
-  </section>
-
-  <!-- LOCALIZAÇÃO (mapa OSM embed em Recife por padrão) -->
-  <section id="local" class="card" style="display:none">
-    <h3 class="title">Localização</h3>
-    <p style="color:var(--muted);margin-bottom:12px">Nosso atendimento (exemplo): Recife - PE</p>
-    <!-- OpenStreetMap iframe (sem API key) -->
-    <iframe class="mapframe" src="https://www.openstreetmap.org/export/embed.html?bbox=-34.9370%2C-8.0840%2C-34.8480%2C-8.0110&amp;layer=mapnik" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    <p style="font-size:12px;color:var(--muted);margin-top:8px">Toque e segure para abrir mapa completo</p>
-  </section>
-
-  <div class="footer">
-    CRIADO POR VICTOR • FERNANDA ARTE — APP SIMULADO
+<!-- INÍCIO -->
+<div id="inicio" class="tela ativa">
+  <div class="box">
+    <h2>BEM-VINDO(A) À FERNANDA ARTE</h2>
+    <p>Decorações sob medida para momentos inesquecíveis 💖</p>
+    <button class="botao" onclick="trocar('galeria',document.querySelectorAll('.topmenu button')[1])">VER TRABALHOS</button>
+    <button class="botao branco" onclick="trocar('orcamento',document.querySelectorAll('.topmenu button')[3])">SOLICITAR ORÇAMENTO</button>
   </div>
 
+  <footer>
+    CRIADO POR VICTOR • FERNANDA ARTE — APP SIMULADO
+  </footer>
 </div>
 
-<!-- WhatsApp fixo -->
-<div class="whatsapp-fab" title="WhatsApp" onclick="abrirWhats()">💬</div>
-
-<!-- Lightbox modal (simples) -->
-<div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);align-items:center;justify-content:center;z-index:9999">
-  <img id="lightImg" src="" style="max-width:95%;max-height:90%;border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.6)">
+<!-- GALERIA -->
+<div id="galeria" class="tela">
+  <div class="box">
+    <h3>GALERIA DE TRABALHOS</h3>
+    <div class="galeria">
+      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+1">
+      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+2">
+      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+3">
+      <img src="https://via.placeholder.com/300x300.png?text=DECORAÇÃO+4">
+    </div>
+  </div>
 </div>
 
-<!-- Audio control -->
-<audio id="bgAudio" loop>
-  <source src="musica.mp3" type="audio/mpeg">
-  Seu navegador não suporta áudio.
-</audio>
+<!-- SERVIÇOS -->
+<div id="servicos" class="tela">
+  <div class="box">
+    <h3>SERVIÇOS</h3>
+    <p>🎈 Decoração de Aniversários</p>
+    <p>🎉 Eventos Personalizados</p>
+    <p>🎂 Temas Infantis</p>
+    <p>💍 Datas Especiais</p>
+  </div>
+</div>
+
+<!-- ORÇAMENTO -->
+<div id="orcamento" class="tela">
+  <div class="box">
+    <h3>SOLICITAR ORÇAMENTO</h3>
+    <input type="text" placeholder="Seu nome">
+    <input type="text" placeholder="Tipo de evento">
+    <button class="botao" onclick="alert('Orçamento enviado!')">ENVIAR</button>
+  </div>
+</div>
+
+<!-- PEDIDOS -->
+<div id="pedidos" class="tela">
+  <div class="box">
+    <h3>MEUS PEDIDOS</h3>
+    <p>Você ainda não possui pedidos registrados.</p>
+  </div>
+</div>
+
+<!-- BOTÃO WHATSAPP -->
+<button class="whatsapp" onclick="window.location.href='https://wa.me/5599999999999'">💬</button>
 
 <script>
-/* ====== CONFIGURAR AQUI ====== */
-const instagramURL = "https://instagram.com/seu_instagram";
-const facebookURL = "https://facebook.com/sua_pagina";
-const WHATSAPP_NUMBER = "5599999999999"; // coloque sem sinais
-/* ============================ */
+function trocar(id,botao){
+  document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
 
-let pedidos = JSON.parse(localStorage.getItem('fernanda_pedidos') || '[]');
-
-function show(section, btn) {
-  document.querySelectorAll('.container > section, .container > div.card, .container > section.card, .card').forEach(s => {});
-  // esconder todas as seções dentro do container
-  Array.from(document.querySelectorAll('#app > section')).forEach(sec => sec.style.display = 'none');
-  // mostrar a escolhida
-  const el = document.getElementById(section);
-  if(el) el.style.display = 'block';
-
-  // atualizar menu ativo
-  Array.from(document.querySelectorAll('.topmenu button')).forEach(b => b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-
-  // small analytics: if pedido section show list
-  if(section === 'pedidos') renderPedidos();
+  document.querySelectorAll('.topmenu button').forEach(b=>b.classList.remove('active'));
+  botao.classList.add('active');
 }
-
-/* splash logic */
-window.addEventListener('load', () => {
-  // preencher barra
-  setTimeout(()=>document.getElementById('splashBar').style.width = '100%',50);
-  // esconder splash após 1.3s
-  setTimeout(()=>{ document.getElementById('splash').classList.add('hidden'); }, 1400);
-  // iniciar som se houver e se autoplay permitido
-  try{ document.getElementById('bgAudio').play().catch(()=>{}); }catch(e){}
-});
-
-/* Theme toggle */
-document.getElementById('themeBtn').addEventListener('click', ()=>{
-  document.body.classList.toggle('dark');
-  showToast('Tema alternado');
-});
-
-/* WhatsApp open */
-function abrirWhats(){
-  const url = "https://wa.me/" + WHATSAPP_NUMBER;
-  window.location.href = url;
-}
-
-/* Open external URL */
-function openURL(url){ window.open(url, '_blank'); }
-
-/* Lightbox */
-function openLightbox(src){
-  const lb = document.getElementById('lightbox');
-  const img = document.getElementById('lightImg');
-  img.src = src;
-  lb.style.display = 'flex';
-  lb.onclick = ()=>{ lb.style.display='none'; img.src=''; }
-}
-
-/* Estimates */
-function sendEstimate(){
-  const name = document.getElementById('o_name').value || '—';
-  const type = document.getElementById('o_type').value || '—';
-  const date = document.getElementById('o_date').value || '—';
-  const msg = document.getElementById('o_msg').value || '—';
-  const item = {id:Date.now(),name,type,date,msg};
-  pedidos.push(item);
-  localStorage.setItem('fernanda_pedidos', JSON.stringify(pedidos));
-  showToast('Pedido enviado! (Simulado)');
-  document.getElementById('o_name').value='';document.getElementById('o_type').value='';document.getElementById('o_date').value='';document.getElementById('o_msg').value='';
-}
-
-/* Save draft (local) */
-function saveDraft(){
-  const draft = {
-    time: new Date().toISOString(),
-    name: document.getElementById('o_name').value,
-    type: document.getElementById('o_type').value,
-    date: document.getElementById('o_date').value,
-    msg: document.getElementById('o_msg').value
-  };
-  localStorage.setItem('fernanda_draft', JSON.stringify(draft));
-  showToast('Rascunho salvo localmente');
-}
-
-/* Simulate order + render */
-function simulateOrder(){
-  const sample = {id:Date.now(),client:'Cliente ' + (pedidos.length+1),type:'Aniversário',date:'2025-12-31'};
-  pedidos.push(sample);
-  localStorage.setItem('fernanda_pedidos', JSON.stringify(pedidos));
-  showToast('Pedido simulado criado');
-  renderPedidos();
-}
-
-function renderPedidos(){
-  const list = document.getElementById('pedidoList');
-  list.innerHTML = '';
-  if(!pedidos.length){
-    list.innerHTML = '<div style="color:var(--muted)">Nenhum pedido por enquanto</div>';
-    return;
-  }
-  pedidos.slice().reverse().forEach(p=>{
-    const d = document.createElement('div');
-    d.className='pedido';
-    d.innerHTML = `<strong>${p.client||p.name||'Pedido'}</strong> • ${p.type||p.tipo||''} • ${p.date||p.data||''} <div style="margin-top:6px;color:var(--muted);font-size:13px">ID:${p.id}</div>`;
-    list.appendChild(d);
-  });
-}
-
-/* Backup / Restore (download/upload simulated) */
-function backupPedidos(){
-  const data = JSON.stringify(pedidos);
-  // create temporary blob and download
-  const blob = new Blob([data], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'backup_pedidos_fernanda.json';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showLoading(true);
-  setTimeout(()=>{ showLoading(false); showToast('Backup gerado (download)'); }, 1000);
-}
-
-function restorePedidos(){
-  // Simulação: pedir ao usuário colar JSON
-  const json = prompt('Cole o conteúdo do backup (JSON) aqui para restaurar:');
-  if(!json) return showToast('Restauração cancelada');
-  try{
-    const arr = JSON.parse(json);
-    if(Array.isArray(arr)){
-      pedidos = arr;
-      localStorage.setItem('fernanda_pedidos', JSON.stringify(pedidos));
-      renderPedidos();
-      showToast('Restauração concluída');
-    } else showToast('Formato inválido');
-  }catch(e){ showToast('JSON inválido'); }
-}
-
-function clearPedidos(){
-  if(!confirm('Limpar todos os pedidos?')) return;
-  pedidos = [];
-  localStorage.removeItem('fernanda_pedidos');
-  renderPedidos();
-  showToast('Pedidos limpos');
-}
-
-/* Toast helper */
-function showToast(msg, time=2300){
-  const t = document.getElementById('toast');
-  t.innerText = msg;
-  t.style.display = 'block';
-  t.style.opacity = '1';
-  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.style.display='none',300) }, time);
-}
-
-/* Loading overlay */
-function showLoading(show){
-  document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-}
-
-/* Small simulated notification */
-setInterval(()=>{
-  // a cada 45s, avisar (simulado) — só uma vez se o usuário estiver na app
-  if(Math.random() < 0.08){
-    showToast('Novo pedido recebido (simulação)');
-  }
-}, 45000);
-
-/* Audio control: tocar apenas se permitido */
-document.getElementById('bgAudio').addEventListener('canplay', ()=>{/* ready */});
-document.getElementById('bgAudio').volume = 0.35;
-
-/* Expose quick helpers to window (debug) */
-window.simulateOrder = simulateOrder;
-window.backupPedidos = backupPedidos;
-window.restorePedidos = restorePedidos;
-window.clearPedidos = clearPedidos;
-
-/* inicial render */
-renderPedidos();
-
-/* keyboard shortcut to toggle theme (for test) */
-document.addEventListener('keydown', (e)=>{ if(e.key === 't') document.body.classList.toggle('dark'); });
-
-/* OPEN/CLOSE splash bar if user clicks */
-document.getElementById('splash').addEventListener('click', ()=>{ document.getElementById('splash').classList.add('hidden'); });
-
-/* Helper: show initial home */
-show('home');
 </script>
 
 </body>
