@@ -1,119 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Helena Aninho - Decoração de Festas</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #fff0f5;
-        }
-        header {
-            background: #ff4d6d;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-        }
-        .banner {
-            background: linear-gradient(45deg, #ffb703, #ff4d6d);
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        .btn {
-            display: inline-block;
-            margin: 10px;
-            padding: 12px 20px;
-            background: white;
-            color: #ff4d6d;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        .container {
-            padding: 20px;
-        }
-        h2 {
-            text-align: center;
-            color: #ff4d6d;
-        }
-        .galeria {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-        }
-        .galeria img {
-            width: 100%;
-            border-radius: 10px;
-        }
-        .servicos {
-            background: #ffe5ec;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        footer {
-            background: #ff4d6d;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            margin-top: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>FERNANDA ARTE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#ffe6ee;
+  color:#333;
+  text-align:center;
+  animation:fade .6s ease-in;
+}
+
+/* CABEÇALHO */
+header{
+  background:linear-gradient(90deg,#ff4d79,#ff85a2);
+  padding:16px;
+  color:white;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* MENU */
+.topmenu{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  overflow-x:auto;
+  background:linear-gradient(90deg,#ff4d79,#ff85a2);
+}
+
+.topmenu button{
+  flex:0 0 auto;
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.25);
+  color:#fff;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  text-shadow:1px 1px 2px rgba(0,0,0,.35);
+}
+
+.topmenu button.active{
+  background:#fff;
+  color:#ff4d79;
+  text-shadow:none;
+}
+
+/* TELAS */
+.tela{display:none;padding:20px}
+.tela.ativa{display:block}
+
+.box{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  margin:20px auto;
+  max-width:380px;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+}
+
+.botao{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:none;
+  border-radius:12px;
+  background:#ff4d79;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+}
+
+/* GALERIA */
+.galeria{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.galeria img{
+  width:100%;
+  border-radius:12px;
+  animation:zoom .4s ease;
+}
+
+/* REDES */
+.redes{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.redes a{flex:1;text-decoration:none}
+
+.redes button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  color:white;
+}
+
+.fb{background:#1877f2}
+.ig{background:#e1306c}
+.zap{background:#25d366}
+
+/* WHATSAPP FLUTUANTE */
+.whatsapp{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  background:#25d366;
+  color:white;
+  font-size:26px;
+  padding:14px 18px;
+  border-radius:50%;
+  border:none;
+}
+
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes zoom{from{transform:scale(.9)}to{transform:scale(1)}}
+</style>
 </head>
 
 <body>
 
-<header>
-    <h1>Helena Aninho</h1>
-    <p>Decoração de Festas Infantis</p>
-</header>
+<header>FERNANDA ARTE</header>
 
-<section class="banner">
-    <h2>Festas que encantam!</h2>
-    <p>Temas personalizados para aniversário infantil</p>
-
-    <a class="btn" href="https://wa.me/5599999999999">WhatsApp</a>
-    <a class="btn" href="https://instagram.com/">Instagram</a>
-    <a class="btn" href="https://facebook.com/">Facebook</a>
-</section>
-
-<div class="container">
-
-    <h2>Temas Disponíveis</h2>
-    <div class="servicos">
-        ✅ Pequena Sereia <br>
-        ✅ Pool Party <br>
-        ✅ Cinderela <br>
-        ✅ Minnie <br>
-        ✅ Mickey <br>
-        ✅ Tema Personalizado
-    </div>
-
-    <h2>Galeria de Fotos</h2>
-    <div class="galeria">
-        <img src="foto1.jpg">
-        <img src="foto2.jpg">
-        <img src="foto3.jpg">
-        <img src="foto4.jpg">
-        <img src="foto5.jpg">
-    </div>
-
-    <h2>Contato</h2>
-    <p style="text-align:center;">
-        📞 WhatsApp: (99) 99999-9999 <br>
-        📍 Atendemos sua cidade e região
-    </p>
-
+<div class="topmenu">
+  <button class="active" onclick="trocar('inicio',this)">INÍCIO</button>
+  <button onclick="trocar('galeria',this)">GALERIA</button>
+  <button onclick="trocar('servicos',this)">SERVIÇOS</button>
+  <button onclick="trocar('orcamento',this)">ORÇAMENTO</button>
 </div>
 
-<footer>
-    © 2025 - Helena Aninho | Todos os direitos reservados
-</footer>
+<!-- INÍCIO -->
+<div id="inicio" class="tela ativa">
+  <div class="box">
+    <h2>BEM-VINDO(A) À FERNANDA ARTE</h2>
+    <p>Decorações sob medida para momentos inesquecíveis 💖</p>
+
+    <div class="redes">
+      <a href="https://www.facebook.com/share/1CA5gBZU9P/" target="_blank">
+        <button class="fb">FACEBOOK</button>
+      </a>
+
+      <a href="https://www.instagram.com/fernandaartes?igsh=eG96Z3FjcHRra2k4" target="_blank">
+        <button class="ig">INSTAGRAM</button>
+      </a>
+    </div>
+
+    <a href="https://wa.me/558191536381" target="_blank">
+      <button class="botao zap">CHAMAR NO WHATSAPP</button>
+    </a>
+  </div>
+</div>
+
+<!-- GALERIA -->
+<div id="galeria" class="tela">
+  <div class="box">
+    <h3>GALERIA DE TRABALHOS</h3>
+    <div class="galeria">
+      <img src="fotos/foto1.jpg">
+      <img src="fotos/foto2.jpg">
+      <img src="fotos/foto3.jpg">
+      <img src="fotos/foto4.jpg">
+      <img src="fotos/foto5.jpg">
+      <img src="fotos/foto6.jpg">
+      <img src="fotos/foto7.jpg">
+      <img src="fotos/foto8.jpg">
+      <img src="fotos/foto9.jpg">
+      <img src="fotos/foto10.jpg">
+    </div>
+  </div>
+</div>
+
+<!-- SERVIÇOS -->
+<div id="servicos" class="tela">
+  <div class="box">
+    <h3>SERVIÇOS</h3>
+    <p>🎈 Decoração de Aniversários</p>
+    <p>🎉 Eventos Personalizados</p>
+    <p>🎂 Temas Infantis</p>
+    <p>💍 Datas Especiais</p>
+  </div>
+</div>
+
+<!-- ORÇAMENTO -->
+<div id="orcamento" class="tela">
+  <div class="box">
+    <h3>SOLICITAR ORÇAMENTO</h3>
+    <input type="text" placeholder="Seu nome">
+    <input type="text" placeholder="Tipo de evento">
+    <button class="botao" onclick="alert('Orçamento enviado!')">ENVIAR</button>
+  </div>
+</div>
+
+<button class="whatsapp" onclick="window.location.href='https://wa.me/558191536381'">💬</button>
+
+<script>
+function trocar(id,botao){
+  document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+
+  document.querySelectorAll('.topmenu button').forEach(b=>b.classList.remove('active'));
+  botao.classList.add('active');
+}
+</script>
 
 </body>
 </html>
