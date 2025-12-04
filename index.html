@@ -5,96 +5,32 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>FERNANDA ARTE - APP</title>
 
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#222;height:100%}
-
-/* SPLASH */
-#splash{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#ff4d79,#ff85a2);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  z-index:9999;
-  animation:fadeOut 1s ease forwards;
-  animation-delay:3s;
-}
-#splash h1{
-  font-size:30px;
-  letter-spacing:2px;
-  margin:10px 0;
-  animation:pulse 1.5s infinite;
-}
-#splash p{font-size:14px;opacity:.9}
-#loader{
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  border:6px solid rgba(255,255,255,.3);
-  border-top:6px solid white;
-  animation:spin 1s linear infinite;
-  margin-top:20px;
-}
-
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-@keyframes fadeOut{to{opacity:0;visibility:hidden}}
-
-/* APP */
-header{background:#ff4d79;color:white;padding:14px;text-align:center;font-weight:bold;font-size:18px}
+header{background:#ff4d79;color:#fff;padding:14px;text-align:center;font-weight:bold;font-size:18px}
 .menu{display:flex;overflow-x:auto;background:#ff85a2}
-.menu button{flex:1;padding:12px;border:none;background:none;color:white;font-weight:bold}
-.menu .active{background:white;color:#ff4d79}
+.menu button{flex:1;padding:12px;border:none;background:none;color:#fff;font-weight:bold}
+.menu .active{background:#fff;color:#ff4d79}
 .container{padding:14px}
 .card{background:#fff;padding:14px;border-radius:12px;margin-bottom:14px;box-shadow:0 0 10px rgba(0,0,0,.1)}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .grid img{width:100%;border-radius:10px}
-.btn{padding:12px;border:none;border-radius:10px;background:#ff4d79;color:white;font-weight:bold;margin-top:8px;width:100%}
-.whats{position:fixed;right:15px;bottom:15px;background:#25d366;color:white;padding:16px;border-radius:50%;font-size:20px}
-.star{color:gold}
-video{width:100%;border-radius:10px}
+.btn{padding:12px;border:none;border-radius:10px;background:#ff4d79;color:#fff;font-weight:bold;margin-top:8px;width:100%}
+.whats{position:fixed;right:15px;bottom:15px;background:#25d366;color:#fff;padding:16px;border-radius:50%;font-size:20px}
 input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
-small{color:#555}
-
-/* TOAST */
-#toast{
-  position:fixed;
-  bottom:90px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#333;
-  color:#fff;
-  padding:10px 18px;
-  border-radius:20px;
-  opacity:0;
-  transition:.4s;
-}
+.rm{background:#000;color:#fff;border:none;border-radius:8px;padding:5px 10px;margin-left:6px}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s}
 #toast.show{opacity:1}
-
-/* BOTÃO REMOVER */
-.rm{
-  background:#ff4d79;
-  border:none;
-  color:#fff;
-  border-radius:8px;
-  padding:4px 8px;
-  margin-left:10px;
-  font-size:12px;
-}
 </style>
 </head>
 
 <body>
-
-<div id="splash">
-  <h1>FERNANDA ARTE</h1>
-  <p>Decoração de Sonhos ✨</p>
-  <div id="loader"></div>
-</div>
 
 <div id="toast"></div>
 
@@ -103,22 +39,20 @@ small{color:#555}
 <div class="menu">
 <button class="active" onclick="show('home',this)">INÍCIO</button>
 <button onclick="show('galeria',this)">GALERIA</button>
-<button onclick="show('videos',this)">VÍDEOS</button>
 <button onclick="show('agenda',this)">AGENDA</button>
-<button onclick="show('avaliacoes',this)">AVALIAÇÕES</button>
 <button onclick="show('favoritos',this)">FAVORITOS</button>
 <button onclick="show('orcamento',this)">ORÇAMENTO</button>
-<button onclick="show('local',this)">LOCAL</button>
 <button onclick="show('historico',this)">HISTÓRICO</button>
 <button onclick="show('contato',this)">CONTATO</button>
+<button onclick="show('loginAdm',this)">ADM</button>
 </div>
 
 <div class="container">
 
 <section id="home" class="card">
-  <h3>BEM-VINDO À FERNANDA ARTE</h3>
-  <p>Decoração de festas e eventos.</p>
-  <button class="btn" onclick="compartilhar()">COMPARTILHAR APP</button>
+<h3>BEM-VINDO</h3>
+<p>Decoração de festas e eventos.</p>
+<button class="btn" onclick="compartilhar()">COMPARTILHAR APP</button>
 </section>
 
 <section id="galeria" class="card" style="display:none">
@@ -129,12 +63,6 @@ small{color:#555}
 <img src="imagens/foto3.jpg" onclick="favoritar(this.src)">
 <img src="imagens/foto4.jpg" onclick="favoritar(this.src)">
 </div>
-<small>Toque para favoritar</small>
-</section>
-
-<section id="videos" class="card" style="display:none">
-<h3>VÍDEOS</h3>
-<video controls src="videos/video1.mp4"></video>
 </section>
 
 <section id="agenda" class="card" style="display:none">
@@ -142,12 +70,6 @@ small{color:#555}
 <input type="date" id="dataAgenda">
 <button class="btn" onclick="salvarAgenda()">MARCAR DATA</button>
 <div id="listaAgenda"></div>
-</section>
-
-<section id="avaliacoes" class="card" style="display:none">
-<h3>AVALIAÇÕES</h3>
-<p><span class="star">★★★★★</span> Cliente satisfeito</p>
-<p><span class="star">★★★★★</span> Excelente trabalho</p>
 </section>
 
 <section id="favoritos" class="card" style="display:none">
@@ -162,11 +84,6 @@ small{color:#555}
 <button class="btn" onclick="enviar()">ENVIAR</button>
 </section>
 
-<section id="local" class="card" style="display:none">
-<iframe width="100%" height="200" style="border-radius:12px"
-src="https://www.openstreetmap.org/export/embed.html?bbox=-34.94%2C-8.08%2C-34.85%2C-8.01"></iframe>
-</section>
-
 <section id="historico" class="card" style="display:none">
 <h3>HISTÓRICO</h3>
 <div id="hist"></div>
@@ -177,22 +94,54 @@ src="https://www.openstreetmap.org/export/embed.html?bbox=-34.94%2C-8.08%2C-34.8
 <button class="btn" onclick="window.open('https://www.facebook.com/share/1CA5gBZU9P/')">FACEBOOK</button>
 </section>
 
+<!-- LOGIN ADM REAL (FIREBASE) -->
+<section id="loginAdm" class="card" style="display:none">
+<h3>LOGIN ADMIN</h3>
+<input type="email" id="emailAdm" placeholder="E-mail do administrador">
+<input type="password" id="senhaAdm" placeholder="Senha">
+<button class="btn" onclick="loginAdm()">ENTRAR</button>
+</section>
+
+<!-- PAINEL ADM -->
+<section id="painelAdm" class="card" style="display:none">
+<h3>PAINEL ADMINISTRATIVO</h3>
+
+<h4>Agenda</h4>
+<div id="admAgenda"></div>
+
+<h4>Favoritos</h4>
+<div id="admFav"></div>
+
+<h4>Histórico</h4>
+<div id="admHist"></div>
+
+<button class="btn" onclick="logout()">SAIR DO ADM</button>
+</section>
+
 </div>
 
 <div class="whats" onclick="abrirWhats()">💬</div>
 
 <script>
+/* ===========================
+   🔥 COLE AQUI SEU firebaseConfig
+=========================== */
+const firebaseConfig = {
+  apiKey: "COLE_AQUI",
+  authDomain: "COLE_AQUI",
+  projectId: "COLE_AQUI",
+  storageBucket: "COLE_AQUI",
+  messagingSenderId: "COLE_AQUI",
+  appId: "COLE_AQUI"
+};
+/* =========================== */
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 const WHATS="558191536381";
-
-let agenda = JSON.parse(localStorage.getItem("agenda")) || [];
-let fav    = JSON.parse(localStorage.getItem("fav")) || [];
-let hist   = JSON.parse(localStorage.getItem("hist")) || [];
-
-setTimeout(()=>{document.getElementById("splash").style.display="none"},3000);
-
-renderAgenda();
-renderFav();
-renderHist();
 
 function toast(msg){
 let t=document.getElementById("toast");
@@ -209,74 +158,125 @@ btn.classList.add('active');
 }
 
 function abrirWhats(){window.location.href="https://wa.me/"+WHATS;}
+function compartilhar(){navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});}
 
-function compartilhar(){
-if(navigator.share){
-navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});
-}else{
-toast("Compartilhamento não suportado.");
-}
+/* ===========================
+   🔐 LOGIN ADMIN (REAL)
+=========================== */
+function loginAdm(){
+let email = emailAdm.value;
+let senha = senhaAdm.value;
+
+auth.signInWithEmailAndPassword(email, senha)
+.then(()=>{
+toast("Bem-vindo ADM!");
+show('painelAdm',document.querySelectorAll('.menu button')[7]);
+carregarTudoAdm();
+}).catch(e=>{
+toast("Login inválido");
+});
 }
 
+function logout(){
+auth.signOut();
+show('home',document.querySelectorAll('.menu button')[0]);
+toast("Saiu do ADM");
+}
+
+/* ===========================
+   📅 AGENDA (NUVEM)
+=========================== */
 function salvarAgenda(){
-let d=document.getElementById("dataAgenda").value;
-if(!d){toast("Escolha uma data.");return;}
-agenda.push(d);
-localStorage.setItem("agenda",JSON.stringify(agenda));
-renderAgenda();
+let d=dataAgenda.value;
+if(!d){toast("Escolha a data");return;}
+
+db.collection("agenda").add({data:d})
+.then(()=>{
 toast("Data salva!");
+listarAgenda();
+});
 }
 
-function renderAgenda(){
-let html="";
-agenda.forEach((a,i)=>html+=`<p>${a} <button class='rm' onclick='removerAgenda(${i})'>X</button></p>`);
-document.getElementById("listaAgenda").innerHTML=html;
+function listarAgenda(){
+listaAgenda.innerHTML="";
+db.collection("agenda").get().then(snapshot=>{
+snapshot.forEach(doc=>{
+listaAgenda.innerHTML+=`<p>${doc.data().data}</p>`;
+});
+});
 }
 
-function removerAgenda(i){
-agenda.splice(i,1);
-localStorage.setItem("agenda",JSON.stringify(agenda));
-renderAgenda();
-toast("Removido.");
-}
-
+/* ===========================
+   ⭐ FAVORITOS (NUVEM)
+=========================== */
 function favoritar(src){
-if(!fav.includes(src)){
-fav.push(src);
-localStorage.setItem("fav",JSON.stringify(fav));
-renderFav();
-toast("Adicionado aos favoritos!");
-}
-}
-
-function renderFav(){
-let h="";
-fav.forEach((f,i)=>h+=`<img width='80' src='${f}' onclick='removerFav(${i})'>`);
-document.getElementById("favList").innerHTML=h;
+db.collection("favoritos").add({img:src})
+.then(()=>{
+toast("Favoritado!");
+listarFav();
+});
 }
 
-function removerFav(i){
-fav.splice(i,1);
-localStorage.setItem("fav",JSON.stringify(fav));
-renderFav();
-toast("Favorito removido.");
+function listarFav(){
+favList.innerHTML="";
+db.collection("favoritos").get().then(snapshot=>{
+snapshot.forEach(doc=>{
+favList.innerHTML+=`<img width="80" src="${doc.data().img}">`;
+});
+});
 }
 
+/* ===========================
+   📩 ORÇAMENTO + HISTÓRICO
+=========================== */
 function enviar(){
-let n=document.getElementById("nome").value;
-let m=document.getElementById("msg").value;
-if(!n || !m){toast("Preencha tudo!");return;}
-hist.push(n+" - "+m);
-localStorage.setItem("hist",JSON.stringify(hist));
-renderHist();
-document.getElementById("nome").value="";
-document.getElementById("msg").value="";
-toast("Mensagem enviada!");
+if(!nome.value || !msg.value){toast("Preencha tudo");return;}
+
+db.collection("historico").add({
+nome:nome.value,
+msg:msg.value,
+data:new Date()
+}).then(()=>{
+toast("Enviado!");
+nome.value="";msg.value="";
+listarHist();
+});
 }
 
-function renderHist(){
-document.getElementById("hist").innerHTML=hist.join("<hr>");
+function listarHist(){
+hist.innerHTML="";
+db.collection("historico").get().then(snapshot=>{
+snapshot.forEach(doc=>{
+let d=doc.data();
+hist.innerHTML+=`<p>${d.nome} - ${d.msg}</p>`;
+});
+});
 }
+
+/* ===========================
+   👑 ADMIN - VISUALIZAÇÃO
+=========================== */
+function carregarTudoAdm(){
+admAgenda.innerHTML="";
+db.collection("agenda").get().then(s=>s.forEach(d=>{
+admAgenda.innerHTML+=`<p>${d.data().data}</p>`;
+}));
+
+admFav.innerHTML="";
+db.collection("favoritos").get().then(s=>s.forEach(d=>{
+admFav.innerHTML+=`<p>${d.data().img}</p>`;
+}));
+
+admHist.innerHTML="";
+db.collection("historico").get().then(s=>s.forEach(d=>{
+admHist.innerHTML+=`<p>${d.data().nome} - ${d.data().msg}</p>`;
+}));
+}
+
+/* CARREGAMENTO INICIAL */
+listarAgenda();
+listarFav();
+listarHist();
 </script>
 
 </body>
