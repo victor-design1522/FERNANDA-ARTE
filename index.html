@@ -10,47 +10,30 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: linear-gradient(180deg, #fff0f5, #ffe4ec);
-  animation: fadeIn 1s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 header {
   background: linear-gradient(90deg, #ff4d79, #ff85a2);
   color: white;
   padding: 22px;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: bold;
   text-align: center;
-  letter-spacing: 2px;
-  animation: descer 1s;
-}
-
-@keyframes descer {
-  from { transform: translateY(-40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
 }
 
 .menu {
   display: flex;
   background: #ff4d79;
+  overflow-x: auto;
 }
 
 .menu button {
   flex: 1;
-  padding: 15px;
+  padding: 12px;
   border: none;
   background: #ff4d79;
   color: white;
-  font-size: 14px;
-  transition: all 0.3s;
-}
-
-.menu button:hover {
-  background: #ff85a2;
+  font-size: 12px;
 }
 
 .menu .ativo {
@@ -62,12 +45,6 @@ header {
 .tela {
   display: none;
   padding: 15px;
-  animation: aparecer 0.5s;
-}
-
-@keyframes aparecer {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
 }
 
 .tela.ativa {
@@ -76,56 +53,73 @@ header {
 
 .card {
   background: white;
-  border-radius: 20px;
+  border-radius: 18px;
   padding: 20px;
-  margin: 16px auto;
+  margin: 15px auto;
   max-width: 420px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  transition: transform 0.3s;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-.card:hover {
-  transform: translateY(-5px);
+.carrossel {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
 }
 
-.card h2, .card h3 {
-  margin-top: 0;
-  color: #ff4d79;
-}
-
-.galeria img {
-  width: 100%;
+.carrossel img {
+  width: 240px;
+  height: 170px;
+  object-fit: cover;
   border-radius: 14px;
-  margin-top: 12px;
-  transition: transform 0.3s;
-}
-
-.galeria img:hover {
-  transform: scale(1.05);
 }
 
 .botao {
   width: 100%;
-  padding: 16px;
-  margin-top: 15px;
+  padding: 15px;
+  margin-top: 12px;
   border: none;
-  border-radius: 14px;
-  font-size: 16px;
+  border-radius: 12px;
   background: linear-gradient(90deg, #ff4d79, #ff85a2);
   color: white;
   font-weight: bold;
-  transition: transform 0.2s;
 }
 
-.botao:active {
-  transform: scale(0.95);
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
 }
 
-.rodape {
-  text-align: center;
-  font-size: 12px;
-  color: #777;
-  margin: 25px 0;
+.avaliacao {
+  background: #fff3f6;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.pedido {
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+.whatsapp-fixo {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  background: #25d366;
+  color: white;
+  font-size: 22px;
+  padding: 14px 18px;
+  border-radius: 50%;
+}
+
+audio {
+  width: 100%;
+  margin-top: 10px;
 }
 </style>
 </head>
@@ -134,58 +128,94 @@ header {
 
 <header>FERNANDA ARTE</header>
 
+<audio autoplay loop>
+  <source src="musica.mp3" type="audio/mpeg">
+</audio>
+
 <div class="menu">
-  <button class="ativo" onclick="trocar('inicio', this)">Início</button>
-  <button onclick="trocar('galeria', this)">Trabalhos</button>
-  <button onclick="trocar('sobre', this)">Sobre</button>
-  <button onclick="trocar('contato', this)">Contato</button>
+  <button class="ativo" onclick="trocar('login', this)">LOGIN</button>
+  <button onclick="trocar('inicio', this)">INÍCIO</button>
+  <button onclick="trocar('galeria', this)">GALERIA</button>
+  <button onclick="trocar('avaliacoes', this)">AVALIAÇÕES</button>
+  <button onclick="trocar('orcamento', this)">ORÇAMENTO</button>
+  <button onclick="trocar('pedidos', this)">PEDIDOS</button>
+  <button onclick="trocar('contato', this)">CONTATO</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="tela ativa">
+  <div class="card">
+    <h3>ÁREA DE LOGIN</h3>
+    <input type="text" placeholder="USUÁRIO">
+    <input type="password" placeholder="SENHA">
+    <button class="botao">ENTRAR</button>
+  </div>
 </div>
 
 <!-- INÍCIO -->
-<div id="inicio" class="tela ativa">
+<div id="inicio" class="tela">
   <div class="card">
-    <h2>Decoração de Festas</h2>
-    <p>Transformando sonhos em realidade com arte, amor e criatividade.</p>
-    <p>🎂 Aniversários • 🎈 Eventos • 💍 Casamentos</p>
+    <h2>DECORAÇÃO PROFISSIONAL DE FESTAS</h2>
+    <p>ANIVERSÁRIOS • CASAMENTOS • EVENTOS • CHÁS • FORMATURAS</p>
+    <p>PRESENTE CRIADO POR VICTOR PARA SUA IRMÃ 💖</p>
   </div>
 </div>
 
 <!-- GALERIA -->
 <div id="galeria" class="tela">
-  <div class="card galeria">
-    <h3>Trabalhos Realizados</h3>
-
-    <!-- TROQUE PELAS FOTOS REAIS -->
-    <img src="imagens/foto1.jpg">
-    <img src="imagens/foto2.jpg">
-    <img src="imagens/foto3.jpg">
-    <img src="imagens/foto4.jpg">
+  <div class="card">
+    <h3>GALERIA DE TRABALHOS</h3>
+    <div class="carrossel">
+      <img src="imagens/foto1.jpg">
+      <img src="imagens/foto2.jpg">
+      <img src="imagens/foto3.jpg">
+      <img src="imagens/foto4.jpg">
+    </div>
   </div>
 </div>
 
-<!-- SOBRE -->
-<div id="sobre" class="tela">
+<!-- AVALIAÇÕES -->
+<div id="avaliacoes" class="tela">
   <div class="card">
-    <h3>Sobre a Fernanda Arte</h3>
-    <p>Especialistas em decoração de festas, criando momentos únicos e inesquecíveis com cada detalhe feito à mão.</p>
+    <h3>AVALIAÇÕES DOS CLIENTES</h3>
+    <div class="avaliacao">⭐⭐⭐⭐⭐ PERFEITO!</div>
+    <div class="avaliacao">⭐⭐⭐⭐⭐ DECORAÇÃO LINDA!</div>
+    <div class="avaliacao">⭐⭐⭐⭐⭐ SUPER RECOMENDO!</div>
+  </div>
+</div>
+
+<!-- ORÇAMENTO -->
+<div id="orcamento" class="tela">
+  <div class="card">
+    <h3>SOLICITAR ORÇAMENTO</h3>
+    <input type="text" placeholder="SEU NOME">
+    <input type="text" placeholder="TIPO DE EVENTO">
+    <input type="date">
+    <textarea placeholder="DESCREVA O EVENTO"></textarea>
+    <button class="botao">ENVIAR PEDIDO</button>
+  </div>
+</div>
+
+<!-- PEDIDOS -->
+<div id="pedidos" class="tela">
+  <div class="card">
+    <h3>PAINEL DE PEDIDOS</h3>
+    <div class="pedido">MARIA - ANIVERSÁRIO - 12/10</div>
+    <div class="pedido">JOÃO - CASAMENTO - 20/10</div>
+    <div class="pedido">ANA - CHÁ REVELAÇÃO - 02/11</div>
   </div>
 </div>
 
 <!-- CONTATO -->
 <div id="contato" class="tela">
   <div class="card">
-    <h3>Contato</h3>
-    <p>Faça seu orçamento direto pelo WhatsApp.</p>
-
-    <button class="botao" onclick="abrirWhats()">
-      CHAMAR NO WHATSAPP
-    </button>
+    <h3>CONTATO</h3>
+    <p>ATENDIMENTO DIRETO PELO WHATSAPP</p>
+    <button class="botao" onclick="abrirWhats()">CHAMAR NO WHATSAPP</button>
   </div>
 </div>
 
-<div class="rodape">
-  CRIADO POR VICTOR IRMÃO DELA COM MUITO AMOR E CARINHO RESPEITA PAPAI 😁
-</div>
+<a class="whatsapp-fixo" onclick="abrirWhats()">💬</a>
 
 <script>
 function trocar(id, botao) {
@@ -202,4 +232,4 @@ function abrirWhats() {
 </script>
 
 </body>
-</html>
+      </html>
