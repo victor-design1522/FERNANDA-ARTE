@@ -7,7 +7,7 @@
 
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#222;height:100%}
+html,body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#222;height:100%}
 
 /* SPLASH */
 #splash{
@@ -23,7 +23,6 @@ html,body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#222;heigh
   animation:fadeOut 1s ease forwards;
   animation-delay:3s;
 }
-#splash.hidden{display:none}
 #splash h1{
   font-size:30px;
   letter-spacing:2px;
@@ -43,9 +42,7 @@ html,body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#222;heigh
 
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden}
-}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
 
 /* APP */
 header{background:#ff4d79;color:white;padding:14px;text-align:center;font-weight:bold;font-size:18px}
@@ -61,17 +58,45 @@ header{background:#ff4d79;color:white;padding:14px;text-align:center;font-weight
 .star{color:gold}
 video{width:100%;border-radius:10px}
 input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
+small{color:#555}
+
+/* TOAST */
+#toast{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333;
+  color:#fff;
+  padding:10px 18px;
+  border-radius:20px;
+  opacity:0;
+  transition:.4s;
+}
+#toast.show{opacity:1}
+
+/* BOTÃO REMOVER */
+.rm{
+  background:#ff4d79;
+  border:none;
+  color:#fff;
+  border-radius:8px;
+  padding:4px 8px;
+  margin-left:10px;
+  font-size:12px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH BONITO -->
 <div id="splash">
   <h1>FERNANDA ARTE</h1>
   <p>Decoração de Sonhos ✨</p>
   <div id="loader"></div>
 </div>
+
+<div id="toast"></div>
 
 <header>FERNANDA ARTE</header>
 
@@ -90,14 +115,10 @@ input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1
 
 <div class="container">
 
-<!-- INÍCIO AJUSTADO COMO VOCÊ PEDIU -->
 <section id="home" class="card">
   <h3>BEM-VINDO À FERNANDA ARTE</h3>
   <p>Decoração de festas e eventos.</p>
-
-  <div style="display:flex;justify-content:flex-end;margin-top:20px;">
-    <button class="btn" style="width:auto;" onclick="compartilhar()">COMPARTILHAR APP</button>
-  </div>
+  <button class="btn" onclick="compartilhar()">COMPARTILHAR APP</button>
 </section>
 
 <section id="galeria" class="card" style="display:none">
@@ -108,6 +129,7 @@ input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1
 <img src="imagens/foto3.jpg" onclick="favoritar(this.src)">
 <img src="imagens/foto4.jpg" onclick="favoritar(this.src)">
 </div>
+<small>Toque para favoritar</small>
 </section>
 
 <section id="videos" class="card" style="display:none">
@@ -141,7 +163,8 @@ input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1
 </section>
 
 <section id="local" class="card" style="display:none">
-<iframe width="100%" height="200" src="https://www.openstreetmap.org/export/embed.html?bbox=-34.94%2C-8.08%2C-34.85%2C-8.01"></iframe>
+<iframe width="100%" height="200" style="border-radius:12px"
+src="https://www.openstreetmap.org/export/embed.html?bbox=-34.94%2C-8.08%2C-34.85%2C-8.01"></iframe>
 </section>
 
 <section id="historico" class="card" style="display:none">
@@ -160,9 +183,23 @@ input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1
 
 <script>
 const WHATS="558191536381";
-let agenda=[], fav=[], hist=[];
+
+let agenda = JSON.parse(localStorage.getItem("agenda")) || [];
+let fav    = JSON.parse(localStorage.getItem("fav")) || [];
+let hist   = JSON.parse(localStorage.getItem("hist")) || [];
 
 setTimeout(()=>{document.getElementById("splash").style.display="none"},3000);
+
+renderAgenda();
+renderFav();
+renderHist();
+
+function toast(msg){
+let t=document.getElementById("toast");
+t.innerText=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),2000);
+}
 
 function show(id,btn){
 document.querySelectorAll('section').forEach(s=>s.style.display='none');
@@ -172,36 +209,73 @@ btn.classList.add('active');
 }
 
 function abrirWhats(){window.location.href="https://wa.me/"+WHATS;}
-function compartilhar(){navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});}
+
+function compartilhar(){
+if(navigator.share){
+navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});
+}else{
+toast("Compartilhamento não suportado.");
+}
+}
 
 function salvarAgenda(){
 let d=document.getElementById("dataAgenda").value;
+if(!d){toast("Escolha uma data.");return;}
 agenda.push(d);
+localStorage.setItem("agenda",JSON.stringify(agenda));
 renderAgenda();
+toast("Data salva!");
 }
 
 function renderAgenda(){
 let html="";
-agenda.forEach(a=>html+="<p>"+a+"</p>");
+agenda.forEach((a,i)=>html+=`<p>${a} <button class='rm' onclick='removerAgenda(${i})'>X</button></p>`);
 document.getElementById("listaAgenda").innerHTML=html;
 }
 
+function removerAgenda(i){
+agenda.splice(i,1);
+localStorage.setItem("agenda",JSON.stringify(agenda));
+renderAgenda();
+toast("Removido.");
+}
+
 function favoritar(src){
+if(!fav.includes(src)){
 fav.push(src);
+localStorage.setItem("fav",JSON.stringify(fav));
 renderFav();
+toast("Adicionado aos favoritos!");
+}
 }
 
 function renderFav(){
 let h="";
-fav.forEach(f=>h+="<img width='80' src='"+f+"'>");
+fav.forEach((f,i)=>h+=`<img width='80' src='${f}' onclick='removerFav(${i})'>`);
 document.getElementById("favList").innerHTML=h;
+}
+
+function removerFav(i){
+fav.splice(i,1);
+localStorage.setItem("fav",JSON.stringify(fav));
+renderFav();
+toast("Favorito removido.");
 }
 
 function enviar(){
 let n=document.getElementById("nome").value;
-hist.push(n);
-document.getElementById("hist").innerHTML=hist.join("<br>");
-alert("Enviado!");
+let m=document.getElementById("msg").value;
+if(!n || !m){toast("Preencha tudo!");return;}
+hist.push(n+" - "+m);
+localStorage.setItem("hist",JSON.stringify(hist));
+renderHist();
+document.getElementById("nome").value="";
+document.getElementById("msg").value="";
+toast("Mensagem enviada!");
+}
+
+function renderHist(){
+document.getElementById("hist").innerHTML=hist.join("<hr>");
 }
 </script>
 
