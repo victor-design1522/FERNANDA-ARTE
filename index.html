@@ -5,28 +5,159 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>FERNANDA ARTE - APP</title>
 
-<!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#222;height:100%}
-header{background:#ff4d79;color:#fff;padding:14px;text-align:center;font-weight:bold;font-size:18px}
-.menu{display:flex;overflow-x:auto;background:#ff85a2}
-.menu button{flex:1;padding:12px;border:none;background:none;color:#fff;font-weight:bold}
-.menu .active{background:#fff;color:#ff4d79}
+html,body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f5f5f5;
+color:#222;
+height:100%;
+}
+
+/* ANIMAÇÕES BASE */
+@keyframes fadeIn {
+from {opacity:0; transform:translateY(20px);}
+to {opacity:1; transform:translateY(0);}
+}
+@keyframes pulse {
+0%{transform:scale(1);}
+50%{transform:scale(1.1);}
+100%{transform:scale(1);}
+}
+@keyframes float {
+0%{transform:translateY(0);}
+50%{transform:translateY(-8px);}
+100%{transform:translateY(0);}
+}
+
+header{
+background:#ff4d79;
+color:#fff;
+padding:14px;
+text-align:center;
+font-weight:bold;
+font-size:18px;
+animation:fadeIn .6s;
+}
+
+.menu{
+display:flex;
+overflow-x:auto;
+background:#ff85a2;
+}
+.menu button{
+flex:1;
+padding:12px;
+border:none;
+background:none;
+color:#fff;
+font-weight:bold;
+transition:.3s;
+}
+.menu .active{
+background:#fff;
+color:#ff4d79;
+transform:scale(1.06);
+}
+
 .container{padding:14px}
-.card{background:#fff;padding:14px;border-radius:12px;margin-bottom:14px;box-shadow:0 0 10px rgba(0,0,0,.1)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.grid img{width:100%;border-radius:10px}
-.btn{padding:12px;border:none;border-radius:10px;background:#ff4d79;color:#fff;font-weight:bold;margin-top:8px;width:100%}
-.whats{position:fixed;right:15px;bottom:15px;background:#25d366;color:#fff;padding:16px;border-radius:50%;font-size:20px}
-input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
-.rm{background:#000;color:#fff;border:none;border-radius:8px;padding:5px 10px;margin-left:6px}
-#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s}
-#toast.show{opacity:1}
+
+.card{
+background:#fff;
+padding:14px;
+border-radius:12px;
+margin-bottom:14px;
+box-shadow:0 0 10px rgba(0,0,0,.1);
+animation:fadeIn .5s;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
+.grid img{
+width:100%;
+border-radius:10px;
+transition:.4s;
+}
+.grid img:hover{
+transform:scale(1.08) rotate(1deg);
+}
+
+.btn{
+padding:12px;
+border:none;
+border-radius:10px;
+background:#ff4d79;
+color:#fff;
+font-weight:bold;
+margin-top:8px;
+width:100%;
+transition:.3s;
+}
+.btn:active{
+transform:scale(.95);
+}
+.btn:hover{
+animation:pulse .6s;
+}
+
+.whats{
+position:fixed;
+right:15px;
+bottom:15px;
+background:#25d366;
+color:#fff;
+padding:16px;
+border-radius:50%;
+font-size:20px;
+animation:float 1.5s infinite;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin-top:6px;
+border-radius:8px;
+border:1px solid #ccc;
+transition:.3s;
+}
+input:focus,textarea:focus{
+border-color:#ff4d79;
+box-shadow:0 0 6px #ff4d79;
+}
+
+.rm{
+background:#000;
+color:#fff;
+border:none;
+border-radius:8px;
+padding:5px 10px;
+margin-left:6px;
+transition:.3s;
+}
+.rm:hover{
+background:red;
+}
+
+#toast{
+position:fixed;
+bottom:90px;
+left:50%;
+transform:translateX(-50%) scale(.8);
+background:#333;
+color:#fff;
+padding:10px 18px;
+border-radius:20px;
+opacity:0;
+transition:.3s;
+}
+#toast.show{
+opacity:1;
+transform:translateX(-50%) scale(1);
+}
 </style>
 </head>
 
@@ -94,15 +225,12 @@ input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1
 <button class="btn" onclick="window.open('https://www.facebook.com/share/1CA5gBZU9P/')">FACEBOOK</button>
 </section>
 
-<!-- LOGIN ADM REAL (FIREBASE) -->
 <section id="loginAdm" class="card" style="display:none">
 <h3>LOGIN ADMIN</h3>
-<input type="email" id="emailAdm" placeholder="E-mail do administrador">
-<input type="password" id="senhaAdm" placeholder="Senha">
+<input type="password" id="senhaAdm" placeholder="Senha do administrador">
 <button class="btn" onclick="loginAdm()">ENTRAR</button>
 </section>
 
-<!-- PAINEL ADM -->
 <section id="painelAdm" class="card" style="display:none">
 <h3>PAINEL ADMINISTRATIVO</h3>
 
@@ -123,25 +251,14 @@ input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1
 <div class="whats" onclick="abrirWhats()">💬</div>
 
 <script>
-/* ===========================
-   🔥 COLE AQUI SEU firebaseConfig
-=========================== */
-const firebaseConfig = {
-  apiKey: "COLE_AQUI",
-  authDomain: "COLE_AQUI",
-  projectId: "COLE_AQUI",
-  storageBucket: "COLE_AQUI",
-  messagingSenderId: "COLE_AQUI",
-  appId: "COLE_AQUI"
-};
-/* =========================== */
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
 const WHATS="558191536381";
+const SENHA_ADM="Fernanda01";
+
+let agenda=JSON.parse(localStorage.getItem("agenda"))||[];
+let fav=JSON.parse(localStorage.getItem("fav"))||[];
+let hist=JSON.parse(localStorage.getItem("hist"))||[];
+
+renderAgenda();renderFav();renderHist();renderAdm();
 
 function toast(msg){
 let t=document.getElementById("toast");
@@ -151,132 +268,81 @@ setTimeout(()=>t.classList.remove("show"),2000);
 }
 
 function show(id,btn){
-document.querySelectorAll('section').forEach(s=>s.style.display='none');
-document.getElementById(id).style.display='block';
+document.querySelectorAll('section').forEach(s=>{
+s.style.display='none';
+});
+let el=document.getElementById(id);
+el.style.display='block';
+el.style.animation='fadeIn .5s';
+
 document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
 btn.classList.add('active');
+if(id==="painelAdm")renderAdm();
 }
 
 function abrirWhats(){window.location.href="https://wa.me/"+WHATS;}
 function compartilhar(){navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});}
 
-/* ===========================
-   🔐 LOGIN ADMIN (REAL)
-=========================== */
-function loginAdm(){
-let email = emailAdm.value;
-let senha = senhaAdm.value;
-
-auth.signInWithEmailAndPassword(email, senha)
-.then(()=>{
-toast("Bem-vindo ADM!");
-show('painelAdm',document.querySelectorAll('.menu button')[7]);
-carregarTudoAdm();
-}).catch(e=>{
-toast("Login inválido");
-});
+function salvarAgenda(){
+let d=dataAgenda.value;
+if(!d){toast("Escolha uma data");return;}
+agenda.push(d);
+localStorage.setItem("agenda",JSON.stringify(agenda));
+renderAgenda();renderAdm();toast("Data salva!");
 }
 
+function renderAgenda(){
+listaAgenda.innerHTML=agenda.map(a=>"<p>"+a+"</p>").join("");
+}
+
+function favoritar(src){
+if(!fav.includes(src)){
+fav.push(src);
+localStorage.setItem("fav",JSON.stringify(fav));
+renderFav();renderAdm();toast("Favoritado!");
+}
+}
+
+function renderFav(){
+favList.innerHTML=fav.map(f=>"<img width='80' src='"+f+"'>").join("");
+}
+
+function enviar(){
+if(!nome.value||!msg.value){toast("Preencha tudo");return;}
+hist.push(nome.value+" - "+msg.value);
+localStorage.setItem("hist",JSON.stringify(hist));
+renderHist();renderAdm();
+nome.value="";msg.value="";toast("Enviado!");
+}
+
+function renderHist(){
+let html="";
+hist.forEach(h=>html+="<p>"+h+"</p>");
+document.getElementById("hist").innerHTML=html;
+}
+
+/* ADMIN */
+function loginAdm(){
+if(senhaAdm.value===SENHA_ADM){
+toast("Bem-vindo ADM");
+show('painelAdm',document.querySelectorAll('.menu button')[7]);
+}else toast("Senha incorreta");
+}
+
+function renderAdm(){
+admAgenda.innerHTML=agenda.map((a,i)=>`<p>${a} <button class='rm' onclick='remAgenda(${i})'>X</button></p>`).join("");
+admFav.innerHTML=fav.map((f,i)=>`<p>Imagem ${i+1} <button class='rm' onclick='remFav(${i})'>X</button></p>`).join("");
+admHist.innerHTML=hist.map((h,i)=>`<p>${h} <button class='rm' onclick='remHist(${i})'>X</button></p>`).join("");
+}
+
+function remAgenda(i){agenda.splice(i,1);localStorage.setItem("agenda",JSON.stringify(agenda));renderAgenda();renderAdm();}
+function remFav(i){fav.splice(i,1);localStorage.setItem("fav",JSON.stringify(fav));renderFav();renderAdm();}
+function remHist(i){hist.splice(i,1);localStorage.setItem("hist",JSON.stringify(hist));renderHist();renderAdm();}
+
 function logout(){
-auth.signOut();
 show('home',document.querySelectorAll('.menu button')[0]);
 toast("Saiu do ADM");
 }
-
-/* ===========================
-   📅 AGENDA (NUVEM)
-=========================== */
-function salvarAgenda(){
-let d=dataAgenda.value;
-if(!d){toast("Escolha a data");return;}
-
-db.collection("agenda").add({data:d})
-.then(()=>{
-toast("Data salva!");
-listarAgenda();
-});
-}
-
-function listarAgenda(){
-listaAgenda.innerHTML="";
-db.collection("agenda").get().then(snapshot=>{
-snapshot.forEach(doc=>{
-listaAgenda.innerHTML+=`<p>${doc.data().data}</p>`;
-});
-});
-}
-
-/* ===========================
-   ⭐ FAVORITOS (NUVEM)
-=========================== */
-function favoritar(src){
-db.collection("favoritos").add({img:src})
-.then(()=>{
-toast("Favoritado!");
-listarFav();
-});
-}
-
-function listarFav(){
-favList.innerHTML="";
-db.collection("favoritos").get().then(snapshot=>{
-snapshot.forEach(doc=>{
-favList.innerHTML+=`<img width="80" src="${doc.data().img}">`;
-});
-});
-}
-
-/* ===========================
-   📩 ORÇAMENTO + HISTÓRICO
-=========================== */
-function enviar(){
-if(!nome.value || !msg.value){toast("Preencha tudo");return;}
-
-db.collection("historico").add({
-nome:nome.value,
-msg:msg.value,
-data:new Date()
-}).then(()=>{
-toast("Enviado!");
-nome.value="";msg.value="";
-listarHist();
-});
-}
-
-function listarHist(){
-hist.innerHTML="";
-db.collection("historico").get().then(snapshot=>{
-snapshot.forEach(doc=>{
-let d=doc.data();
-hist.innerHTML+=`<p>${d.nome} - ${d.msg}</p>`;
-});
-});
-}
-
-/* ===========================
-   👑 ADMIN - VISUALIZAÇÃO
-=========================== */
-function carregarTudoAdm(){
-admAgenda.innerHTML="";
-db.collection("agenda").get().then(s=>s.forEach(d=>{
-admAgenda.innerHTML+=`<p>${d.data().data}</p>`;
-}));
-
-admFav.innerHTML="";
-db.collection("favoritos").get().then(s=>s.forEach(d=>{
-admFav.innerHTML+=`<p>${d.data().img}</p>`;
-}));
-
-admHist.innerHTML="";
-db.collection("historico").get().then(s=>s.forEach(d=>{
-admHist.innerHTML+=`<p>${d.data().nome} - ${d.data().msg}</p>`;
-}));
-}
-
-/* CARREGAMENTO INICIAL */
-listarAgenda();
-listarFav();
-listarHist();
 </script>
 
 </body>
