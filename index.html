@@ -1,119 +1,204 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>FERNANDA ARTE - APP</title>
 
 <style>
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#fff0f5,#ffe4ec);color:#222}
-body.dark{background:linear-gradient(180deg,#0f0f14,#111217);color:#fff}
-header{
-display:flex;align-items:center;gap:12px;
-padding:12px 16px;
-background:linear-gradient(90deg,#ff4d79,#ff85a2);
-color:white;position:sticky;top:0;z-index:10;
+html,body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#222;height:100%}
+
+/* SPLASH */
+#splash{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#ff4d79,#ff85a2);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  z-index:9999;
+  animation:fadeOut 1s ease forwards;
+  animation-delay:3s;
 }
-header img{width:40px;height:40px;border-radius:8px}
-.menu{display:flex;gap:8px;padding:10px;overflow-x:auto}
-.menu button{
-border:none;padding:10px 14px;border-radius:12px;
-background:rgba(0,0,0,.1);font-weight:bold;
+#splash.hidden{display:none}
+#splash h1{
+  font-size:30px;
+  letter-spacing:2px;
+  margin:10px 0;
+  animation:pulse 1.5s infinite;
 }
-.menu button.active{background:#ff4d79;color:white}
-.card{
-background:white;border-radius:14px;
-padding:18px;margin:14px;box-shadow:0 6px 20px rgba(0,0,0,.08)
+#splash p{font-size:14px;opacity:.9}
+#loader{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  border:6px solid rgba(255,255,255,.3);
+  border-top:6px solid white;
+  animation:spin 1s linear infinite;
+  margin-top:20px;
 }
-.carrossel{display:flex;gap:12px;overflow-x:auto}
-.carrossel img{width:260px;height:180px;object-fit:cover;border-radius:12px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes fadeOut{
+  to{opacity:0;visibility:hidden}
+}
+
+/* APP */
+header{background:#ff4d79;color:white;padding:14px;text-align:center;font-weight:bold;font-size:18px}
+.menu{display:flex;overflow-x:auto;background:#ff85a2}
+.menu button{flex:1;padding:12px;border:none;background:none;color:white;font-weight:bold}
+.menu .active{background:white;color:#ff4d79}
+.container{padding:14px}
+.card{background:#fff;padding:14px;border-radius:12px;margin-bottom:14px;box-shadow:0 0 10px rgba(0,0,0,.1)}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.grid img{width:100%;height:120px;object-fit:cover;border-radius:10px}
-.btn{
-display:inline-block;padding:12px 16px;border-radius:12px;
-border:none;background:#ff4d79;color:white;font-weight:bold;margin-top:8px
-}
-.whatsapp{
-position:fixed;right:18px;bottom:18px;
-background:#25d366;color:white;
-padding:14px;border-radius:50%;font-size:22px
-}
+.grid img{width:100%;border-radius:10px}
+.btn{padding:12px;border:none;border-radius:10px;background:#ff4d79;color:white;font-weight:bold;margin-top:8px;width:100%}
+.whats{position:fixed;right:15px;bottom:15px;background:#25d366;color:white;padding:16px;border-radius:50%;font-size:20px}
+.star{color:gold}
+video{width:100%;border-radius:10px}
+input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
 </style>
 </head>
 
 <body>
 
-<header>
-<img src="logo.png">
-<h2>FERNANDA ARTE</h2>
-</header>
+<!-- SPLASH BONITO -->
+<div id="splash">
+  <h1>FERNANDA ARTE</h1>
+  <p>Decoração de Sonhos ✨</p>
+  <div id="loader"></div>
+</div>
+
+<header>FERNANDA ARTE</header>
 
 <div class="menu">
 <button class="active" onclick="show('home',this)">INÍCIO</button>
 <button onclick="show('galeria',this)">GALERIA</button>
+<button onclick="show('videos',this)">VÍDEOS</button>
+<button onclick="show('agenda',this)">AGENDA</button>
+<button onclick="show('avaliacoes',this)">AVALIAÇÕES</button>
+<button onclick="show('favoritos',this)">FAVORITOS</button>
 <button onclick="show('orcamento',this)">ORÇAMENTO</button>
+<button onclick="show('local',this)">LOCAL</button>
+<button onclick="show('historico',this)">HISTÓRICO</button>
 <button onclick="show('contato',this)">CONTATO</button>
 </div>
 
-<div id="home" class="card">
-<h3>Bem-vindo à Fernanda Arte</h3>
-<p>Decorações lindas para momentos especiais.</p>
-<button class="btn" onclick="show('galeria')">Ver Trabalhos</button>
-<button class="btn" onclick="abrirWhats()">Chamar no WhatsApp</button>
-</div>
+<div class="container">
 
-<div id="galeria" class="card" style="display:none">
-<h3>Galeria</h3>
+<section id="home" class="card">
+<h3>BEM-VINDO À FERNANDA ARTE</h3>
+<p>Decoração de festas e eventos.</p>
+<button class="btn" onclick="abrirWhats()">CHAMAR NO WHATSAPP</button>
+<button class="btn" onclick="compartilhar()">COMPARTILHAR APP</button>
+</section>
 
-<div class="carrossel">
-<img src="imagens/foto1.jpg">
-<img src="imagens/foto2.jpg">
-<img src="imagens/foto3.jpg">
-<img src="imagens/foto4.jpg">
-<img src="imagens/foto5.jpg">
-</div>
-
-<h4>Mais Fotos</h4>
+<section id="galeria" class="card" style="display:none">
+<h3>GALERIA</h3>
 <div class="grid">
-<img src="imagens/foto6.jpg">
-<img src="imagens/foto7.jpg">
-<img src="imagens/foto8.jpg">
-<img src="imagens/foto9.jpg">
-<img src="imagens/foto10.jpg">
+<img src="imagens/foto1.jpg" onclick="favoritar(this.src)">
+<img src="imagens/foto2.jpg" onclick="favoritar(this.src)">
+<img src="imagens/foto3.jpg" onclick="favoritar(this.src)">
+<img src="imagens/foto4.jpg" onclick="favoritar(this.src)">
 </div>
+</section>
+
+<section id="videos" class="card" style="display:none">
+<h3>VÍDEOS</h3>
+<video controls src="videos/video1.mp4"></video>
+</section>
+
+<section id="agenda" class="card" style="display:none">
+<h3>AGENDA</h3>
+<input type="date" id="dataAgenda">
+<button class="btn" onclick="salvarAgenda()">MARCAR DATA</button>
+<div id="listaAgenda"></div>
+</section>
+
+<section id="avaliacoes" class="card" style="display:none">
+<h3>AVALIAÇÕES</h3>
+<p><span class="star">★★★★★</span> Cliente satisfeito</p>
+<p><span class="star">★★★★★</span> Excelente trabalho</p>
+</section>
+
+<section id="favoritos" class="card" style="display:none">
+<h3>FAVORITOS</h3>
+<div id="favList"></div>
+</section>
+
+<section id="orcamento" class="card" style="display:none">
+<h3>ORÇAMENTO</h3>
+<input id="nome" placeholder="Nome">
+<textarea id="msg" placeholder="Mensagem"></textarea>
+<button class="btn" onclick="enviar()">ENVIAR</button>
+</section>
+
+<section id="local" class="card" style="display:none">
+<iframe width="100%" height="200" src="https://www.openstreetmap.org/export/embed.html?bbox=-34.94%2C-8.08%2C-34.85%2C-8.01"></iframe>
+</section>
+
+<section id="historico" class="card" style="display:none">
+<h3>HISTÓRICO</h3>
+<div id="hist"></div>
+</section>
+
+<section id="contato" class="card" style="display:none">
+<button class="btn" onclick="window.open('https://www.instagram.com/fernandaartes')">INSTAGRAM</button>
+<button class="btn" onclick="window.open('https://www.facebook.com/share/1CA5gBZU9P/')">FACEBOOK</button>
+</section>
+
 </div>
 
-<div id="orcamento" class="card" style="display:none">
-<h3>Solicitar Orçamento</h3>
-<input placeholder="Seu nome"><br><br>
-<input placeholder="Tipo de evento"><br><br>
-<textarea placeholder="Detalhes"></textarea><br>
-<button class="btn">Enviar</button>
-</div>
-
-<div id="contato" class="card" style="display:none">
-<h3>Contato</h3>
-<button class="btn" onclick="window.open('https://www.instagram.com/fernandaartes')">Instagram</button>
-<button class="btn" onclick="window.open('https://www.facebook.com/share/1CA5gBZU9P/')">Facebook</button>
-</div>
-
-<div class="whatsapp" onclick="abrirWhats()">💬</div>
-
-<audio autoplay loop>
-<source src="musica.mp3" type="audio/mpeg">
-</audio>
+<div class="whats" onclick="abrirWhats()">💬</div>
 
 <script>
+const WHATS="558191536381";
+let agenda=[], fav=[], hist=[];
+
+setTimeout(()=>{document.getElementById("splash").style.display="none"},3000);
+
 function show(id,btn){
-document.querySelectorAll('.card').forEach(c=>c.style.display='none');
+document.querySelectorAll('section').forEach(s=>s.style.display='none');
 document.getElementById(id).style.display='block';
 document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-if(btn)btn.classList.add('active');
+btn.classList.add('active');
 }
 
-function abrirWhats(){
-window.location.href="https://wa.me/558191536381";
+function abrirWhats(){window.location.href="https://wa.me/"+WHATS;}
+function compartilhar(){navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});}
+
+function salvarAgenda(){
+let d=document.getElementById("dataAgenda").value;
+agenda.push(d);
+renderAgenda();
+}
+
+function renderAgenda(){
+let html="";
+agenda.forEach(a=>html+="<p>"+a+"</p>");
+document.getElementById("listaAgenda").innerHTML=html;
+}
+
+function favoritar(src){
+fav.push(src);
+renderFav();
+}
+
+function renderFav(){
+let h="";
+fav.forEach(f=>h+="<img width='80' src='"+f+"'>");
+document.getElementById("favList").innerHTML=h;
+}
+
+function enviar(){
+let n=document.getElementById("nome").value;
+hist.push(n);
+document.getElementById("hist").innerHTML=hist.join("<br>");
+alert("Enviado!");
 }
 </script>
 
