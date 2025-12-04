@@ -7,29 +7,37 @@
 
 <style>
 *{box-sizing:border-box}
-html,body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f5f5f5;
-color:#222;
-height:100%;
+html,body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#222;height:100%}
+
+/* SPLASH */
+#splash{
+position:fixed;
+inset:0;
+background:linear-gradient(135deg,#ff4d79,#ff85a2);
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+color:#fff;
+z-index:9999;
+animation:fadeOut 1s forwards;
+animation-delay:3s;
+}
+#splash h1{font-size:32px;animation:pulse 1.5s infinite}
+#loader{
+width:60px;height:60px;
+border-radius:50%;
+border:6px solid rgba(255,255,255,.3);
+border-top:6px solid #fff;
+animation:spin 1s linear infinite;
+margin-top:20px;
 }
 
-/* ANIMAÇÕES BASE */
-@keyframes fadeIn {
-from {opacity:0; transform:translateY(20px);}
-to {opacity:1; transform:translateY(0);}
-}
-@keyframes pulse {
-0%{transform:scale(1);}
-50%{transform:scale(1.1);}
-100%{transform:scale(1);}
-}
-@keyframes float {
-0%{transform:translateY(0);}
-50%{transform:translateY(-8px);}
-100%{transform:translateY(0);}
-}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes fade3d{from{opacity:0;transform:rotateY(90deg)}to{opacity:1;transform:rotateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
 header{
 background:#ff4d79;
@@ -38,133 +46,83 @@ padding:14px;
 text-align:center;
 font-weight:bold;
 font-size:18px;
-animation:fadeIn .6s;
 }
 
-.menu{
-display:flex;
-overflow-x:auto;
-background:#ff85a2;
-}
+.menu{display:flex;overflow-x:auto;background:#ff85a2}
 .menu button{
-flex:1;
-padding:12px;
-border:none;
-background:none;
-color:#fff;
-font-weight:bold;
+flex:1;padding:12px;border:none;background:none;color:#fff;font-weight:bold;
 transition:.3s;
 }
-.menu .active{
-background:#fff;
-color:#ff4d79;
-transform:scale(1.06);
-}
+.menu .active{background:#fff;color:#ff4d79;transform:scale(1.07)}
 
 .container{padding:14px}
-
 .card{
 background:#fff;
 padding:14px;
 border-radius:12px;
 margin-bottom:14px;
 box-shadow:0 0 10px rgba(0,0,0,.1);
-animation:fadeIn .5s;
+animation:fade3d .4s;
 }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .grid img{
 width:100%;
 border-radius:10px;
 transition:.4s;
 }
-.grid img:hover{
-transform:scale(1.08) rotate(1deg);
-}
+.grid img:hover{transform:scale(1.1)}
 
 .btn{
-padding:12px;
-border:none;
-border-radius:10px;
-background:#ff4d79;
-color:#fff;
-font-weight:bold;
-margin-top:8px;
-width:100%;
-transition:.3s;
+padding:12px;border:none;border-radius:10px;
+background:#ff4d79;color:#fff;font-weight:bold;
+margin-top:8px;width:100%;transition:.3s;
 }
-.btn:active{
-transform:scale(.95);
-}
-.btn:hover{
-animation:pulse .6s;
-}
+.btn:active{transform:scale(.94)}
+.btn:hover{animation:pulse .4s}
 
 .whats{
-position:fixed;
-right:15px;
-bottom:15px;
-background:#25d366;
-color:#fff;
-padding:16px;
-border-radius:50%;
-font-size:20px;
+position:fixed;right:15px;bottom:15px;
+background:#25d366;color:#fff;padding:16px;
+border-radius:50%;font-size:20px;
 animation:float 1.5s infinite;
 }
 
 input,textarea{
-width:100%;
-padding:10px;
-margin-top:6px;
-border-radius:8px;
-border:1px solid #ccc;
-transition:.3s;
-}
-input:focus,textarea:focus{
-border-color:#ff4d79;
-box-shadow:0 0 6px #ff4d79;
+width:100%;padding:10px;margin-top:6px;
+border-radius:8px;border:1px solid #ccc;
 }
 
 .rm{
-background:#000;
-color:#fff;
-border:none;
-border-radius:8px;
-padding:5px 10px;
-margin-left:6px;
-transition:.3s;
-}
-.rm:hover{
-background:red;
+background:#000;color:#fff;border:none;
+border-radius:8px;padding:5px 10px;margin-left:6px;
 }
 
 #toast{
-position:fixed;
-bottom:90px;
-left:50%;
+position:fixed;bottom:90px;left:50%;
 transform:translateX(-50%) scale(.8);
-background:#333;
-color:#fff;
-padding:10px 18px;
-border-radius:20px;
-opacity:0;
-transition:.3s;
+background:#333;color:#fff;
+padding:10px 18px;border-radius:20px;
+opacity:0;transition:.3s;
 }
-#toast.show{
-opacity:1;
-transform:translateX(-50%) scale(1);
-}
+#toast.show{opacity:1;transform:translateX(-50%) scale(1)}
 </style>
 </head>
 
 <body>
 
-<div id="toast"></div>
+<!-- SPLASH -->
+<div id="splash">
+<h1>FERNANDA ARTE</h1>
+<p>Decoração de Sonhos ✨</p>
+<div id="loader"></div>
+</div>
 
+<audio id="click">
+<source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3">
+</audio>
+
+<div id="toast"></div>
 <header>FERNANDA ARTE</header>
 
 <div class="menu">
@@ -232,18 +190,11 @@ transform:translateX(-50%) scale(1);
 </section>
 
 <section id="painelAdm" class="card" style="display:none">
-<h3>PAINEL ADMINISTRATIVO</h3>
-
-<h4>Agenda</h4>
-<div id="admAgenda"></div>
-
-<h4>Favoritos</h4>
-<div id="admFav"></div>
-
-<h4>Histórico</h4>
-<div id="admHist"></div>
-
-<button class="btn" onclick="logout()">SAIR DO ADM</button>
+<h3>PAINEL ADMIN</h3>
+<h4>Agenda</h4><div id="admAgenda"></div>
+<h4>Favoritos</h4><div id="admFav"></div>
+<h4>Histórico</h4><div id="admHist"></div>
+<button class="btn" onclick="logout()">SAIR</button>
 </section>
 
 </div>
@@ -253,6 +204,7 @@ transform:translateX(-50%) scale(1);
 <script>
 const WHATS="558191536381";
 const SENHA_ADM="Fernanda01";
+const click=document.getElementById("click");
 
 let agenda=JSON.parse(localStorage.getItem("agenda"))||[];
 let fav=JSON.parse(localStorage.getItem("fav"))||[];
@@ -260,39 +212,39 @@ let hist=JSON.parse(localStorage.getItem("hist"))||[];
 
 renderAgenda();renderFav();renderHist();renderAdm();
 
+function som(){click.play();}
+document.querySelectorAll("button").forEach(b=>{
+b.addEventListener("click",som);
+});
+
 function toast(msg){
 let t=document.getElementById("toast");
-t.innerText=msg;
-t.classList.add("show");
+t.innerText=msg;t.classList.add("show");
 setTimeout(()=>t.classList.remove("show"),2000);
 }
 
 function show(id,btn){
-document.querySelectorAll('section').forEach(s=>{
-s.style.display='none';
-});
+document.querySelectorAll("section").forEach(s=>s.style.display="none");
 let el=document.getElementById(id);
-el.style.display='block';
-el.style.animation='fadeIn .5s';
-
-document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
+el.style.display="block";
+el.style.animation="fade3d .4s";
+document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
 if(id==="painelAdm")renderAdm();
 }
 
-function abrirWhats(){window.location.href="https://wa.me/"+WHATS;}
-function compartilhar(){navigator.share({title:"Fernanda Arte",text:"Veja esse app de decoração!"});}
+function abrirWhats(){window.location.href="https://wa.me/"+WHATS}
+function compartilhar(){navigator.share({title:"Fernanda Arte",text:"Veja esse app!"})}
 
 function salvarAgenda(){
-let d=dataAgenda.value;
-if(!d){toast("Escolha uma data");return;}
-agenda.push(d);
+if(!dataAgenda.value){toast("Escolha uma data");return;}
+agenda.push(dataAgenda.value);
 localStorage.setItem("agenda",JSON.stringify(agenda));
 renderAgenda();renderAdm();toast("Data salva!");
 }
 
 function renderAgenda(){
-listaAgenda.innerHTML=agenda.map(a=>"<p>"+a+"</p>").join("");
+listaAgenda.innerHTML=agenda.map(a=>"<p>"+a+"</p>").join("")
 }
 
 function favoritar(src){
@@ -304,29 +256,28 @@ renderFav();renderAdm();toast("Favoritado!");
 }
 
 function renderFav(){
-favList.innerHTML=fav.map(f=>"<img width='80' src='"+f+"'>").join("");
+favList.innerHTML=fav.map(f=>"<img width='80' src='"+f+"'>").join("")
 }
 
 function enviar(){
 if(!nome.value||!msg.value){toast("Preencha tudo");return;}
 hist.push(nome.value+" - "+msg.value);
 localStorage.setItem("hist",JSON.stringify(hist));
-renderHist();renderAdm();
-nome.value="";msg.value="";toast("Enviado!");
+renderHist();renderAdm();nome.value="";msg.value="";
+toast("Enviado!");
 }
 
 function renderHist(){
-let html="";
-hist.forEach(h=>html+="<p>"+h+"</p>");
-document.getElementById("hist").innerHTML=html;
+histDiv="";hist.forEach(h=>histDiv+="<p>"+h+"</p>");
+document.getElementById("hist").innerHTML=histDiv;
 }
 
-/* ADMIN */
+/* ADM */
 function loginAdm(){
 if(senhaAdm.value===SENHA_ADM){
 toast("Bem-vindo ADM");
-show('painelAdm',document.querySelectorAll('.menu button')[7]);
-}else toast("Senha incorreta");
+show("painelAdm",document.querySelectorAll(".menu button")[7]);
+}else toast("Senha errada");
 }
 
 function renderAdm(){
@@ -340,10 +291,9 @@ function remFav(i){fav.splice(i,1);localStorage.setItem("fav",JSON.stringify(fav
 function remHist(i){hist.splice(i,1);localStorage.setItem("hist",JSON.stringify(hist));renderHist();renderAdm();}
 
 function logout(){
-show('home',document.querySelectorAll('.menu button')[0]);
+show("home",document.querySelectorAll(".menu button")[0]);
 toast("Saiu do ADM");
 }
 </script>
-
 </body>
 </html>
