@@ -1,305 +1,617 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Battle Royale 2D</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Romance | TOP CORTE ANIME</title>
+
 <style>
-body{
-margin:0;
-overflow:hidden;
-background:#111;
-font-family:Arial;
-touch-action:none;
-}
-canvas{
-display:block;
-background:#1b1b1b;
-}
-.ui-btn{
-position:absolute;
-background:rgba(255,255,255,0.2);
-border-radius:50%;
-}
+    :root {
+        --bg-color: #0a0a0f;
+        --card-bg: #1a1a24;
+        --primary: #8a2be2;
+        --neon: #b829ea;
+        --text-light: #e0e0e0;
+        --text-muted: #a0a0b0;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: linear-gradient(180deg, #05050a 0%, #12001f 50%, #05050a 100%);
+        color: var(--text-light);
+        overflow-x: hidden;
+        min-height: 100vh;
+    }
+
+    header {
+        background: linear-gradient(135deg, #110022 0%, #2a0055 100%);
+        padding: 25px 20px;
+        text-align: center;
+        border-bottom: 2px solid var(--primary);
+        box-shadow: 0 0 25px rgba(138, 43, 226, 0.4);
+    }
+
+    header h1 {
+        font-size: 32px;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px var(--neon);
+    }
+
+    header p {
+        color: var(--text-muted);
+        margin-top: 5px;
+        font-size: 15px;
+    }
+
+    .contador-acessos {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .contador-acessos span {
+        color: var(--neon);
+        font-weight: bold;
+    }
+
+    .search {
+        padding: 30px 20px 10px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .search input {
+        width: 100%;
+        padding: 16px 20px;
+        border-radius: 50px;
+        border: 2px solid #333;
+        background: var(--card-bg);
+        color: white;
+        font-size: 16px;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .search input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+    }
+
+    .titulo {
+        padding: 20px;
+        font-size: 24px;
+        text-align: center;
+        text-transform: uppercase;
+        color: var(--neon);
+        text-shadow: 0 0 5px rgba(184, 41, 234, 0.3);
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px;
+        padding: 20px 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid #333;
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card:hover {
+        transform: translateY(-10px) scale(1.02);
+        border-color: var(--primary);
+        box-shadow: 0 15px 25px rgba(138, 43, 226, 0.2);
+    }
+
+    .img-wrapper {
+        position: relative;
+        width: 100%;
+        height: 300px;
+    }
+
+    .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: 0.4s;
+    }
+
+    .card:hover img {
+        opacity: 0.8;
+    }
+
+    .badge {
+        position: absolute;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 2;
+    }
+
+    .badge-score {
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #ffd700;
+        border: 1px solid #ffd700;
+    }
+
+    .badge-status {
+        top: 10px;
+        left: 10px;
+        background: var(--primary);
+        color: white;
+    }
+
+    .card-info {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .detalhes-rapidos {
+        font-size: 13px;
+        color: var(--text-muted);
+        text-align: center;
+        line-height: 1.6;
+    }
+
+    .detalhes-rapidos span {
+        color: var(--neon);
+        font-weight: bold;
+    }
+
+    #animePage {
+        display: none;
+        padding: 40px 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .detalhes-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid var(--primary);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.1);
+    }
+
+    .detalhes-capa {
+        width: 300px;
+        height: 430px;
+        object-fit: cover;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }
+
+    .detalhes-texto {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .detalhes-texto h2 {
+        font-size: 32px;
+        color: var(--neon);
+        margin-bottom: 15px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        background: #252533;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .info-item strong {
+        color: var(--primary);
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .sinopse-box, .personagens-box, .episodios-box, .video-box {
+        margin-top: 25px;
+        background: #252533;
+        padding: 20px;
+        border-radius: 15px;
+    }
+
+    .sinopse-box h3, .personagens-box h3, .episodios-box h3, .video-box h3 {
+        color: var(--neon);
+        margin-bottom: 10px;
+        border-bottom: 1px solid #444;
+        padding-bottom: 5px;
+    }
+
+    .sinopse-box p, .personagens-box p {
+        line-height: 1.7;
+        color: #ccc;
+    }
+
+    .video-container {
+        width: 100%;
+        max-height: 350px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #000;
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .video-container video {
+        width: 100%;
+        max-height: 350px;
+        outline: none;
+    }
+
+    .btn-baixar-video {
+        display: inline-block;
+        margin-top: 15px;
+        width: 100%;
+        padding: 12px;
+        background: rgba(138, 43, 226, 0.2);
+        border: 1px solid var(--neon);
+        color: white;
+        text-align: center;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .btn-baixar-video:hover {
+        background: var(--primary);
+        box-shadow: 0 0 15px var(--neon);
+    }
+
+    .lista-eps {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+        max-height: 250px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    .lista-eps::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .lista-eps::-webkit-scrollbar-thumb {
+        background-color: var(--primary);
+        border-radius: 4px;
+    }
+
+    .ep-item {
+        background: var(--card-bg);
+        border: 1px solid #444;
+        padding: 12px 10px;
+        text-align: center;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .ep-item:hover, .ep-item.ativo {
+        background: var(--primary);
+        border-color: var(--neon);
+        box-shadow: 0 0 10px var(--neon);
+        font-weight: bold;
+    }
+
+    button.btn-voltar {
+        width: 100%;
+        padding: 18px;
+        margin-top: 30px;
+        background: linear-gradient(90deg, var(--primary), var(--neon));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    button.btn-voltar:hover {
+        box-shadow: 0 0 20px var(--neon);
+        transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+        .detalhes-header {
+            flex-direction: column;
+            align-items: center;
+        }
+        .detalhes-capa {
+            width: 100%;
+            max-width: 300px;
+        }
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 </head>
+
 <body>
 
-<canvas id="game"></canvas>
+
+
+<div class="search">
+    <input type="text" id="searchInput" placeholder="Pesquisar anime..." onkeyup="pesquisarAnime()">
+</div>
+
+<h2 class="titulo" id="tituloSecao">🔥 Catálogo de Romance</h2>
+
+<div class="grid" id="listaAnimes"></div>
+
+<div id="animePage">
+    <div class="detalhes-header">
+        <img id="detalhesImg" class="detalhes-capa" src="" alt="Capa do Anime">
+        <div class="detalhes-texto">
+            <h2 id="detalhesNome"></h2>
+            
+            <div class="info-grid">
+                <div class="info-item"><strong>Ano de Lançamento</strong> <span id="detalhesAno"></span></div>
+                <div class="info-item"><strong>Episódios</strong> <span id="detalhesEps"></span></div>
+                <div class="info-item"><strong>Temporadas</strong> <span id="detalhesTemp"></span></div>
+                <div class="info-item"><strong>Nota ⭐</strong> <span id="detalhesNota"></span></div>
+                <div class="info-item"><strong>Gênero</strong> <span id="detalhesGeneros"></span></div>
+                <div class="info-item"><strong>Status</strong> <span id="detalhesStatus"></span></div>
+            </div>
+
+            <div class="sinopse-box">
+                <h3>Sinopse</h3>
+                <p id="detalhesSinopse"></p>
+            </div>
+
+            <div class="personagens-box">
+                <h3>Personagens Principais</h3>
+                <p id="detalhesPersonagens"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="video-box" id="secaoVideo">
+        <h3 id="tituloPlayer">🎬 Reproduzindo: Corte / Trailer Oficial</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;" id="subtituloPlayer">Clique em qualquer episódio abaixo para assistir:</p>
+        <div class="video-container">
+            <video id="detalhesVideo" controls></video>
+        </div>
+        <a id="btnBaixarVideo" class="btn-baixar-video" href="#" download target="_blank">⬇️ Baixar Vídeo Atual</a>
+    </div>
+
+    <div class="episodios-box">
+        <h3>Lista de Episódios (Clique para Assistir)</h3>
+        <div id="listaEpisodios" class="lista-eps"></div>
+    </div>
+
+    <button class="btn-voltar" onclick="voltarCatalogo()">Voltar ao Catálogo</button>
+</div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    const animesData = [
+        {
+    nome: "Gekkan Shoujo Nozaki-kun",
+    img: "img/gekkan-shoujo-nozaki-kun.jpg",
+    trailer: "https://res.cloudinary.com/uypda52e/video/upload/v1785818202/Ep.1_cutxxn.mp4",
+    ano: "2014",
+    temp: "1",
+    genero: "Romance, Comédia, Escolar, Slice of Life",
+    nota: "8.2",
+    status: "Finalizado",
+    sinopse: "Chiyo Sakura finalmente cria coragem para declarar seu amor ao colega Umetarou Nozaki. Porém, ele entende tudo errado e pensa que ela é apenas uma fã. Chiyo descobre que Nozaki é um famoso autor de mangás shoujo e passa a ajudá-lo, vivendo muitas situações engraçadas e românticas com seus amigos.",
 
-function resize(){
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize",resize);
+    personagens: "Chiyo Sakura, Umetarou Nozaki, Mikoto Mikoshiba, Yuu Kashima, Masayuki Hori, Yuzuki Seo, Hirotaka Wakamatsu",
 
-/* ==========================
-   GAME STATE
-========================== */
-let gameState = "menu"; // menu, select, playing, gameover, pause
+    episodios: [
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818202/Ep.1_cutxxn.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818258/Ep.2_krlo9m.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818360/Ep.3_sfhwhl.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818486/Ep.4_ewvpb6.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818549/Ep.5_cqshuk.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818644/Ep.6_wyrbkd.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818736/Ep.7_f8zmrg.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818907/Ep.8_aifaj3.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785818974/Ep.9_ovjcsh.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785819036/Ep.10_on2hn3.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785819085/Ep.11_xdnhyr.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785819081/Ep.12_mnph2g.mp4"
+    ]
+},
+        {
+    nome: "Nijuuseiki Denki Mokuroku: Eureka Evrika",
+    img: "img/nijuuseiki-denki-mokuroku.jpg",
+    trailer: "https://res.cloudinary.com/uypda52e/video/upload/v1785820946/Ep_1_yksgyu.mp4",
+    ano: "2026",
+    temp: "1",
+    genero: "Romance, Aventura, Drama, Steampunk",
+    nota: "8.3",
+    status: "Em Andamento",
+    sinopse: "Em uma versão alternativa do início do século XX no Japão, Kihachi Sakamoto sonha em criar um futuro movido pela eletricidade. Ao lado de Inako Momokawa, ele embarca em uma jornada repleta de aventuras, descobertas e sentimentos enquanto tenta desvendar os mistérios do lendário Catálogo Elétrico do Século XX.",
 
-/* ==========================
-   PLAYER SYSTEM
-========================== */
-const player = {
-x:300,
-y:300,
-r:20,
-speed:3,
-life:100,
-maxLife:100,
-xp:0,
-level:1,
-color:"cyan",
-shootCooldown:0
-};
+    personagens: "Kihachi Sakamoto, Inako Momokawa, Yosuke Mizoe, Seiroku Sakamoto",
 
-/* ==========================
-   SYSTEM ARRAYS
-========================== */
-let bullets=[];
-let enemies=[];
-let explosions=[];
-let powerups=[];
-let score=0;
-let spawnTimer=0;
+    episodios: [
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785820946/Ep_1_yksgyu.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785820981/Ep_2_ilgofg.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785820980/Ep_3_kgosaz.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785821011/Ep_4_sgrvpw.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785821034/Ep_5_syxwgo.mp4"
+    ]
+},
+        {
+    nome: "Tensei Kizoku no Isekai Boukenroku",
+    img: "img/tensei-kizoku-no-isekai-boukenroku.jpg",
+    trailer: "https://res.cloudinary.com/uypda52e/video/upload/v1785822592/EP1_xotsdf.mp4",
+    ano: "2023",
+    temp: "1",
+    genero: "Isekai, Fantasia, Ação, Romance, Magia",
+    nota: "7.1",
+    status: "Finalizado",
+    sinopse: "Após morrer ao salvar duas garotas, Kazuya Shiina renasce em outro mundo como Cain von Silford, um jovem nobre abençoado pelos sete deuses. Com habilidades extremamente poderosas, ele inicia uma jornada repleta de magia, aventuras, monstros e novos aliados.",
 
-/* ==========================
-   TOUCH CONTROLS
-========================== */
-let joystick = {active:false,x:100,y:canvas.height-120,dx:0,dy:0};
-let shootBtn = {x:canvas.width-100,y:canvas.height-120,r:40};
-let skillBtn = {x:canvas.width-200,y:canvas.height-200,r:35};
+    personagens: "Cain von Silford, Silk von Santana, Telestia Terra Esfort, Reine, Sarah, Galm",
 
-/* ==========================
-   UTILS
-========================== */
-function dist(a,b,c,d){
-return Math.hypot(a-c,b-d);
-}
+    episodios: [
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822592/EP1_xotsdf.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822628/EP2_oyjp9q.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822691/EP3_v5ekde.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822728/EP4_hbq1da.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822777/EP5_xcdhiq.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822817/EP6_vydgij.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822866/EP7_igalk8.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822901/EP8_wmyiuj.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822929/EP9_itjctf.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785822960/EP10_e4habz.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785823008/EP11_tji2eg.mp4",
+        "https://res.cloudinary.com/uypda52e/video/upload/v1785823014/EP12_btsmdu.mp4"
+    ]
+},
+        {
+            nome: "Toradora!",
+            img: "img/toradora.jpg",
+            trailer: "videos/toradora.mp4",
+            ano: "2008",
+            temp: "1",
+            genero: "Romance, Drama",
+            nota: "8.1",
+            status: "Finalizado",
+            sinopse: "Ryuji tem cara de delinquente, mas é gentil. Taiga é pequena e fofa, mas agressiva. Eles descobrem que são apaixonados pelos melhores amigos um do outro e fazem um acordo para se ajudarem.",
+            personagens: "Taiga Aisaka, Ryuji Takasu",
+            episodios: [
+                "videos/toradora-ep1.mp4",
+                "videos/toradora-ep2.mp4"
+            ]
+        }
+    ];
 
-/* ==========================
-   SPAWN ENEMY
-========================== */
-function spawnEnemy(){
-let side = Math.random()*4;
-let x,y;
-if(side<1){x=0;y=Math.random()*canvas.height;}
-else if(side<2){x=canvas.width;y=Math.random()*canvas.height;}
-else if(side<3){x=Math.random()*canvas.width;y=0;}
-else{x=Math.random()*canvas.width;y=canvas.height;}
+    function carregarCatalogo() {
+        // Lógica do contador de acessos
+        let acessos = localStorage.getItem('site_acessos');
+        if (!acessos) {
+            acessos = 1420; // Número base inicial
+        } else {
+            acessos = parseInt(acessos) + 1;
+        }
+        localStorage.setItem('site_acessos', acessos);
+        document.getElementById('contadorAcessos').textContent = acessos;
 
-enemies.push({
-x,y,
-r:18,
-life:30 + player.level*5,
-speed:1.2 + player.level*0.1
-});
-}
+        const grid = document.getElementById('listaAnimes');
+        grid.innerHTML = '';
 
-/* ==========================
-   UPDATE
-========================== */
-function update(){
-if(gameState!=="playing")return;
+        animesData.forEach(anime => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => abrirAnime(anime);
+            card.setAttribute('data-nome', anime.nome);
 
-player.x += joystick.dx * player.speed;
-player.y += joystick.dy * player.speed;
+            card.innerHTML = `
+                <div class="img-wrapper">
+                    <span class="badge badge-status">${anime.status}</span>
+                    <span class="badge badge-score">⭐ ${anime.nota}</span>
+                    <img src="${anime.img}" alt="${anime.nome}">
+                </div>
+                <div class="card-info">
+                    <h3>${anime.nome}</h3>
+                    <div class="detalhes-rapidos">
+                        <p>Ano: <span>${anime.ano}</span> | Temp: <span>${anime.temp}</span></p>
+                        <p>Episódios: <span>${anime.episodios.length}</span></p>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
 
-player.x=Math.max(player.r,Math.min(canvas.width-player.r,player.x));
-player.y=Math.max(player.r,Math.min(canvas.height-player.r,player.y));
+    function abrirAnime(anime) {
+        document.getElementById('detalhesImg').src = anime.img;
+        document.getElementById('detalhesImg').alt = anime.nome;
+        document.getElementById('detalhesNome').textContent = anime.nome;
+        document.getElementById('detalhesAno').textContent = anime.ano;
+        document.getElementById('detalhesEps').textContent = anime.episodios.length;
+        document.getElementById('detalhesTemp').textContent = anime.temp;
+        document.getElementById('detalhesNota').textContent = anime.nota;
+        document.getElementById('detalhesGeneros').textContent = anime.genero;
+        document.getElementById('detalhesStatus').textContent = anime.status;
+        document.getElementById('detalhesSinopse').textContent = anime.sinopse;
+        document.getElementById('detalhesPersonagens').textContent = anime.personagens;
 
-spawnTimer++;
-if(spawnTimer>100){
-spawnEnemy();
-spawnTimer=0;
-}
+        const videoElement = document.getElementById('detalhesVideo');
+        const btnBaixar = document.getElementById('btnBaixarVideo');
+        const tituloPlayer = document.getElementById('tituloPlayer');
+        const subtituloPlayer = document.getElementById('subtituloPlayer');
 
-/* bullets */
-bullets.forEach((b,i)=>{
-b.x+=b.vx;
-b.y+=b.vy;
+        tituloPlayer.textContent = `🎬 Reproduzindo: Corte / Trailer de ${anime.nome}`;
+        subtituloPlayer.textContent = "Clique em qualquer episódio abaixo para assistir:";
 
-enemies.forEach((e,ei)=>{
-if(dist(b.x,b.y,e.x,e.y)<e.r){
-e.life-=20;
-bullets.splice(i,1);
-if(e.life<=0){
-score+=10;
-player.xp+=10;
-explosions.push({x:e.x,y:e.y,t:20});
-enemies.splice(ei,1);
-}
-}
-});
-});
+        if (anime.trailer) {
+            videoElement.src = anime.trailer;
+            btnBaixar.href = anime.trailer;
+            btnBaixar.style.display = 'block';
+        } else {
+            videoElement.src = '';
+            btnBaixar.style.display = 'none';
+        }
 
-/* enemies */
-enemies.forEach(e=>{
-let angle=Math.atan2(player.y-e.y,player.x-e.x);
-e.x+=Math.cos(angle)*e.speed;
-e.y+=Math.sin(angle)*e.speed;
-
-if(dist(e.x,e.y,player.x,player.y)<e.r+player.r){
-player.life-=0.3;
-if(player.life<=0){
-gameState="gameover";
-}
-}
-});
-
-/* explosions */
-explosions.forEach((ex,i)=>{
-ex.t--;
-if(ex.t<=0)explosions.splice(i,1);
-});
-
-/* level up */
-if(player.xp>=100){
-player.level++;
-player.xp=0;
-player.maxLife+=20;
-player.life=player.maxLife;
-}
-}
-
-/* ==========================
-   DRAW
-========================== */
-function draw(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-if(gameState==="menu"){
-ctx.fillStyle="white";
-ctx.font="40px Arial";
-ctx.textAlign="center";
-ctx.fillText("BATTLE ROYALE 2D",canvas.width/2,200);
-ctx.fillText("TOQUE PARA JOGAR",canvas.width/2,300);
-return;
-}
-
-if(gameState==="gameover"){
-ctx.fillStyle="red";
-ctx.font="50px Arial";
-ctx.textAlign="center";
-ctx.fillText("GAME OVER",canvas.width/2,250);
-ctx.fillStyle="white";
-ctx.fillText("Score: "+score,canvas.width/2,320);
-ctx.fillText("Toque para Reiniciar",canvas.width/2,400);
-return;
-}
-
-/* player */
-ctx.fillStyle=player.color;
-ctx.beginPath();
-ctx.arc(player.x,player.y,player.r,0,Math.PI*2);
-ctx.fill();
-
-/* bullets */
-ctx.fillStyle="yellow";
-bullets.forEach(b=>{
-ctx.beginPath();
-ctx.arc(b.x,b.y,5,0,Math.PI*2);
-ctx.fill();
-});
-
-/* enemies */
-ctx.fillStyle="red";
-enemies.forEach(e=>{
-ctx.beginPath();
-ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
-ctx.fill();
-});
-
-/* explosions */
-ctx.fillStyle="orange";
-explosions.forEach(ex=>{
-ctx.beginPath();
-ctx.arc(ex.x,ex.y,ex.t,0,Math.PI*2);
-ctx.fill();
-});
-
-/* HUD */
-ctx.fillStyle="white";
-ctx.fillText("Score: "+score,100,30);
-ctx.fillRect(20,40,200,10);
-ctx.fillStyle="lime";
-ctx.fillRect(20,40,200*(player.life/player.maxLife),10);
-
-/* joystick */
-ctx.strokeStyle="white";
-ctx.beginPath();
-ctx.arc(joystick.x,joystick.y,50,0,Math.PI*2);
-ctx.stroke();
-
-/* shoot btn */
-ctx.beginPath();
-ctx.arc(canvas.width-100,canvas.height-120,40,0,Math.PI*2);
-ctx.stroke();
-
-}
-
-/* ==========================
-   LOOP
-========================== */
-function loop(){
-update();
-draw();
-requestAnimationFrame(loop);
-}
-loop();
-
-/* ==========================
-   TOUCH EVENTS
-========================== */
-canvas.addEventListener("touchstart",e=>{
-let t=e.touches[0];
-if(gameState==="menu"){
-gameState="playing";
-return;
-}
-if(gameState==="gameover"){
-location.reload();
-}
-
-let dx=t.clientX-joystick.x;
-let dy=t.clientY-joystick.y;
-if(dist(t.clientX,t.clientY,joystick.x,joystick.y)<60){
-joystick.active=true;
-}
-});
-
-canvas.addEventListener("touchmove",e=>{
-if(!joystick.active)return;
-let t=e.touches[0];
-let dx=t.clientX-joystick.x;
-let dy=t.clientY-joystick.y;
-let mag=Math.hypot(dx,dy);
-joystick.dx=dx/mag;
-joystick.dy=dy/mag;
-});
-
-canvas.addEventListener("touchend",()=>{
-joystick.active=false;
-joystick.dx=0;
-joystick.dy=0;
-});
-
-/* auto shoot */
-setInterval(()=>{
-if(gameState==="playing"){
-let angle=Math.atan2(0,1);
-let vx=Math.cos(angle)*6;
-let vy=Math.sin(angle)*6;
-bullets.push({x:player.x,y:player.y,vx,vy});
-}
-},400);
-
-</script>
-</body>
-</html>
+        const listaEps = document.getElementById('listaEpisodios');
+        listaEps.innerHTML = '';
+        
+        anime.episodios.forEach((linkEp, index) => {
+            const epNum = index + 1;
+            const epDiv = document.createElement('div');
+            epDiv.className = 
