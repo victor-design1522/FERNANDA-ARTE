@@ -99,7 +99,7 @@
         <div class="logo" onclick="mudarPagina('home')">TOP CORTE <span>ANIME</span></div>
         <div class="nav-actions">
             <input type="text" id="global-search" class="search-box" placeholder="Pesquisar..." oninput="filtrarAnimes(this.value)">
-            <button class="btn-icon" onclick="alternarTema()">🌓</button>
+            <button class="btn-icon" onclick="alternarTema()"></button>
             <button class="btn-primary" onclick="mudarPagina('admin-login')">ADM</button>
         </div>
     </header>
@@ -111,26 +111,26 @@
             <div style="margin-bottom: 25px; background: linear-gradient(135deg, var(--primary), #240046); padding: 25px; border-radius: 15px;">
                 <h1 id="destaque-titulo" style="font-size: 24px; margin-bottom: 8px;">Carregando Destaque...</h1>
                 <p id="destaque-sinopse" style="font-size: 13px; color: #ddd; margin-bottom: 15px; max-width: 600px;"></p>
-                <button class="btn-primary" id="btn-destaque-assistir">▶ Assistir Destaque</button>
+                <button class="btn-primary" id="btn-destaque-assistir"> Assistir Destaque</button>
             </div>
 
             <div id="secao-continue" style="margin-bottom: 30px; display: none;">
-                <h2>⚡ Continue Assistindo</h2>
+                <h2> Continue Assistindo</h2>
                 <div class="grid" id="grid-continue"></div>
             </div>
 
             <div style="margin-bottom: 30px;">
-                <h2>⭐ Seus Favoritos</h2>
+                <h2> Seus Favoritos</h2>
                 <div class="grid" id="grid-favoritos"><p style="color: var(--text-muted); font-size: 13px;">Nenhum favorito salvo.</p></div>
             </div>
 
-            <h2>🔥 Catálogo Completo</h2>
+            <h2> Catálogo Completo</h2>
             <div class="grid" id="grid-catalogo"></div>
         </div>
 
         <!-- 2. PÁGINA DE DETALHES DO ANIME -->
         <div id="page-anime" class="page">
-            <button onclick="mudarPagina('home')" style="margin-bottom: 15px; background: transparent; color: var(--neon);">⬅ Voltar</button>
+            <button onclick="mudarPagina('home')" style="margin-bottom: 15px; background: transparent; color: var(--neon);"> Voltar</button>
             <div class="anime-header">
                 <img id="detalhe-capa" class="anime-poster" src="" alt="">
                 <div>
@@ -138,27 +138,27 @@
                     <p id="detalhe-info" style="color: var(--text-muted); font-size: 13px; margin-bottom: 10px;"></p>
                     <p id="detalhe-sinopse" style="font-size: 14px; line-height: 1.5; margin-bottom: 15px;"></p>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn-primary" id="btn-favoritar" onclick="toggleFavoritoAtual()">❤️ Favoritar</button>
+                        <button class="btn-primary" id="btn-favoritar" onclick="toggleFavoritoAtual()"> Favoritar</button>
                     </div>
                 </div>
             </div>
 
             <div style="margin-top: 25px;">
-                <h2>📺 Episódios</h2>
+                <h2> Episódios</h2>
                 <div class="episodes-list" id="detalhe-episodios"></div>
             </div>
         </div>
 
         <!-- 3. PÁGINA DO PLAYER -->
         <div id="page-player" class="page">
-            <button id="btn-voltar-anime" style="margin-bottom: 10px; background: transparent; color: var(--neon);">⬅ Voltar ao Anime</button>
+            <button id="btn-voltar-anime" style="margin-bottom: 10px; background: transparent; color: var(--neon);"> Voltar ao Anime</button>
             <h2 id="player-titulo-ep" style="font-size: 16px; margin-bottom: 10px;"></h2>
             <div class="player-container">
                 <iframe id="video-iframe" src="" allowfullscreen></iframe>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-                <button class="btn-primary" onclick="episodioAnterior()">◀ Ep. Anterior</button>
-                <button class="btn-primary" onclick="proximoEpisodio()">Próximo Ep. ▶</button>
+                <button class="btn-primary" onclick="episodioAnterior()"> Ep. Anterior</button>
+                <button class="btn-primary" onclick="proximoEpisodio()">Próximo Ep. </button>
             </div>
         </div>
 
@@ -166,7 +166,7 @@
         <div id="page-admin-login" class="page">
             <div style="max-width: 350px; margin: 40px auto; background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--neon);">
                 <h2 style="margin-bottom: 15px; color: var(--neon);">Painel ADM</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Padrão: victor / 152215</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">só para o dono</p>
                 <div class="form-group"><label>Usuário</label><input type="text" id="adm-user"></div>
                 <div class="form-group"><label>Senha</label><input type="password" id="adm-pass"></div>
                 <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="fazerLoginAdmin()">Entrar</button>
@@ -177,7 +177,7 @@
         <!-- 5. PAINEL ADMINISTRATIVO (GERENCIAMENTO REAL) -->
         <div id="page-admin-painel" class="page">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>⚙️ Gerenciamento de Animes</h2>
+                <h2> Gerenciamento de Animes</h2>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-success" onclick="abrirModalAnime()">+ Adicionar Anime</button>
                     <button class="btn-danger" onclick="mudarPagina('home')">Sair</button>
@@ -297,7 +297,7 @@
                     <img src="${a.capa}" alt="${a.titulo}">
                     <div class="card-info">
                         <h3>${a.titulo}</h3>
-                        <p>⭐ ${a.nota} • ${a.ano}</p>
+                        <p> ${a.nota} • ${a.ano}</p>
                     </div>
                 </div>
             `).join('');
@@ -315,7 +315,7 @@
                     <img src="${a.capa}" alt="${a.titulo}">
                     <div class="card-info">
                         <h3>${a.titulo}</h3>
-                        <p>⭐ ${a.nota} • ${a.ano}</p>
+                        <p> ${a.nota} • ${a.ano}</p>
                     </div>
                 </div>
             `).join('');
@@ -330,7 +330,7 @@
             animeAtualId = id;
             document.getElementById('detalhe-capa').src = anime.capa;
             document.getElementById('detalhe-titulo').innerText = anime.titulo;
-            document.getElementById('detalhe-info').innerText = `Nota: ⭐ ${anime.nota} | Ano: ${anime.ano}`;
+            document.getElementById('detalhe-info').innerText = `Nota:  ${anime.nota} | Ano: ${anime.ano}`;
             document.getElementById('detalhe-sinopse').innerText = anime.sinopse;
 
             atualizarBotaoFavoritoUI();
@@ -342,7 +342,7 @@
                 listaEps.innerHTML = anime.episodios.map((ep, idx) => `
                     <div class="ep-item" onclick="assistirEpisodio('${anime.id}', ${idx})">
                         <span>${ep.titulo}</span>
-                        <span>▶</span>
+                        <span></span>
                     </div>
                 `).join('');
             }
@@ -434,10 +434,10 @@
             let favs = getFavoritos();
             let btn = document.getElementById('btn-favoritar');
             if(favs.includes(animeAtualId)) {
-                btn.innerText = "❤️ Desfavoritar";
+                btn.innerText = " Desfavoritar";
                 btn.style.background = "var(--danger)";
             } else {
-                btn.innerText = "🤍 Favoritar";
+                btn.innerText = " Favoritar";
                 btn.style.background = "var(--primary)";
             }
         }
@@ -458,7 +458,7 @@
                     <img src="${a.capa}" alt="${a.titulo}">
                     <div class="card-info">
                         <h3>${a.titulo}</h3>
-                        <p>⭐ ${a.nota}</p>
+                        <p> ${a.nota}</p>
                     </div>
                 </div>
             `).join('');
