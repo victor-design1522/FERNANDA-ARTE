@@ -405,4 +405,169 @@
             grid.innerHTML = historico.map(h => `
                 <div class="card" onclick="assistirEpisodio('${h.animeId}', ${h.epIdx})">
                     <img src="${h.capa}" alt="${h.animeTitulo}">
-   
+                    <div class="card-info">
+                        <h3>${h.animeTitulo}</h3>
+                        <p>${h.epTitulo}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // FAVORITOS
+        function getFavoritos() {
+            return JSON.parse(localStorage.getItem(FAV_KEY)) || [];
+        }
+
+        function toggleFavoritoAtual() {
+            let favs = getFavoritos();
+            if(favs.includes(animeAtualId)) {
+                favs = favs.filter(id => id !== animeAtualId);
+            } else {
+                favs.push(animeAtualId);
+            }
+            localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+            atualizarBotaoFavoritoUI();
+            carregarFavoritosNaHome();
+        }
+
+        function atualizarBotaoFavoritoUI() {
+            let favs = getFavoritos();
+            let btn = document.getElementById('btn-favoritar');
+            if(favs.includes(animeAtualId)) {
+                btn.innerText = "❤️ Desfavoritar";
+                btn.style.background = "var(--danger)";
+            } else {
+                btn.innerText = "🤍 Favoritar";
+                btn.style.background = "var(--primary)";
+            }
+        }
+
+        function carregarFavoritosNaHome() {
+            let favs = getFavoritos();
+            let animes = getAnimes();
+            let grid = document.getElementById('grid-favoritos');
+            let favoritosList = animes.filter(a => favs.includes(a.id));
+
+            if(favoritosList.length === 0) {
+                grid.innerHTML = `<p style="color: var(--text-muted); font-size: 13px;">Nenhum favorito salvo.</p>`;
+                return;
+            }
+
+            grid.innerHTML = favoritosList.map(a => `
+                <div class="card" onclick="abrirDetalhes('${a.id}')">
+                    <img src="${a.capa}" alt="${a.titulo}">
+                    <div class="card-info">
+                        <h3>${a.titulo}</h3>
+                        <p>⭐ ${a.nota}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // PAINEL ADMIN
+        function fazerLoginAdmin() {
+            let u = document.getElementById('adm-user').value;
+            let p = document.getElementById('adm-pass').value;
+            if(u === "admin" && p === "123456") {
+                mudarPagina('admin-painel');
+            } else {
+                alert("Usuário ou senha incorretos!");
+            }
+        }
+
+        function carregarTabelaAdmin() {
+            let animes = getAnimes();
+            let corpo = document.getElementById('admin-tabela-corpo');
+            corpo.innerHTML = animes.map(a => `
+                <tr>
+                    <td>${a.titulo}</td>
+                    <td>${a.ano}</td>
+                    <td>
+                        <button class="btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="editarAnime('${a.id}')">Editar</button>
+                        <button class="btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="excluirAnime('${a.id}')">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function abrirModalAnime(id = null) {
+            document.getElementById('modal-anime').style.display = 'block';
+            if(id) {
+                let animes = getAnimes();
+                let a = animes.find(x => x.id === id);
+                document.getElementById('modal-titulo').innerText = "Editar Anime";
+                document.getElementById('edit-id').value = a.id;
+                document.getElementById('form-titulo').value = a.titulo;
+                document.getElementById('form-capa').value = a.capa;
+                document.getElementById('form-ano').value = a.ano;
+                document.getElementById('form-nota').value = a.nota;
+                document.getElementById('form-sinopse').value = a.sinopse;
+                document.getElementById('form-eps').value = a.episodios.map(e => e.link).join('\n');
+            } else {
+                document.getElementById('modal-titulo').innerText = "Novo Anime";
+                document.getElementById('edit-id').value = "";
+                document.getElementById('form-titulo').value = "";
+                document.getElementById('form-capa').value = "";
+                document.getElementById('form-ano').value = "";
+                document.getElementById('form-nota').value = "";
+                document.getElementById('form-sinopse').value = "";
+                document.getElementById('form-eps').value = "";
+            }
+        }
+
+        function fecharModalAnime() {
+            document.getElementById('modal-anime').style.display = 'none';
+        }
+
+        function salvarAnimeBD() {
+            let id = document.getElementById('edit-id').value;
+            let titulo = document.getElementById('form-titulo').value;
+            let capa = document.getElementById('form-capa').value;
+            let ano = document.getElementById('form-ano').value;
+            let nota = document.getElementById('form-nota').value;
+            let sinopse = document.getElementById('form-sinopse').value;
+            let epsTexto = document.getElementById('form-eps').value;
+
+            if(!titulo) { alert("Preencha o título!"); return; }
+
+            let linksEps = epsTexto.split('\n').filter(l => l.trim() !== "");
+            let episodios = linksEps.map((link, idx) => ({ titulo: `Episódio ${idx + 1}`, link: link.trim() }));
+
+            let animes = getAnimes();
+
+            if(id) {
+                let idx = animes.findIndex(a => a.id === id);
+                if(idx !== -1) {
+                    animes[idx] = { id, titulo, capa, ano, nota, sinopse, episodios };
+                }
+            } else {
+                let novoId = Date.now().toString();
+                animes.push({ id: novoId, titulo, capa, ano, nota, sinopse, episodios });
+            }
+
+            salvarAnimes(animes);
+            fecharModalAnime();
+            carregarTabelaAdmin();
+        }
+
+        function editarAnime(id) {
+            abrirModalAnime(id);
+        }
+
+        function excluirAnime(id) {
+            if(confirm("Deseja realmente excluir este anime?")) {
+                let animes = getAnimes();
+                animes = animes.filter(a => a.id !== id);
+                salvarAnimes(animes);
+                carregarTabelaAdmin();
+            }
+        }
+
+        // Inicializar o site
+        window.onload = () => {
+            getAnimes(); // Garante o banco populado
+            carregarHome();
+        };
+    </script>
+</body>
+</html>
