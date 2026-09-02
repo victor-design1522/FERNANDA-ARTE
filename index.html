@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cravo Guiado - Estilo Barroco</title>
+<title>Golden Brown - Piano Guiado</title>
 <style>
   :root {
     --bg-color: #1a0f08;
@@ -13,7 +13,7 @@
     --gold-glow: rgba(212, 175, 55, 0.8);
     --ivory: #fffff0;
     --ebony: #1c1c1c;
-    --guide-color: #4CAF50;
+    --guide-color: #d4af37;
   }
 
   * {
@@ -38,7 +38,7 @@
 
   .header {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     padding: 0 10px;
   }
 
@@ -71,37 +71,38 @@
   /* Painel de Ensino em Cima */
   .lesson-panel {
     width: 95%;
-    max-width: 600px;
-    height: 50px;
-    background: rgba(0, 0, 0, 0.6);
+    max-width: 650px;
+    height: 45px;
+    background: rgba(0, 0, 0, 0.7);
     border: 2px solid var(--gold);
     border-radius: 8px;
-    margin-bottom: 25px; /* Espaço para as setinhas do piano */
+    margin-bottom: 25px;
     display: flex;
     align-items: center;
     padding: 0 10px;
-    overflow: hidden;
+    overflow-x: auto;
     white-space: nowrap;
     box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
   }
 
   .lesson-note {
     display: inline-block;
-    background: var(--gold);
-    color: #000;
-    padding: 5px 12px;
-    margin-right: 8px;
+    background: #3e271a;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 4px 10px;
+    margin-right: 6px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
+    font-size: 0.85em;
+    transition: all 0.2s ease;
   }
 
   .lesson-note.current {
-    background: var(--guide-color);
-    color: white;
+    background: var(--gold);
+    color: #000;
     transform: scale(1.1);
-    box-shadow: 0 0 10px var(--guide-color);
+    box-shadow: 0 0 10px var(--gold);
   }
 
   .piano-wrapper {
@@ -131,14 +132,14 @@
     justify-content: center;
     align-items: flex-end;
     padding-bottom: 10px;
-    font-size: 0.8em;
-    color: rgba(0,0,0,0.5);
+    font-size: 0.75em;
+    color: rgba(0,0,0,0.4);
     font-weight: bold;
   }
 
   /* Teclas Brancas */
   .key.white {
-    flex: 1; /* Distribui as 10 teclas brancas igualmente */
+    flex: 1;
     background: linear-gradient(to bottom, #fff, var(--ivory));
     border: 1px solid #ccc;
     border-bottom: 4px solid #bbb;
@@ -154,7 +155,7 @@
 
   /* Teclas Pretas */
   .key.black {
-    width: 6%;
+    width: 5.5%;
     height: 60%;
     background: linear-gradient(to bottom, #333, var(--ebony));
     border: 1px solid #000;
@@ -171,23 +172,22 @@
     border-bottom: 1px solid #000;
   }
 
-  /* EFEITOS DE AULA (A mágica visual) */
+  /* Guia Visual */
   .key.guide {
-    box-shadow: inset 0 0 20px var(--guide-color);
+    box-shadow: inset 0 0 20px var(--gold);
   }
 
   .key.white.guide {
-    border: 2px solid var(--guide-color);
+    border: 2px solid var(--gold);
   }
 
-  /* Seta apontando para a tecla */
   .key.guide::before {
     content: '▼';
     position: absolute;
     top: -25px;
     left: 50%;
     transform: translateX(-50%);
-    color: var(--guide-color);
+    color: var(--gold);
     font-size: 20px;
     text-shadow: 0 0 8px #000;
     animation: bounce 0.6s infinite alternate;
@@ -198,25 +198,19 @@
     from { top: -25px; }
     to { top: -10px; }
   }
-
 </style>
 </head>
 <body>
 
   <div class="header">
-    <h1>Harpsichord Guiado</h1>
-    <button id="start-btn" onclick="iniciarAula()">Aprender Melodia</button>
+    <h1>Golden Brown (Intro)</h1>
+    <button id="start-btn" onclick="iniciarAula()">Tocar Introdução</button>
   </div>
 
-  <!-- A barra em cima ensinando o que tocar -->
-  <div class="lesson-panel" id="lesson-panel">
-    <!-- Notas aparecerão aqui -->
-  </div>
+  <div class="lesson-panel" id="lesson-panel"></div>
 
   <div class="piano-wrapper">
-    <div class="piano" id="piano">
-      <!-- Teclas geradas via JS -->
-    </div>
+    <div class="piano" id="piano"></div>
   </div>
 
 <script>
@@ -228,7 +222,7 @@ function initAudio() {
   }
 }
 
-// Som de cravo (Harpsichord)
+// Sintetizador de Cravo (Timbre característico)
 function playHarpsichord(freq) {
   initAudio();
   const osc = audioCtx.createOscillator();
@@ -238,8 +232,8 @@ function playHarpsichord(freq) {
   osc.type = 'sawtooth';
   
   filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(3500, audioCtx.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+  filter.frequency.setValueAtTime(4000, audioCtx.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(700, audioCtx.currentTime + 0.3);
 
   osc.connect(filter);
   filter.connect(gainNode);
@@ -255,7 +249,7 @@ function playHarpsichord(freq) {
   osc.stop(audioCtx.currentTime + 1.0);
 }
 
-// 10 Teclas brancas e 7 pretas (C4 a E5)
+// Mapeamento de notas necessárias cobrindo a oitava de D4 até E5
 const notes = [
   { note: 'C4', freq: 261.63, type: 'white' },
   { note: 'C#4', freq: 277.18, type: 'black' },
@@ -279,7 +273,6 @@ const notes = [
 const piano = document.getElementById('piano');
 let whiteKeyCount = 0;
 
-// Renderizar o piano na tela
 notes.forEach(note => {
   const keyEl = document.createElement('div');
   keyEl.classList.add('key', note.type);
@@ -287,20 +280,16 @@ notes.forEach(note => {
   
   if (note.type === 'white') {
     whiteKeyCount++;
-    // Coloca o nome da nota na tecla branca para ajudar
-    keyEl.textContent = note.note.replace('4', '').replace('5', ''); 
+    keyEl.textContent = note.note.replace(/[0-9]/g, '');
   } else {
-    // Posiciona as pretas no meio-termo das brancas
-    keyEl.style.left = `calc(${whiteKeyCount} * 10%)`; 
+    keyEl.style.left = `calc(${whiteKeyCount} * (100% / 10))`;
   }
 
-  // Tocar a nota
   const pressKey = (e) => {
     if (e) e.preventDefault();
     playHarpsichord(note.freq);
     keyEl.classList.add('active');
     
-    // Verifica se acertou a nota da aula
     if (aulaAtiva && note.note === melodiaAula[passoAtual]) {
       avancarAula();
     }
@@ -318,54 +307,50 @@ notes.forEach(note => {
   piano.appendChild(keyEl);
 });
 
-// --- LÓGICA DO MODO AULA ---
+// --- INTRODUÇÃO REAL DE GOLDEN BROWN ---
 let aulaAtiva = false;
 let passoAtual = 0;
 const lessonPanel = document.getElementById('lesson-panel');
 
-// Uma melodia barroca hipnótica, lenta e fácil
 const melodiaAula = [
-  'D4', 'F4', 'A4', 'F4',
-  'E4', 'G#4', 'B4', 'G#4',
-  'F4', 'A4', 'C5', 'A4',
-  'E4', 'G#4', 'B4', 'E5'
+  // Si Menor (Bm)
+  'F#4', 'B4', 'D5', 'F#4', 'B4', 'D5',
+  // Fá# Menor (F#m)
+  'F#4', 'A4', 'C#5', 'F#4', 'A4', 'C#5',
+  // Mi Menor (Em)
+  'E4', 'G4', 'B4', 'E4', 'G4', 'B4',
+  // Fá# Menor finalização (F#m)
+  'F#4', 'A4', 'C#5', 'F#4', 'A4', 'C#5', 'F#4', 'A4'
 ];
 
 function iniciarAula() {
-  initAudio(); // Libera o som do navegador
+  initAudio();
   aulaAtiva = true;
   passoAtual = 0;
-  
-  document.getElementById('start-btn').textContent = "Reiniciar Melodia";
-  
+  document.getElementById('start-btn').textContent = "Reiniciar";
   atualizarInterfaceAula();
 }
 
 function atualizarInterfaceAula() {
-  // Limpa tudo
   document.querySelectorAll('.key').forEach(k => k.classList.remove('guide'));
   lessonPanel.innerHTML = '';
 
   if (passoAtual >= melodiaAula.length) {
-    // Terminou!
-    lessonPanel.innerHTML = '<span style="color:var(--guide-color); font-weight:bold; width:100%; text-align:center;">Parabéns! Você tocou a melodia.</span>';
+    lessonPanel.innerHTML = '<span style="color:var(--gold); font-weight:bold; width:100%; text-align:center;">Perfeito! Você tocou a introdução de Golden Brown.</span>';
     aulaAtiva = false;
+    document.getElementById('start-btn').textContent = "Tocar Novamente";
     return;
   }
 
-  // 1. Destaca a tecla certa no piano (a seta aparece pelo CSS)
   const notaExata = melodiaAula[passoAtual];
   const teclaCerta = document.querySelector(`.key[data-note="${notaExata}"]`);
   if (teclaCerta) teclaCerta.classList.add('guide');
 
-  // 2. Cria a esteira de notas em cima
   for (let i = passoAtual; i < melodiaAula.length; i++) {
     const span = document.createElement('div');
     span.classList.add('lesson-note');
     if (i === passoAtual) span.classList.add('current');
-    
-    // Tira o número para ficar mais fácil de ler (D4 vira D)
-    span.textContent = melodiaAula[i].replace(/[0-9]/g, '');
+    span.textContent = melodiaAula[i];
     lessonPanel.appendChild(span);
   }
 }
