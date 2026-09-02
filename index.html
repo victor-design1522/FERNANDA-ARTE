@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Golden Brown - Partitura Oficial</title>
+<title>Golden Brown - Piano Virtual</title>
 <style>
   :root {
     --bg-color: #1a0f08;
@@ -73,7 +73,6 @@
     transform: scale(0.95);
   }
 
-  /* Painel da Esteira de Notas (Arranjo de Łucja Falińska) */
   .lesson-panel {
     width: 100%;
     max-width: 650px;
@@ -199,8 +198,8 @@
 
   <div class="header">
     <h1>Golden Brown</h1>
-    <div class="subtitle">Arranjo de Łucja Falińska</div>
-    <button id="start-btn" onclick="iniciarAula()">Tocar Partitura</button>
+    <div class="subtitle">The Stranglers</div>
+    <button id="start-btn" onclick="iniciarAula()">Tocar Música</button>
   </div>
 
   <div class="lesson-panel" id="lesson-panel"></div>
@@ -218,7 +217,7 @@ function initAudio() {
   }
 }
 
-// Sintetizador de Cravo com timbre metálico aprimorado
+// Sintetizador de Cravo (Harpsichord)
 function playHarpsichord(freq) {
   initAudio();
   const osc = audioCtx.createOscillator();
@@ -228,7 +227,6 @@ function playHarpsichord(freq) {
   osc.type = 'sawtooth';
   filter.type = 'lowpass';
   filter.frequency.setValueAtTime(4500, audioCtx.currentTime);
-  filter.frequency.exponentialRampType = 'exponential';
   filter.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
 
   osc.connect(filter);
@@ -245,7 +243,6 @@ function playHarpsichord(freq) {
   osc.stop(audioCtx.currentTime + 0.9);
 }
 
-// Escala de notas abrangendo a oitava da partitura
 const notes = [
   { note: 'C4', freq: 261.63, type: 'white' },
   { note: 'C#4', freq: 277.18, type: 'black' },
@@ -303,7 +300,6 @@ notes.forEach(note => {
   piano.appendChild(keyEl);
 });
 
-// Sequência precisa baseada na partitura fornecida
 let aulaAtiva = false;
 let passoAtual = 0;
 const lessonPanel = document.getElementById('lesson-panel');
@@ -328,7 +324,7 @@ function atualizarInterfaceAula() {
   lessonPanel.innerHTML = '';
 
   if (passoAtual >= melodiaAula.length) {
-    lessonPanel.innerHTML = '<span style="color:var(--gold); font-weight:bold; width:100%; text-align:center;">Excelente! Você executou o arranjo.</span>';
+    lessonPanel.innerHTML = '<span style="color:var(--gold); font-weight:bold; width:100%; text-align:center;">Perfeito! Você tocou a introdução de Golden Brown.</span>';
     aulaAtiva = false;
     document.getElementById('start-btn').textContent = "Tocar Novamente";
     return;
