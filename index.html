@@ -2,242 +2,264 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Golden Brown - Piano Virtual</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Golden Brown - Piano Livre</title>
 <style>
+  :root {
+    --bg-color: #1a0f08;
+    --wood-light: #5c3a21;
+    --wood-dark: #2c1a0f;
+    --gold: #d4af37;
+    --gold-glow: rgba(212, 175, 55, 0.6);
+    --ivory: #fffff0;
+    --ebony: #1c1c1c;
+  }
+
   * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-touch-callout: none; /* Evita menu de contexto no celular */
+    user-select: none;
   }
+
   body {
-    background-color: #25160c; /* Marrom escuro */
-    color: #ffd700; /* Dourado */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: radial-gradient(circle at center, var(--wood-light), var(--bg-color));
+    color: var(--gold);
+    font-family: 'Georgia', serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px;
-    margin: 0;
+    justify-content: center;
     min-height: 100vh;
+    overflow: hidden;
   }
-  h1 {
-    text-align: center;
-    margin-bottom: 5px;
-    font-size: 2em;
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
-  }
-  p {
+
+  .header {
     text-align: center;
     margin-bottom: 30px;
+    padding: 0 15px;
+  }
+
+  h1 {
+    font-size: 2.2em;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 10px var(--gold-glow);
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+
+  p {
     font-size: 1em;
-    color: #e6c25a;
-    max-width: 90%;
+    color: #e8d08d;
+    opacity: 0.8;
   }
-  #piano-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    max-width: 600px;
-    background: #3e271a;
-    padding: 20px;
+
+  .piano-wrapper {
+    background: linear-gradient(to bottom, var(--wood-dark), #110905);
+    padding: 15px 15px 25px 15px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-    border: 2px solid #b8860b;
+    border: 3px solid var(--gold);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 2px 10px rgba(255,255,255,0.1);
+    touch-action: none; /* Crucial para evitar scroll ao tocar várias teclas */
   }
+
+  .piano {
+    position: relative;
+    display: flex;
+    height: 40vh;
+    min-height: 250px;
+    max-height: 400px;
+  }
+
   .key {
-    background: linear-gradient(145deg, #e3c498, #c19b6c);
-    color: #3e271a;
-    border: 2px solid #6b3e1b;
-    border-radius: 8px;
-    padding: 15px 5px;
-    font-size: 1.1em;
-    font-weight: bold;
+    position: relative;
+    border-radius: 0 0 6px 6px;
     cursor: pointer;
-    width: 55px;
-    text-align: center;
-    box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
-    transition: all 0.1s ease;
-    user-select: none;
-    touch-action: manipulation; /* Evita zoom no double-tap do celular */
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .key:active, .key.playing {
-    background: linear-gradient(145deg, #ffd700, #daa520);
-    transform: translateY(4px);
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.6);
-    border-color: #4a270a;
-  }
-  
-  /* Animação para destacar a próxima tecla da sequência */
-  .key.highlight {
-    animation: pulse 1.2s infinite;
-    border: 2px solid #fff;
-    box-shadow: 0 0 12px #ffd700;
-  }
-  
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-    100% { transform: scale(1); }
+    transition: background 0.1s, box-shadow 0.1s;
   }
 
-  /* Quebra de linha visual para separar os compassos */
-  .measure-break {
-    flex-basis: 100%;
-    height: 0;
-    margin: 4px 0;
-    border-bottom: 1px dashed #b8860b;
-    opacity: 0.4;
+  /* Teclas Brancas */
+  .key.white {
+    width: 60px;
+    background: linear-gradient(to bottom, #fff, var(--ivory));
+    border: 1px solid #ccc;
+    border-bottom: 4px solid #bbb;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.4);
+    z-index: 1;
   }
 
-  /* Otimização extra para telas muito pequenas */
-  @media (max-width: 480px) {
-    .key {
-      width: 48px;
-      padding: 12px 2px;
-      font-size: 1em;
+  .key.white:active, .key.white.active {
+    background: linear-gradient(to bottom, var(--ivory), #e6e6dc);
+    border-bottom: 2px solid #999;
+    transform: translateY(2px);
+    box-shadow: inset 0 0 15px var(--gold-glow);
+  }
+
+  /* Teclas Pretas */
+  .key.black {
+    width: 36px;
+    height: 60%;
+    background: linear-gradient(to bottom, #333, var(--ebony));
+    border: 1px solid #000;
+    border-bottom: 3px solid #111;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    position: absolute;
+    z-index: 2;
+    margin-left: -18px; /* Centraliza entre as teclas brancas */
+  }
+
+  .key.black:active, .key.black.active {
+    background: linear-gradient(to bottom, #222, #000);
+    border-bottom: 1px solid #000;
+    transform: translateY(2px);
+    box-shadow: inset 0 0 10px var(--gold-glow);
+  }
+
+  /* Responsividade para telas menores */
+  @media (max-width: 600px) {
+    .key.white {
+      width: 12vw; /* Ajusta dinamicamente a largura */
     }
-    #piano-container {
-      padding: 15px;
-      gap: 8px;
+    .key.black {
+      width: 8vw;
+      margin-left: -4vw;
+    }
+    .piano {
+      height: 35vh;
+    }
+    h1 {
+      font-size: 1.8em;
     }
   }
 </style>
 </head>
 <body>
 
-  <h1>Golden Brown</h1>
-  <p>Toque as teclas na sequência destacada para reproduzir a introdução (Compassos em 6/8 e 8/8).</p>
-  
-  <div id="piano-container">
-    </div>
+  <div class="header">
+    <h1>Harpsichord</h1>
+    <p>Inspirado na estética de "Golden Brown". Toque livremente.</p>
+  </div>
+
+  <div class="piano-wrapper">
+    <div class="piano" id="piano">
+      </div>
+  </div>
 
 <script>
-// Inicialização do AudioContext (ocorre apenas após a primeira interação para contornar bloqueios de autoplay dos navegadores)
-const AudioContext = window.AudioContext || window.webkitAudioContext;
+// Inicialização de Áudio (Singleton para economizar recursos)
 let audioCtx;
 
-// Sequência exata de notas da introdução (mão direita do cravo)
-// As frequências estão mapeadas para as notas da oitava correta
-const melody = [
-  // Compasso 1: Si Menor (3 repetições do arpejo)
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'B4',  freq: 493.88, measureEnd: false },
-  { note: 'D5',  freq: 587.33, measureEnd: false },
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'B4',  freq: 493.88, measureEnd: false },
-  { note: 'D5',  freq: 587.33, measureEnd: true },
-  
-  // Compasso 2: Fá# Menor
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'A4',  freq: 440.00, measureEnd: false },
-  { note: 'C#5', freq: 554.37, measureEnd: false },
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'A4',  freq: 440.00, measureEnd: false },
-  { note: 'C#5', freq: 554.37, measureEnd: true },
-  
-  // Compasso 3: Mi Menor
-  { note: 'E4',  freq: 329.63, measureEnd: false },
-  { note: 'G4',  freq: 392.00, measureEnd: false },
-  { note: 'B4',  freq: 493.88, measureEnd: false },
-  { note: 'E4',  freq: 329.63, measureEnd: false },
-  { note: 'G4',  freq: 392.00, measureEnd: false },
-  { note: 'B4',  freq: 493.88, measureEnd: true },
-  
-  // Compasso 4: Fá# menor finalizando (4/4 de tempo)
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'A4',  freq: 440.00, measureEnd: false },
-  { note: 'C#5', freq: 554.37, measureEnd: false },
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'A4',  freq: 440.00, measureEnd: false },
-  { note: 'C#5', freq: 554.37, measureEnd: false },
-  { note: 'F#4', freq: 369.99, measureEnd: false },
-  { note: 'A4',  freq: 440.00, measureEnd: true }
-];
-
-const container = document.getElementById('piano-container');
-let currentIndex = 0;
-let keyElements = [];
-
-// Função para sintetizar um som semelhante ao de um cravo (Sawtooth c/ envelope rápido)
-function playTone(freq) {
+function initAudio() {
   if (!audioCtx) {
-    audioCtx = new AudioContext();
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
+}
+
+// Sintetizador de Cravo (Harpsichord)
+function playHarpsichord(freq) {
+  initAudio();
   
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
-  
-  // O tipo 'sawtooth' oferece riqueza harmônica semelhante ao cravo
+  const filter = audioCtx.createBiquadFilter();
+
+  // Onda sawtooth traz a riqueza harmônica característica das cordas beliscadas
   osc.type = 'sawtooth';
   
-  // Filtro para suavizar os agudos e simular o "beliscão" da corda
-  const filter = audioCtx.createBiquadFilter();
+  // O filtro simula a ressonância da caixa de madeira
   filter.type = 'lowpass';
   filter.frequency.setValueAtTime(4000, audioCtx.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.3);
-  
+  filter.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+
   osc.connect(filter);
   filter.connect(gainNode);
   gainNode.connect(audioCtx.destination);
   
   osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-  
-  // Controle de volume (ataque imediato, decaimento rápido)
+
+  // Envelope ADSR (Attack rápido, Decay rápido, Sustain baixo, Release rápido)
   gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.01);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
-  
+  gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+
   osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime + 0.6);
+  osc.stop(audioCtx.currentTime + 1.2);
 }
 
-// Geração da interface
-melody.forEach((noteData, index) => {
-  const btn = document.createElement('div');
-  btn.classList.add('key');
-  btn.textContent = noteData.note;
+// Escala de notas para 1.5 oitavas (começando no C4)
+const notes = [
+  { note: 'C4', freq: 261.63, type: 'white', keyBind: 'a' },
+  { note: 'C#4', freq: 277.18, type: 'black', keyBind: 'w' },
+  { note: 'D4', freq: 293.66, type: 'white', keyBind: 's' },
+  { note: 'D#4', freq: 311.13, type: 'black', keyBind: 'e' },
+  { note: 'E4', freq: 329.63, type: 'white', keyBind: 'd' },
+  { note: 'F4', freq: 349.23, type: 'white', keyBind: 'f' },
+  { note: 'F#4', freq: 369.99, type: 'black', keyBind: 't' },
+  { note: 'G4', freq: 392.00, type: 'white', keyBind: 'g' },
+  { note: 'G#4', freq: 415.30, type: 'black', keyBind: 'y' },
+  { note: 'A4', freq: 440.00, type: 'white', keyBind: 'h' },
+  { note: 'A#4', freq: 466.16, type: 'black', keyBind: 'u' },
+  { note: 'B4', freq: 493.88, type: 'white', keyBind: 'j' },
+  { note: 'C5', freq: 523.25, type: 'white', keyBind: 'k' },
+  { note: 'C#5', freq: 554.37, type: 'black', keyBind: 'o' },
+  { note: 'D5', freq: 587.33, type: 'white', keyBind: 'l' }
+];
+
+const piano = document.getElementById('piano');
+let whiteKeyCount = 0;
+
+// Construção dinâmica das teclas
+notes.forEach(note => {
+  const keyElement = document.createElement('div');
+  keyElement.classList.add('key', note.type);
+  keyElement.dataset.note = note.note;
   
-  // Destaca a primeira tecla logo de início
-  if (index === 0) {
-    btn.classList.add('highlight');
+  if (note.type === 'white') {
+    whiteKeyCount++;
+  } else {
+    // Posicionamento absoluto das teclas pretas baseado nas teclas brancas
+    keyElement.style.left = `calc(${whiteKeyCount} * (100% / 9))`; 
   }
-  
-  // Função acionada ao tocar a tecla
+
+  // Função para tocar nota e adicionar efeito visual
   const triggerNote = (e) => {
-    e.preventDefault(); 
-    playTone(noteData.freq);
-    
-    // Efeito de feedback visual
-    btn.classList.add('playing');
-    setTimeout(() => btn.classList.remove('playing'), 150);
-    
-    // Lógica para avançar o destaque
-    if (currentIndex === index) {
-      btn.classList.remove('highlight');
-      currentIndex++;
-      if (currentIndex < keyElements.length) {
-        keyElements[currentIndex].classList.add('highlight');
-      } else {
-        // Se finalizou, recomeça do zero
-        currentIndex = 0;
-        keyElements[0].classList.add('highlight');
-      }
-    }
+    if (e) e.preventDefault();
+    playHarpsichord(note.freq);
+    keyElement.classList.add('active');
   };
+
+  const releaseNote = (e) => {
+    if (e) e.preventDefault();
+    keyElement.classList.remove('active');
+  };
+
+  // Eventos para Mouse e Touch
+  keyElement.addEventListener('pointerdown', triggerNote);
+  keyElement.addEventListener('pointerup', releaseNote);
+  keyElement.addEventListener('pointerleave', releaseNote);
   
-  // Compatibilidade cruzada com toques de celular e cliques de mouse
-  btn.addEventListener('pointerdown', triggerNote);
-  
-  container.appendChild(btn);
-  keyElements.push(btn);
-  
-  // Separação visual após o fim de cada compasso para facilitar a leitura
-  if (noteData.measureEnd && index !== melody.length - 1) {
-    const breakEl = document.createElement('div');
-    breakEl.classList.add('measure-break');
-    container.appendChild(breakEl);
+  piano.appendChild(keyElement);
+});
+
+// Suporte a teclado para quem testar no computador
+document.addEventListener('keydown', (e) => {
+  if (e.repeat) return; // Evita metralhadora de som se segurar a tecla
+  const noteObj = notes.find(n => n.keyBind === e.key.toLowerCase());
+  if (noteObj) {
+    const keyElement = document.querySelector(`.key[data-note="${noteObj.note}"]`);
+    if (keyElement) {
+      playHarpsichord(noteObj.freq);
+      keyElement.classList.add('active');
+    }
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  const noteObj = notes.find(n => n.keyBind === e.key.toLowerCase());
+  if (noteObj) {
+    const keyElement = document.querySelector(`.key[data-note="${noteObj.note}"]`);
+    if (keyElement) keyElement.classList.remove('active');
   }
 });
 </script>
