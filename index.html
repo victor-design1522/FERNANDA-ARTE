@@ -3,87 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meu Aplicativo</title>
-
+<title>Golden Brown - Piano Virtual</title>
 <style>
-body{
-    background:#111;
-    color:#fff;
-    font-family:Arial,sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
-}
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background-color: #25160c; /* Marrom escuro */
+    color: #ffd700; /* Dourado */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    margin: 0;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 5px;
+    font-size: 2em;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+  }
+  p {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1em;
+    color: #e6c25a;
+    max-width: 90%;
+  }
+  #piano-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    max-width: 600px;
+    background: #3e271a;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    border: 2px solid #b8860b;
+  }
+  .key {
+    background: linear-gradient(145deg, #e3c498, #c19b6c);
+    color: #3e271a;
+    border: 2px solid #6b3e1b;
+    border-radius: 8px;
+    padding: 15px 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    width: 55px;
+    text-align: center;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+    transition: all 0.1s ease;
+    user-select: none;
+    touch-action: manipulation; /* Evita zoom no double-tap do celular */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .key:active, .key.playing {
+    background: linear-gradient(145deg, #ffd700, #daa520);
+    transform: translateY(4px);
+    box-shadow: 0px 1px 2px rgba(0,0,0,0.6);
+    border-color: #4a270a;
+  }
+  
+  /* Animação para destacar a próxima tecla da sequência */
+  .key.highlight {
+    animation: pulse 1.2s infinite;
+    border: 2px solid #fff;
+    box-shadow: 0 0 12px #ffd700;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
 
-.card{
-    width:380px;
-    background:#1b1b1b;
-    border-radius:15px;
-    padding:20px;
-    text-align:center;
-    box-shadow:0 0 20px rgba(0,0,0,.5);
-}
+  /* Quebra de linha visual para separar os compassos */
+  .measure-break {
+    flex-basis: 100%;
+    height: 0;
+    margin: 4px 0;
+    border-bottom: 1px dashed #b8860b;
+    opacity: 0.4;
+  }
 
-img{
-    width:100%;
-    border-radius:10px;
-}
-
-h1{
-    color:#00d4ff;
-}
-
-.preco{
-    font-size:34px;
-    color:#00ff66;
-    font-weight:bold;
-    margin:20px 0;
-}
-
-.botao{
-    display:block;
-    text-decoration:none;
-    background:#00c853;
-    color:#fff;
-    padding:15px;
-    border-radius:10px;
-    font-size:20px;
-    font-weight:bold;
-}
-
-.botao:hover{
-    background:#00a844;
-}
+  /* Otimização extra para telas muito pequenas */
+  @media (max-width: 480px) {
+    .key {
+      width: 48px;
+      padding: 12px 2px;
+      font-size: 1em;
+    }
+    #piano-container {
+      padding: 15px;
+      gap: 8px;
+    }
+  }
 </style>
-
 </head>
 <body>
 
-<div class="card">
+  <h1>Golden Brown</h1>
+  <p>Toque as teclas na sequência destacada para reproduzir a introdução (Compassos em 6/8 e 8/8).</p>
+  
+  <div id="piano-container">
+    </div>
 
-<img src="capa.png">
+<script>
+// Inicialização do AudioContext (ocorre apenas após a primeira interação para contornar bloqueios de autoplay dos navegadores)
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
 
-<h1>MEU APLICATIVO</h1>
+// Sequência exata de notas da introdução (mão direita do cravo)
+// As frequências estão mapeadas para as notas da oitava correta
+const melody = [
+  // Compasso 1: Si Menor (3 repetições do arpejo)
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'B4',  freq: 493.88, measureEnd: false },
+  { note: 'D5',  freq: 587.33, measureEnd: false },
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'B4',  freq: 493.88, measureEnd: false },
+  { note: 'D5',  freq: 587.33, measureEnd: true },
+  
+  // Compasso 2: Fá# Menor
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'A4',  freq: 440.00, measureEnd: false },
+  { note: 'C#5', freq: 554.37, measureEnd: false },
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'A4',  freq: 440.00, measureEnd: false },
+  { note: 'C#5', freq: 554.37, measureEnd: true },
+  
+  // Compasso 3: Mi Menor
+  { note: 'E4',  freq: 329.63, measureEnd: false },
+  { note: 'G4',  freq: 392.00, measureEnd: false },
+  { note: 'B4',  freq: 493.88, measureEnd: false },
+  { note: 'E4',  freq: 329.63, measureEnd: false },
+  { note: 'G4',  freq: 392.00, measureEnd: false },
+  { note: 'B4',  freq: 493.88, measureEnd: true },
+  
+  // Compasso 4: Fá# menor finalizando (4/4 de tempo)
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'A4',  freq: 440.00, measureEnd: false },
+  { note: 'C#5', freq: 554.37, measureEnd: false },
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'A4',  freq: 440.00, measureEnd: false },
+  { note: 'C#5', freq: 554.37, measureEnd: false },
+  { note: 'F#4', freq: 369.99, measureEnd: false },
+  { note: 'A4',  freq: 440.00, measureEnd: true }
+];
 
-<p>Aplicativo para Android.</p>
+const container = document.getElementById('piano-container');
+let currentIndex = 0;
+let keyElements = [];
 
-<h2>Recursos</h2>
+// Função para sintetizar um som semelhante ao de um cravo (Sawtooth c/ envelope rápido)
+function playTone(freq) {
+  if (!audioCtx) {
+    audioCtx = new AudioContext();
+  }
+  
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  
+  // O tipo 'sawtooth' oferece riqueza harmônica semelhante ao cravo
+  osc.type = 'sawtooth';
+  
+  // Filtro para suavizar os agudos e simular o "beliscão" da corda
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(4000, audioCtx.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.3);
+  
+  osc.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  
+  // Controle de volume (ataque imediato, decaimento rápido)
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+  
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.6);
+}
 
-<p>✅ Atualizado</p>
-<p>✅ Fácil de usar</p>
-<p>✅ Compatível com Android</p>
-
-<div class="preco">
-R$ 19,90
-</div>
-
-<a class="botao" href="LINK_DO_PAGAMENTO">
-💳 COMPRAR AGORA
-</a>
-
-</div>
-
+// Geração da interface
+melody.forEach((noteData, index) => {
+  const btn = document.createElement('div');
+  btn.classList.add('key');
+  btn.textContent = noteData.note;
+  
+  // Destaca a primeira tecla logo de início
+  if (index === 0) {
+    btn.classList.add('highlight');
+  }
+  
+  // Função acionada ao tocar a tecla
+  const triggerNote = (e) => {
+    e.preventDefault(); 
+    playTone(noteData.freq);
+    
+    // Efeito de feedback visual
+    btn.classList.add('playing');
+    setTimeout(() => btn.classList.remove('playing'), 150);
+    
+    // Lógica para avançar o destaque
+    if (currentIndex === index) {
+      btn.classList.remove('highlight');
+      currentIndex++;
+      if (currentIndex < keyElements.length) {
+        keyElements[currentIndex].classList.add('highlight');
+      } else {
+        // Se finalizou, recomeça do zero
+        currentIndex = 0;
+        keyElements[0].classList.add('highlight');
+      }
+    }
+  };
+  
+  // Compatibilidade cruzada com toques de celular e cliques de mouse
+  btn.addEventListener('pointerdown', triggerNote);
+  
+  container.appendChild(btn);
+  keyElements.push(btn);
+  
+  // Separação visual após o fim de cada compasso para facilitar a leitura
+  if (noteData.measureEnd && index !== melody.length - 1) {
+    const breakEl = document.createElement('div');
+    breakEl.classList.add('measure-break');
+    container.appendChild(breakEl);
+  }
+});
+</script>
 </body>
 </html>
