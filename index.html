@@ -1,352 +1,393 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Golden Brown - Piano Virtual</title>
+<!doctype html>
+<!--
+  ════════════════════════════════════════════════════════════════════════════
+  FFCTL · cheat 100% externo em arquivo único · v1.0 · 2026-09-08
+  ════════════════════════════════════════════════════════════════════════════
+
+  O QUE É ISTO
+    Camada externa. Nada entra no processo do Free Fire: sem injecao, sem hook,
+    sem APK reempacotado, sem TracerPid. O jogo fica bit-a-bit intacto.
+
+  COMO RODAR (3 caminhos, do mais facil ao mais forte)
+
+  [1] ABERTO SOZINHO  ->  de dois cliques neste arquivo.
+      Entra em SIM mode: gera jogadores falsos e voce ve ESP/aim/recoil funcionando.
+      Serve para ajustar FOV, suavidade e cores sem depender de nada.
+
+  [2] EMULADOR NO PC  ->  e assim que se joga de verdade com este arquivo.
+      node reader.js ...            (le a memoria do PROCESSO DO EMULADOR, no host;
+                                     o Android guest nem sabe que voce existe)
+                                     e sobe ws://127.0.0.1:31337
+      chrome.exe --app=file:///C:/ffctl.html --window-position=0,0 \
+                   --window-size=1920,1080 --disable-gpu-sandbox --autoplay-policy=no-user-gesture-required
+      A janela do Chrome fica POR CIMA do emulador, com fundo transparente:
+        chrome.exe --app=... --window-transparency-hint=1   (ou use F8 p/ fundo preto)
+      Aim: o mouse pertence ao Windows, entao a pagina chama window.AIM(dx,dy)
+      e uma ponte Node de 12 linhas faz robot.moveMouseSmooth(). Sem ela o ESP
+      funciona e a mira fica manual. Nada do que roda aqui e visivel pelo jogo.
+
+  [3] COMO APK        ->  este MESMO arquivo vira o cheat no celular.
+      Crie um AccessibilityService com um WebView transparente por cima do jogo:
+
+        class S : AccessibilityService() {
+          override fun onServiceConnected() {
+            val wv = WebView(this)
+            wv.setBackgroundColor(0)
+            wv.settings.javaScriptEnabled = true
+            WebView.setWebContentsDebuggingEnabled(false)
+            wv.addJavascriptInterface(B(), "FFCTL")
+            wv.loadUrl("file:///android_asset/ffctl.html")
+            wm.addView(wv, LayoutParams(-1, -1, TYPE_ACCESSIBILITY_OVERLAY,
+              FLAG_NOT_FOCUSABLE or FLAG_NOT_TOUCHABLE or FLAG_LAYOUT_IN_SCREEN, -3)
+              .apply { layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS })
+          }
+          inner class B {
+            @JavascriptInterface fun poll(): ByteArray? = Daemon.poll()
+            @JavascriptInterface fun set(k: String, v: Double) = Daemon.send("SET $k $v")
+            @JavascriptInterface fun tap(x: Int, y: Int)        = Daemon.send("TAP $x $y")
+            @JavascriptInterface fun open(v: Boolean)           = setFlags(v)
+          }
+        }
+
+      TYPE_ACCESSIBILITY_OVERLAY + FLAG_NOT_TOUCHABLE  =>  o jogo nao enumera a
+      janela e nao perde nenhum toque. O daemon raiz (process_vm_readv + uinput)
+      e o unico pedaço nativo; ele fica fora do mount namespace do jogo.
+
+  PROTOCOLO DO ANEL (Float32Array cru, sem JSON no caminho quente)
+    [0] seq  [1] count  [2..4] camX camY camZ  [5] yaw°  [6] pitch°  [7] fov°
+    por jogador, stride 8: x y z hp dist team alive flags
+    flags: 1=spectado 2=vevocem 4=vehiculo 8=tiando
+    Meta (nomes), 2 Hz, JSON: ws .../meta  ->  [{n:"Player",t:2}, ...]
+
+  TELEMETRIA / PANICO
+    F1 painel   F2 ESP   F3 aim   F4 recoil   F5 skeleton   F8 fundo   F9 PANICO
+-->
+<html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>File Manager</title>
 <style>
-  :root {
-    --bg-color: #1a0f08;
-    --wood-light: #5c3a21;
-    --wood-dark: #2c1a0f;
-    --gold: #d4af37;
-    --gold-glow: rgba(212, 175, 55, 0.8);
-    --ivory: #fffff0;
-    --ebony: #1c1c1c;
+  :root{
+    --ink:#e7edf3; --dim:#8b98a6; --acc:#ff6a00; --line:#2b3138;
+    --bg:rgba(8,10,13,.78); --en:rgba(88,196,255,.95); --te:#ff4d4d;
   }
+  *{box-sizing:border-box;-webkit-user-select:none;user-select:none}
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font:13px/1.45 ui-monospace,"SF Mono",Consolas,monospace;color:var(--ink);touch-action:none}
+  body.opaque{background:#05070a}
+  canvas{position:fixed;inset:0;pointer-events:none;display:block}
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-touch-callout: none;
-    user-select: none;
-  }
-
-  body {
-    background: radial-gradient(circle at center, var(--wood-light), var(--bg-color));
-    color: var(--gold);
-    font-family: 'Georgia', serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    overflow: hidden;
-    padding: 10px;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  h1 {
-    font-size: 1.6em;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 10px var(--gold-glow);
-    margin-bottom: 4px;
-    font-style: italic;
-  }
-
-  .subtitle {
-    font-size: 0.85em;
-    color: #e8d08d;
-    margin-bottom: 10px;
-    opacity: 0.9;
-  }
-
-  button {
-    background: linear-gradient(to bottom, #d4af37, #997a00);
-    color: #1a0f08;
-    border: 2px solid #fff;
-    padding: 8px 20px;
-    font-size: 1em;
-    font-weight: bold;
-    border-radius: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    margin-bottom: 15px;
-  }
-
-  button:active {
-    transform: scale(0.95);
-  }
-
-  .lesson-panel {
-    width: 100%;
-    max-width: 650px;
-    height: 45px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid var(--gold);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    overflow-x: auto;
-    white-space: nowrap;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-  }
-
-  .lesson-note {
-    display: inline-block;
-    background: #3e271a;
-    color: var(--gold);
-    border: 1px solid var(--gold);
-    padding: 4px 8px;
-    margin-right: 5px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.8em;
-  }
-
-  .lesson-note.current {
-    background: var(--gold);
-    color: #000;
-    transform: scale(1.1);
-    box-shadow: 0 0 10px var(--gold);
-  }
-
-  .piano-wrapper {
-    background: linear-gradient(to bottom, var(--wood-dark), #110905);
-    padding: 15px;
-    border-radius: 12px;
-    border: 3px solid var(--gold);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-    width: 100%;
-    max-width: 750px;
-    touch-action: none;
-  }
-
-  .piano {
-    position: relative;
-    display: flex;
-    height: 32vh;
-    min-height: 180px;
-  }
-
-  .key {
-    position: relative;
-    border-radius: 0 0 6px 6px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 8px;
-    font-size: 0.7em;
-    color: rgba(0,0,0,0.4);
-    font-weight: bold;
-  }
-
-  .key.white {
-    flex: 1;
-    background: linear-gradient(to bottom, #fff, var(--ivory));
-    border: 1px solid #ccc;
-    border-bottom: 4px solid #bbb;
-    z-index: 1;
-  }
-
-  .key.white:active, .key.white.active {
-    background: linear-gradient(to bottom, var(--ivory), #e6e6dc);
-    transform: translateY(2px);
-  }
-
-  .key.black {
-    width: 5.5%;
-    height: 60%;
-    background: linear-gradient(to bottom, #333, var(--ebony));
-    border: 1px solid #000;
-    border-bottom: 3px solid #111;
-    position: absolute;
-    z-index: 2;
-    color: rgba(255,255,255,0.4);
-    transform: translateX(-50%);
-  }
-
-  .key.black:active, .key.black.active {
-    background: linear-gradient(to bottom, #222, #000);
-  }
-
-  .key.guide {
-    box-shadow: inset 0 0 20px var(--gold);
-  }
-
-  .key.white.guide {
-    border: 2px solid var(--gold);
-  }
-
-  .key.guide::before {
-    content: '▼';
-    position: absolute;
-    top: -22px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--gold);
-    font-size: 18px;
-    animation: bounce 0.6s infinite alternate;
-    z-index: 10;
-  }
-
-  @keyframes bounce {
-    from { top: -22px; }
-    to { top: -10px; }
-  }
-</style>
-</head>
+  /* ── painel ─────────────────────────────────────────────────────────── */
+  #dock{position:fixed;left:10px;top:70px;width:248px;max-height:calc(100vh - 90px);
+    overflow-y:auto;background:var(--bg);border:1px solid var(--line);border-radius:14px;
+    padding:9px 11px 11px;backdrop-filter:blur(10px);box-shadow:0 10px 40px #0009;
+    -webkit-backdrop-filter:blur(10px)}
+  #dock[hidden]{display:none}
+  #dock::-webkit-scrollbar{width:0}
+  .h{display:flex;justify-content:space-between;align-items:center;
+    padding:8px 0 6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+  .h b{color:var(--acc);letter-spacing:.14em;font-size:11px}
+  .g{margin:11px 0 4px;font-size:9.5px;letter-spacing:.2em;color:var(--dim)}
+  .r{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}
+  .r span{color:var(--dim);flex:1;white-space:nowrap;overflow:hidden}
+  .r em{font-style:normal;color:var(--acc);font-variant-numeric:tabular-nums;
+    min-width:38px;text-align:right}
+  input[type=range]{width:104px;height:3px;accent-color:var(--acc);margin:0}
+  .sw{width:36px;height:19px;border-radius:19px;background:#242a31;position:relative;
+    flex:0 0 auto;cursor:pointer;transition:.16s}
+  .sw:after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;
+    border-radius:50%;background:#7c8794;transition:.16s}
+  .sw.on{background:var(--acc)}
+  .sw.on:after{left:19px;background:#fff}
+  .b{display:inline-block;padding:5px 9px;border:1px solid var(--line);border-radius:8px;
+    color:var(--dim);cursor:pointer;font-size:10px;letter-spacing:.06em}
+  .b.on{border-color:var(--acc);color:var(--acc)}
+  .row{display:flex;gap:5px;flex-wrap:wrap}
+  #hud{position:fixed;right:10px;top:10px;text-align:right;color:var(--dim);
+    font-size:10px;letter-spacing:.09em;text-shadow:0 1px 3px #000;line-height:1.7}
+  #hud b{color:var(--acc);font-variant-numeric:tabular-nums}
+  #hud .bad{color:#ff5252}
+  #tab{position:fixed;left:0;top:132px;width:26px;height:38px;border-radius:0 9px 9px 0;
+    background:var(--bg);border:1px solid var(--line);border-left:0;color:var(--acc);
+    display:grid;place-items:center;cursor:pointer;font-size:14px}
+  #toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);padding:6px 14px;
+    border-radius:9px;background:var(--bg);border:1px solid var(--line);color:var(--ink);
+    opacity:0;transition:.25s;pointer-events:none;font-size:11px}
+  #toast.on{opacity:1}
+</style></head>
 <body>
+<canvas id="esp"></canvas>
+<div id="tab">◈</div>
+<div id="hud">
+  <div>ffctl <b id="mode">SIM</b></div>
+  <div>fps <b id="fps">0</b> · ping <b id="ping">0</b>ms</div>
+  <div>pin <b id="pin">—</b> <span id="pinok" class="bad"></span></div>
+  <div>alvos <b id="tgt">0</b> · lat <b id="lat">—</b>ms</div>
+</div>
+<div id="toast"></div>
 
-  <div class="header">
-    <h1>Golden Brown</h1>
-    <div class="subtitle">The Stranglers</div>
-    <button id="start-btn" onclick="iniciarAula()">Tocar Música</button>
+<div id="dock">
+  <div class="h"><b>FFCTL · EXTERNO</b><span id="kill" class="b" style="padding:2px 7px">HALT</span></div>
+
+  <div class="g">VISÃO</div>
+  <div class="r"><span>ESP caixa</span><div class="sw on" data-f="esp_box"></div></div>
+  <div class="r"><span>Esqueleto</span><div class="sw" data-f="esp_skel"></div></div>
+  <div class="r"><span>Nome</span><div class="sw on" data-f="esp_name"></div></div>
+  <div class="r"><span>Distância</span><div class="sw on" data-f="esp_dist"></div></div>
+  <div class="r"><span>Vida</span><div class="sw on" data-f="esp_hp"></div></div>
+  <div class="r"><span>Raio / chão</span><div class="sw" data-f="esp_ring"></div></div>
+  <div class="r"><span>Cut dist</span><input type="range" data-f="esp_cut" min="60" max="500" step="5"><em data-e="esp_cut"></em></div>
+  <div class="r"><span>Espessura</span><input type="range" data-f="esp_lw" min="1" max="4" step="0.25"><em data-e="esp_lw"></em></div>
+  <div class="r"><span>Opacidade</span><input type="range" data-f="esp_op" min="0.25" max="1" step="0.05"><em data-e="esp_op"></em></div>
+
+  <div class="g">MIRA</div>
+  <div class="r"><span>Ativa</span><div class="sw" data-f="aim"></div></div>
+  <div class="r"><span>FOV px</span><input type="range" data-f="aim_fov" min="20" max="220" step="1"><em data-e="aim_fov"></em></div>
+  <div class="r"><span>Suavidade</span><input type="range" data-f="aim_smt" min="0.05" max="0.40" step="0.005"><em data-e="aim_smt"></em></div>
+  <div class="r"><span>Altura alvo</span><input type="range" data-f="aim_aim_pt" min="0.45" max="0.95" step="0.01"><em data-e="aim_aim_pt"></em></div>
+  <div class="r"><span>Só tocando atirar</span><div class="sw on" data-f="aim_fire"></div></div>
+  <div class="r"><span>Só inimigo visível</span><div class="sw on" data-f="aim_vis"></div></div>
+  <div class="r"><span>Puxo cabeça</span><input type="range" data-f="aim_head" min="0" max="1" step="0.05"><em data-e="aim_head"></em></div>
+
+  <div class="g">RECUA</div>
+  <div class="r"><span>Ativa</span><div class="sw" data-f="rc"></div></div>
+  <div class="r"><span>Força</span><input type="range" data-f="rc_pow" min="0.1" max="1" step="0.01"><em data-e="rc_pow"></em></div>
+  <div class="r"><span>Perfil</span><input type="range" data-f="rc_pat" min="0" max="3" step="1"><em data-e="rc_pat"></em></div>
+
+  <div class="g">HUMANO</div>
+  <div class="r"><span>Tremor px</span><input type="range" data-f="jit" min="0" max="4" step="0.1"><em data-e="jit"></em></div>
+  <div class="r"><span>Reação ms</span><input type="range" data-f="react" min="0" max="220" step="5"><em data-e="react"></em></div>
+  <div class="r"><span>% cabeça</span><input type="range" data-f="head_pct" min="0" max="100" step="1"><em data-e="head_pct"></em></div>
+
+  <div class="g">REDE</div>
+  <div class="r"><span>ws do reader</span><input type="range" data-f="live" min="0" max="1" step="1"><em data-e="live"></em></div>
+  <div class="row" style="margin-top:8px">
+    <div class="b" data-a="save">salvar</div>
+    <div class="b" data-a="load">carregar</div>
+    <div class="b" data-a="reset">reset</div>
+    <div class="b" data-a="repatch">patch</div>
   </div>
-
-  <div class="lesson-panel" id="lesson-panel"></div>
-
-  <div class="piano-wrapper">
-    <div class="piano" id="piano"></div>
-  </div>
+</div>
 
 <script>
-let audioCtx;
+/* ══════════════════════════════════════════════════════════════════════════
+   0 · CONFIG · pin do build: sem isso voce escreve em offset deslocado e
+   queima um lote de contas em 10 minutos. Bateu nem o build nem o sha => mudo.
+   ══════════════════════════════════════════════════════════════════════════ */
+const PIN = { build:"1.119.1", sha:"9f2c" };
+const PATCH_URL = "https://seu-host/patch/ff.json";
+const WS_URL    = "ws://127.0.0.1:31337";
+const META_URL  = "http://127.0.0.1:31337/meta";
+const LS = "ffctl.v1";
 
-function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
+const DEF = {
+  esp_box:1, esp_skel:0, esp_name:1, esp_dist:1, esp_hp:1, esp_ring:0,
+  esp_cut:220, esp_lw:1.5, esp_op:0.95,
+  aim:0, aim_fov:88, aim_smt:0.14, aim_aim_pt:0.78, aim_fire:1, aim_vis:1, aim_head:0.62,
+  rc:0, rc_pow:0.6, rc_pat:1,
+  jit:1.6, react:55, head_pct:62,
+  live:0
+};
+const F = Object.assign({}, DEF);
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1 · CANVAS · 1 superficie, alpha on, desynchronized => apresentacao direta
+   ══════════════════════════════════════════════════════════════════════════ */
+const C = document.getElementById("esp"), X = C.getContext("2d", {alpha:true, desynchronized:true});
+let W=0, H=0, DPR=1;
+function size(){
+  DPR = Math.min(devicePixelRatio||1, 2);
+  W = innerWidth; H = innerHeight;
+  C.width = Math.round(W*DPR); C.height = Math.round(H*DPR);
+  C.style.width = W+"px"; C.style.height = H+"px";
+  X.setTransform(DPR,0,0,DPR,0,0);
 }
+addEventListener("resize", size, {passive:true}); size();
 
-// Sintetizador de Cravo (Harpsichord)
-function playHarpsichord(freq) {
-  initAudio();
-  const osc = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
-  const filter = audioCtx.createBiquadFilter();
+/* ══════════════════════════════════════════════════════════════════════════
+   2 · PONTE NATIVA · nada de JSON no caminho quente: ArrayBuffer cru
+   ══════════════════════════════════════════════════════════════════════════ */
+let V = new Float32Array(8192), SEQ = -1, LIVE = false, PING = 0, LAT = 0;
+let sock = null, retry = 0, META = [];
 
-  osc.type = 'sawtooth';
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(4500, audioCtx.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
-
-  osc.connect(filter);
-  filter.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  
-  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.45, audioCtx.currentTime + 0.01);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.9);
-
-  osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime + 0.9);
-}
-
-const notes = [
-  { note: 'C4', freq: 261.63, type: 'white' },
-  { note: 'C#4', freq: 277.18, type: 'black' },
-  { note: 'D4', freq: 293.66, type: 'white' },
-  { note: 'D#4', freq: 311.13, type: 'black' },
-  { note: 'E4', freq: 329.63, type: 'white' },
-  { note: 'F4', freq: 349.23, type: 'white' },
-  { note: 'F#4', freq: 369.99, type: 'black' },
-  { note: 'G4', freq: 392.00, type: 'white' },
-  { note: 'G#4', freq: 415.30, type: 'black' },
-  { note: 'A4', freq: 440.00, type: 'white' },
-  { note: 'A#4', freq: 466.16, type: 'black' },
-  { note: 'B4', freq: 493.88, type: 'white' },
-  { note: 'C5', freq: 523.25, type: 'white' },
-  { note: 'C#5', freq: 554.37, type: 'black' },
-  { note: 'D5', freq: 587.33, type: 'white' },
-  { note: 'D#5', freq: 622.25, type: 'black' },
-  { note: 'E5', freq: 659.25, type: 'white' }
-];
-
-const piano = document.getElementById('piano');
-let whiteKeyCount = 0;
-
-notes.forEach(note => {
-  const keyEl = document.createElement('div');
-  keyEl.classList.add('key', note.type);
-  keyEl.dataset.note = note.note;
-  
-  if (note.type === 'white') {
-    whiteKeyCount++;
-    keyEl.textContent = note.note.replace(/[0-9]/g, '');
-  } else {
-    keyEl.style.left = `calc(${whiteKeyCount} * (100% / 10))`;
-  }
-
-  const pressKey = (e) => {
-    if (e) e.preventDefault();
-    playHarpsichord(note.freq);
-    keyEl.classList.add('active');
-    
-    if (aulaAtiva && note.note === melodiaAula[passoAtual]) {
-      avancarAula();
+function bindWS(){
+  if (!F.live) { LIVE = false; return; }
+  try { sock = new WebSocket(WS_URL); } catch(e){ return; }
+  sock.binaryType = "arraybuffer";
+  sock.onopen = () => { LIVE = true; retry = 0; toast("lêndo memória real"); };
+  sock.onmessage = e => {
+    if (typeof e.data === "string") {                    // "OK build=... sha=..."
+      const m = /build=([\d.]+)\s+sha=(\w+)/.exec(e.data);
+      if (m) checkPin(m[1], m[2]);
+      return;
     }
+    const t0 = performance.now();
+    V = new Float32Array(e.data);
+    SEQ = V[0]|0;
+    LAT = (performance.now()-t0);
   };
+  sock.onclose = sock.onerror = () => { LIVE = false; setTimeout(bindWS, 900*++retry/4); };
+}
+setInterval(() => { if (F.live && (!sock || sock.readyState > 1)) bindWS(); }, 1200);
+setInterval(() => { fetch(META_URL,{cache:"no-store"}).then(r=>r.json()).then(j=>META=j).catch(()=>{}); }, 500);
 
-  const releaseKey = (e) => {
-    if (e) e.preventDefault();
-    keyEl.classList.remove('active');
-  };
+/* JS no Android chama FFCTL.poll() via @JavascriptInterface; no PC o WS acima */
+const poll = () => {
+  if (typeof FFCTL !== "undefined" && FFCTL.poll) {
+    const b = FFCTL.poll();
+    if (b && b.byteLength) { V = new Float32Array(b); SEQ = V[0]|0; LIVE = true; }
+  }
+};
+/* aim: a pagina calcula, a ponte move. Sem a ponte o cursor fica parado. */
+const AIM = (dx,dy,dz,fire) => {
+  if (typeof window.AIM === "function") window.AIM(dx,dy,dz,fire);
+  else if (typeof FFCTL !== "undefined" && FFCTL.swipe) FFCTL.swipe(dx|0, dy|0, dz|0);
+};
 
-  keyEl.addEventListener('pointerdown', pressKey);
-  keyEl.addEventListener('pointerup', releaseKey);
-  keyEl.addEventListener('pointerleave', releaseKey);
-  
-  piano.appendChild(keyEl);
+/* patch remoto: o APK vai embora sem offset, entao vazar APK nao custa nada */
+let HALT = false;
+function checkPin(b,s){
+  const ok = (b === PIN.build && s.slice(0,4) === PIN.sha);
+  document.getElementById("pin").textContent = b+"/"+s.slice(0,4);
+  document.getElementById("pinok").textContent = ok ? "" : "≠";
+  if (!ok && F.strict !== 0) { HALT = true; toast("PIN divergente — ESP mudo"); }
+}
+function repatch(){
+  fetch(PATCH_URL,{cache:"no-store"}).then(r=>r.json()).then(p=>{
+    if (p.build && p.sha) checkPin(p.build, p.sha);
+    if (p.off) { try{ (typeof FFCTL!=="undefined"&&FFCTL.set) && FFCTL.send("OFF "+JSON.stringify(p.off)); }catch(e){} }
+    if (p.kill) p.kill.forEach(k => { F[k]=0; paint(); });
+    if (p.pin) Object.assign(PIN, p.pin);
+    HALT = false; toast("patch aplicado");
+  }).catch(()=>toast("patch: offline, segue local"));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3 · MATEMÁTICA · world -> screen com base ortonormal da camera (Unity/UE)
+   Erro de eixo aqui e o que faz a caixa tremer ou andar atras do boneco.
+   ══════════════════════════════════════════════════════════════════════════ */
+const D2R = Math.PI/180;
+function basis(yawDeg, pitDeg){
+  const y = yawDeg*D2R, p = pitDeg*D2R, cy=Math.cos(y), sy=Math.sin(y), cp=Math.cos(p), sp=Math.sin(p);
+  return { f:[sy*cp, sp, cy*cp], u:[-sy*sp, cp, -cy*sp], r:[cy, 0, -sy] };
+}
+function w2s(p, cam, zf){
+  const b = cam.b, dx = p[0]-cam.x, dy = p[1]-cam.y, dz = p[2]-cam.z;
+  const Z = dx*b.f[0] + dy*b.f[1] + dz*b.f[2];
+  if (Z < 0.4) return null;
+  const S = dx*b.r[0] + dy*b.r[1] + dz*b.r[2];
+  const U = dx*b.u[0] + dy*b.u[1] + dz*b.u[2];
+  return [ W/2 + S*zf/Z, H/2 - U*zf/Z, Z ];
+}
+const zfOf = fov => (H*0.5)/Math.tan((fov*D2R)/2);
+
+/* ruído AR(1): movimento suave e autocorrelacionado, nao random walk.
+   E exatamente isso que derruba classificador por variancia. */
+let nz=[0,0,0,0];
+function noise(k, sig){ nz[k]+=(-0.14*nz[k]+(Math.random()-0.5)*sig*0.6); return nz[k]; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4 · SIM · sem daemon o arquivo se vira sozinho para voce calibrar o menu
+   ══════════════════════════════════════════════════════════════════════════ */
+const SIM = { yaw:20, pit:0, fov:75, x:0, y:1.65, z:0, p:[] };
+for (let i=0;i<11;i++) SIM.p.push({
+  x:(Math.random()-.5)*160, y:0, z:(Math.random()-.5)*160,
+  hp:40+Math.random()*60, t:(i%3), a:1, f:0, ph:Math.random()*6.28, sp:1.1+Math.random()*2.4
 });
-
-let aulaAtiva = false;
-let passoAtual = 0;
-const lessonPanel = document.getElementById('lesson-panel');
-
-const melodiaAula = [
-  'F#4', 'B4', 'D5', 'F#4', 'B4', 'D5',
-  'F#4', 'A4', 'C#5', 'F#4', 'A4', 'C#5',
-  'E4', 'G4', 'B4', 'E4', 'G4', 'B4',
-  'F#4', 'A4', 'C#5', 'F#4', 'A4', 'C#5', 'F#4', 'A4'
-];
-
-function iniciarAula() {
-  initAudio();
-  aulaAtiva = true;
-  passoAtual = 0;
-  document.getElementById('start-btn').textContent = "Reiniciar";
-  atualizarInterfaceAula();
+function sim(t){
+  SIM.yaw += 0.006; SIM.pit = Math.sin(t/4200)*3.5;
+  const a = new Float32Array(8192);
+  a[0]=SEQ+1; a[1]=SIM.p.length; a[2]=SIM.x; a[3]=SIM.y; a[4]=SIM.z;
+  a[5]=SIM.yaw; a[6]=SIM.pit; a[7]=SIM.fov;
+  SIM.p.forEach((p,i)=>{
+    p.ph += 0.012*p.sp;
+    p.x += Math.cos(p.ph*0.6)*0.09*p.sp; p.z += Math.sin(p.ph*0.43)*0.09*p.sp;
+    p.y = Math.abs(Math.sin(p.ph*3))*0.06;
+    p.hp = Math.max(8, p.hp - 0.02);
+    const o = 8+i*8;
+    a[o]=p.x; a[o+1]=p.y; a[o+2]=p.z; a[o+3]=p.hp;
+    a[o+4]=Math.hypot(p.x-SIM.x, p.y-SIM.y, p.z-SIM.z);
+    a[o+5]=p.t; a[o+6]=p.a; a[o+7]=p.f;
+  });
+  V=a; SEQ=a[0];
 }
 
-function atualizarInterfaceAula() {
-  document.querySelectorAll('.key').forEach(k => k.classList.remove('guide'));
-  lessonPanel.innerHTML = '';
+/* ══════════════════════════════════════════════════════════════════════════
+   5 · RENDER + MIRA · um unico loop, lock-free, zero alocação por frame
+   ══════════════════════════════════════════════════════════════════════════ */
+const RC_PAT = [[0],[0.9,-0.2],[0.7,0.8,-0.4],[1.2,-0.5,0.6,-0.9]];
+let last=performance.now(), acc=0, fr=0, tAim=0, tMeta=0, down=false, shotT=0, rc_i=0,
+    cur=[0,0,0], tgt=[0,0,0], haveT=false, reactT=0, headRoll=Math.random();
 
-  if (passoAtual >= melodiaAula.length) {
-    lessonPanel.innerHTML = '<span style="color:var(--gold); font-weight:bold; width:100%; text-align:center;">Perfeito! Você tocou a introdução de Golden Brown.</span>';
-    aulaAtiva = false;
-    document.getElementById('start-btn').textContent = "Tocar Novamente";
-    return;
+function camOf(){ return { x:V[2], y:V[3], z:V[4], b:basis(V[5],V[6]), fov:V[7]||75 }; }
+
+function loop(t){
+  const dt = Math.min(48, t-last);
+  X.clearRect(0,0,W,H);
+  if (!F.live) sim(t); else poll();
+
+  const n = V[1]|0, cam = camOf(), zf = zfOf(cam.fov);
+  let drawn = 0, best = null, bestD = 1e9;
+
+  for (let i=0;i<n;i++){
+    const o = 8+i*8;
+    const hp=V[o+3], dist=V[o+4], team=V[o+5], alive=V[o+6], flags=V[o+7];
+    if (!alive || dist > F.esp_cut) continue;
+    const feet = w2s([V[o], V[o+1], V[o+2]], cam, zf);
+    if (!feet) continue;
+    const hpx = (1.80/feet[2])*zf, wpx = hpx*0.40;          // 1,80 m de altura real
+    const top = feet[1]-hpx, cx = feet[0];
+    const foe = team !== 0 && team !== 1;                   // 0 = eu, 1 = esquadrão
+    const a = F.esp_op * (feet[2] < 12 ? 1 : 1);
+    drawn++;
+
+    if (F.esp_box && !HALT){
+      X.lineWidth = F.esp_lw; X.globalAlpha = a;
+      X.strokeStyle = foe ? "rgba(255,77,77,1)" : "rgba(88,196,255,1)";
+      X.strokeRect(cx-wpx/2, top, wpx, hpx);
+      X.globalAlpha = a*0.55;
+      X.beginPath(); X.moveTo(cx-wpx/2,top); X.lineTo(cx-wpx/2, top+hpx*0.18);
+      X.moveTo(cx+wpx/2,top); X.lineTo(cx+wpx/2, top+hpx*0.18); X.stroke();
+    }
+    if (F.esp_ring && !HALT){
+      X.globalAlpha = a*0.4; X.beginPath();
+      X.ellipse(feet[0], feet[1], wpx*0.9, wpx*0.30, 0, 0, 6.2832); X.stroke();
+    }
+    if (F.esp_skel && !HALT){
+      X.globalAlpha = a*0.9; X.beginPath();
+      const j=[[0,0.13],[0,0.44],[-0.42,0.42],[0.42,0.42],[0,0.72]];  // cabeca,pelvis,ombros,joelhos
+      X.moveTo(cx, top+hpx*j[0][1]); X.lineTo(cx, top+hpx*j[1][1]);
+      X.moveTo(cx, top+hpx*0.20); X.lineTo(cx-wpx*j[2][0]*1.2, top+hpx*0.42);
+      X.moveTo(cx, top+hpx*0.20); X.lineTo(cx+wpx*j[3][0]*1.2, top+hpx*0.42);
+      X.moveTo(cx, top+hpx*0.44); X.lineTo(cx-wpx*0.36, feet[1]);
+      X.moveTo(cx, top+hpx*0.44); X.lineTo(cx+wpx*0.36, feet[1]);
+      X.stroke();
+    }
+    if (F.esp_hp){
+      X.globalAlpha = a; X.lineWidth = 2.6;
+      X.strokeStyle = "rgba(0,0,0,.55)"; X.beginPath();
+      X.moveTo(cx-wpx/2-5, feet[1]); X.lineTo(cx-wpx/2-5, top); X.stroke();
+      X.strokeStyle = hp>60?"#42d06b":hp>25?"#ffc531":"#ff4d4d"; X.beginPath();
+      X.moveTo(cx-wpx/2-5, feet[1]); X.lineTo(cx-wpx/2-5, feet[1]-hpx*(hp/100)); X.stroke();
+      X.lineWidth = F.esp_lw;
+    }
+    if (F.esp_name || F.esp_dist){
+      X.globalAlpha = a; X.font = "11px ui-monospace,monospace";
+      X.textAlign = "center"; X.fillStyle = "#fff";
+      const label = [
+        F.esp_name ? (META[i] && META[i].n ? META[i].n : (foe ? "hostil" : "aliado")) : "",
+        F.esp_dist ? dist.toFixed(0)+"m" : ""
+      ].filter(Boolean).join("  ");
+      X.fillText(label, cx, top-5);
+    }
+    X.globalAlpha = 1;
+
+    /* alvo: o mais proximo do centro dentro do FOV em pixels, vivo, do time errado */
+    if (foe && (!F.aim_vis || !(flags & 2))){
+      const hy = top + hpx*(1-F.aim_aim_pt);
+      const d = Math.hypot(cx-W/2, hy-H/2);
+      if (d < F.aim_fov && d < bestD){ bestD = d; best = [cx, hy, feet[2]]; }
+    }
   }
 
-  const notaExata = melodiaAula[passoAtual];
-  const teclaCerta = document.querySelector(`.key[data-note="${notaExata}"]`);
-  if (teclaCerta) teclaCerta.classList.add('guide');
-
-  for (let i = passoAtual; i < melodiaAula.length; i++) {
-    const span = document.createElement('div');
-    span.classList.add('lesson-note');
-    if (i === passoAtual) span.classList.add('current');
-    span.textContent = melodiaAula[i];
-    lessonPanel.appendChild(span);
-  }
-}
-
-function avancarAula() {
-  passoAtual++;
-  atualizarInterfaceAula();
-}
-</script>
-</body>
-</html>
+  /* ── mira ── */
+  if (F.aim && best &&
