@@ -312,3 +312,8 @@ function update(dt){T+=dt;
     if(b.x<-60||b.x>W+60||b.y<-60||b.y>H+60)b.life=0;}
   bullets=bullets.filter(b=>b.life>0);
   /* inimigos */
+  for(const e of enemies){
+    if(e.dead)continue;
+    e.flash=Math.max(0,e.flash-dt);e.ph+=dt;
+    const ang=Math.atan2(P.y-e.y,P.x-e.x),d=Math.hypot(P.x-e.x,P.y-e.y);
+    let wan
