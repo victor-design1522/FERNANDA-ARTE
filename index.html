@@ -1,912 +1,843 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Open World 2D - VICTOR OFICIAL</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-        }
-        #game-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        canvas {
-            display: block;
-            background: #112211;
-        }
-        /* Tela de Orientação (Retrato) */
-        #orientation-warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0a;
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-        #orientation-warning h1 {
-            color: #f1c40f;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-        #orientation-warning p {
-            color: #ccc;
-            font-size: 16px;
-        }
-        .icon-rotate {
-            font-size: 50px;
-            animation: rotateAnim 2s infinite ease-in-out;
-            margin-bottom: 20px;
-        }
-        @keyframes rotateAnim {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(90deg); }
-            100% { transform: rotate(0deg); }
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CIDADE LIVRE - Mundo Aberto 2D</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:system-ui, sans-serif; }
+html, body { width:100%; height:100%; overflow:hidden; background:#000; }
+#rotate-screen { 
+  position:fixed; inset:0; background:#111; color:#fff;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:9999; font-size:22px; text-align:center; padding:20px; gap:20px;
+}
+#game-container { 
+  position:fixed; inset:0; display:none; flex-direction:column;
+  width:100vw; height:100vh; overflow:hidden;
+}
+canvas { display:block; background:#1a237e; }
+canvas:focus { outline:none; }
 
-        /* Menus e Telas UI */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            transition: opacity 0.3s ease;
-        }
-        .hidden {
-            display: none !important;
-        }
-        h1.title {
-            font-size: 42px;
-            color: #e74c3c;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.8), 0 0 20px #e74c3c;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        h2.subtitle {
-            font-size: 16px;
-            color: #f1c40f;
-            margin-bottom: 30px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .menu-btn {
-            background: linear-gradient(135deg, #2980b9, #2c3e50);
-            border: 2px solid #3498db;
-            color: white;
-            padding: 12px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 8px;
-            min-width: 220px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            transition: all 0.2s;
-        }
-        .menu-btn:hover {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
-        }
-        .menu-btn:active {
-            transform: translateY(1px);
-        }
+/* === MENUS === */
+.menu-screen {
+  position:absolute; inset:0; background:rgba(0,0,0,0.92);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:100; color:white; padding:20px;
+}
+.menu-title { font-size:clamp(2.5rem,6vw,4rem); font-weight:900; color:#ffd700; text-shadow:0 0 20px #ffd700; margin-bottom:10px; }
+.menu-subtitle { font-size:clamp(1rem,2vw,1.5rem); color:#888; margin-bottom:40px; }
+.menu-btn {
+  background:linear-gradient(135deg,#ffd700,#ff9800); color:#000; border:none;
+  padding:14px 40px; font-size:clamp(1rem,2vw,1.3rem); font-weight:bold;
+  border-radius:12px; margin:8px; cursor:pointer; transition:all 0.2s; min-width:280px;
+}
+.menu-btn:hover { transform:scale(1.05); box-shadow:0 0 25px #ffd700; }
+.menu-btn.secondary { background:linear-gradient(135deg,#444,#222); color:#fff; }
+.credits-text { margin-top:30px; text-align:center; color:#aaa; line-height:1.8; font-size:1.1rem; }
+.credits-text h3 { color:#ffd700; margin-bottom:10px; }
 
-        /* HUD do Jogo */
-        #hud {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-        .hud-element {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-size: 14px;
-            font-weight: bold;
-            backdrop-filter: blur(4px);
-        }
-        #hud-top-right {
-            top: 15px;
-            right: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
-        }
-        #hud-top-left {
-            top: 15px;
-            left: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            min-width: 180px;
-        }
-        .bar-container {
-            width: 100%;
-            background: rgba(255,255,255,0.2);
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 2px;
-        }
-        .bar-fill {
-            height: 100%;
-            width: 100%;
-            transition: width 0.1s linear;
-        }
-        #health-fill { background: #e74c3c; }
-        #energy-fill { background: #f1c40f; }
-        
-        #minimap-container {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            overflow: hidden;
-            background: #222;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            pointer-events: auto;
-        }
-        #minimap-canvas {
-            width: 100%;
-            height: 100%;
-        }
+/* === HUD === */
+#hud {
+  position:absolute; top:0; left:0; right:0; padding:10px 15px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  pointer-events:none; z-index:50;
+}
+.hud-left { display:flex; flex-direction:column; gap:6px; }
+.hud-bar { width:180px; height:16px; background:rgba(0,0,0,0.6); border-radius:8px; overflow:hidden; border:1px solid #555; }
+.hud-bar-fill { height:100%; transition:width 0.3s; }
+.life-bar { background:linear-gradient(90deg,#f44336,#ff5722); }
+.energy-bar { background:linear-gradient(90deg,#2196f3,#03a9f4); }
+.hud-text { color:white; font-weight:bold; text-shadow:1px 1px 2px black; font-size:14px; }
+.hud-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.hud-box { background:rgba(0,0,0,0.6); padding:6px 12px; border-radius:8px; color:white; font-weight:bold; font-size:14px; }
+.minimap {
+  width:160px; height:160px; background:rgba(0,0,0,0.7); border:2px solid #ffd700;
+  border-radius:8px; margin-top:8px; overflow:hidden;
+}
 
-        #mission-box {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            border-left: 4px solid #f1c40f;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-align: center;
-            max-width: 400px;
-        }
+/* === CONTROLES TOUCH === */
+#touch-controls {
+  position:absolute; bottom:20px; left:0; right:0; display:none;
+  justify-content:space-between; padding:0 20px; pointer-events:none; z-index:60;
+}
+.dpad { width:140px; height:140px; position:relative; pointer-events:auto; }
+.dpad-btn {
+  position:absolute; width:45px; height:45px; background:rgba(255,255,255,0.25);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  color:white; font-size:20px; border:2px solid rgba(255,255,255,0.4);
+}
+.dpad-up { top:0; left:47px; }
+.dpad-down { bottom:0; left:47px; }
+.dpad-left { left:0; top:47px; }
+.dpad-right { right:0; top:47px; }
+.action-buttons { display:flex; flex-direction:column; gap:10px; pointer-events:auto; }
+.action-btn {
+  width:65px; height:65px; border-radius:50%; background:rgba(255,215,0,0.3);
+  border:3px solid #ffd700; color:white; font-weight:bold; font-size:12px;
+  pointer-events:auto;
+}
 
-        /* Controles Mobile */
-        #mobile-controls {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 15;
-            display: none;
-        }
-        .touch-zone {
-            position: absolute;
-            pointer-events: auto;
-        }
-        #joystick-base {
-            bottom: 30px;
-            left: 30px;
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            position: absolute;
-        }
-        #joystick-stick {
-            position: absolute;
-            top: 35px;
-            left: 35px;
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        #action-buttons {
-            bottom: 30px;
-            right: 170px;
-            display: flex;
-            gap: 15px;
-            position: absolute;
-        }
-        .action-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            pointer-events: auto;
-        }
-        .action-btn:active {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0.95);
-        }
-        #btn-pause {
-            position: absolute;
-            top: 15px;
-            right: 170px;
-            width: 45px;
-            height: 45px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 8px;
-            color: white;
-            font-size: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            pointer-events: auto;
-        }
+/* === MENU DE PAUSA === */
+.pause-menu {
+  position:absolute; inset:0; background:rgba(0,0,0,0.85);
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  z-index:80; color:white;
+}
+.pause-title { font-size:2.5rem; color:#ffd700; margin-bottom:30px; }
 
-        /* Créditos e Texto */
-        .credits-text {
-            color: #aaa;
-            font-size: 14px;
-            text-align: center;
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .creator-tag {
-            color: #f1c40f;
-            font-weight: bold;
-        }
-    </style>
+.hidden { display:none !important; }
+</style>
 </head>
 <body>
 
-    <div id="orientation-warning">
-        <div class="icon-rotate">📱</div>
-        <h1>Gire o seu aparelho</h1>
-        <p>Este jogo foi desenvolvido para ser jogado apenas no modo paisagem (horizontal).</p>
+<!-- Tela de rotação -->
+<div id="rotate-screen">
+  <div style="font-size:60px;">📱↔️</div>
+  <h2>Gire seu aparelho para o modo paisagem</h2>
+  <p>Este jogo funciona apenas na horizontal</p>
+</div>
+
+<!-- Container do jogo -->
+<div id="game-container">
+  <canvas id="gameCanvas" width="1280" height="720" tabindex="1"></canvas>
+  
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="hud-text">❤️ Vida</div>
+      <div class="hud-bar"><div id="life-bar" class="hud-bar-fill life-bar" style="width:100%"></div></div>
+      <div class="hud-text">⚡ Energia</div>
+      <div class="hud-bar"><div id="energy-bar" class="hud-bar-fill energy-bar" style="width:100%"></div></div>
     </div>
-
-    <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-
-        <!-- HUD -->
-        <div id="hud" class="hidden">
-            <div id="hud-top-left" class="hud-element">
-                <div>Vida: <span id="txt-hp">100</span></div>
-                <div class="bar-container"><div id="health-fill" class="bar-fill"></div></div>
-                <div>Energia: <span id="txt-en">100</span></div>
-                <div class="bar-container"><div id="energy-fill" class="bar-fill"></div></div>
-            </div>
-
-            <div id="mission-box">
-                <div style="font-size: 11px; color: #f1c40f; text-transform: uppercase;">Objetivo Atual</div>
-                <div id="txt-mission" style="font-size: 13px; font-weight: bold;">Explore o vasto mundo aberto.</div>
-            </div>
-
-            <div id="hud-top-right" class="hud-element">
-                <div>Dinheiro: <span id="txt-money" style="color: #2ecc71;">$10,500</span></div>
-                <div>Hora: <span id="txt-time">12:00</span> | <span id="txt-weather">Sol</span></div>
-            </div>
-
-            <div id="minimap-container">
-                <canvas id="minimap-canvas"></canvas>
-            </div>
-
-            <div id="btn-pause" onclick="game.togglePause()">⏸</div>
-        </div>
-
-        <!-- Controles Mobile -->
-        <div id="mobile-controls">
-            <div id="joystick-base" class="touch-zone">
-                <div id="joystick-stick"></div>
-            </div>
-            <div id="action-buttons">
-                <div class="action-btn" id="btn-run" ontouchstart="game.player.setRun(true)" ontouchend="game.player.setRun(false)" onmousedown="game.player.setRun(true)" onmouseup="game.player.setRun(false)">CORR</div>
-                <div class="action-btn" id="btn-interact" onclick="game.player.interact()">ENT</div>
-            </div>
-        </div>
-
-        <!-- Menu Principal -->
-        <div id="menu-screen" class="screen">
-            <h1 class="title">OPEN WORLD 2D</h1>
-            <h2 class="subtitle">Criado por VICTOR OFICIAL</h2>
-            <button class="menu-btn" onclick="game.start()">Iniciar Jogo</button>
-            <button class="menu-btn" onclick="game.showCredits()">Créditos</button>
-            <div style="margin-top: 20px; font-size: 12px; color: #777;">Versão 1.0.0 • HTML5 Canvas Puro</div>
-        </div>
-
-        <!-- Menu de Pausa -->
-        <div id="pause-screen" class="screen hidden">
-            <h1 class="title" style="font-size: 32px;">JOGO PAUSADO</h1>
-            <h2 class="subtitle">Criado por VICTOR OFICIAL</h2>
-            <button class="menu-btn" onclick="game.togglePause()">Continuar</button>
-            <button class="menu-btn" onclick="game.restart()">Reiniciar</button>
-            <button class="menu-btn" onclick="game.showMenu()">Menu Principal</button>
-        </div>
-
-        <!-- Tela de Créditos -->
-        <div id="credits-screen" class="screen hidden">
-            <h1 class="title" style="font-size: 32px;">CRÉDITOS</h1>
-            <h2 class="subtitle">Open World 2D</h2>
-            <div class="credits-text">
-                Um jogo de mundo aberto totalmente original desenvolvido sem o uso de bibliotecas ou arquivos externos, rodando puramente em HTML5 Canvas e JavaScript.<br><br>
-                Criado por <span class="creator-tag">VICTOR OFICIAL</span>.<br><br>
-                Todos os direitos reservados. © 2026
-            </div>
-            <button class="menu-btn" onclick="game.hideCredits()">Voltar</button>
-        </div>
+    <div class="hud-right">
+      <div class="hud-box">💰 R$ <span id="money-display">5000</span></div>
+      <div class="hud-box">🕐 <span id="time-display">06:00</span> — <span id="weather-display">☀️ Ensolarado</span></div>
+      <div class="hud-box" id="mission-display">📋 Nenhuma missão ativa</div>
+      <canvas id="minimap" class="minimap" width="160" height="160"></canvas>
     </div>
+  </div>
 
-    <script>
-        // Verificação de Orientação
-        function checkOrientation() {
-            const warning = document.getElementById('orientation-warning');
-            if (window.innerHeight > window.innerWidth && window.innerWidth < 768) {
-                warning.style.display = 'flex';
-            } else {
-                warning.style.display = 'none';
+  <!-- Controles de toque -->
+  <div id="touch-controls">
+    <div class="dpad">
+      <button class="dpad-btn dpad-up" data-key="up">↑</button>
+      <button class="dpad-btn dpad-down" data-key="down">↓</button>
+      <button class="dpad-btn dpad-left" data-key="left">←</button>
+      <button class="dpad-btn dpad-right" data-key="right">→</button>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" data-action="interact">F</button>
+      <button class="action-btn" data-action="run">🏃</button>
+      <button class="action-btn" data-action="inventory">📦</button>
+      <button class="action-btn" data-action="pause">⏸</button>
+    </div>
+  </div>
+
+  <!-- Menu Principal -->
+  <div id="main-menu" class="menu-screen">
+    <h1 class="menu-title">🌆 CIDADE LIVRE</h1>
+    <p class="menu-subtitle">Mundo Aberto 2D — Explore sem limites</p>
+    <button class="menu-btn" onclick="startNewGame()">🎮 Novo Jogo</button>
+    <button class="menu-btn" onclick="loadGame()">💾 Carregar Jogo</button>
+    <button class="menu-btn" onclick="showCredits()">⭐ Créditos</button>
+    <button class="menu-btn secondary" onclick="showSettings()">⚙️ Configurações</button>
+    <div class="credits-text">
+      <p>Jogo original desenvolvido totalmente em HTML5, CSS3 e JavaScript</p>
+      <p>Sem bibliotecas externas, sem imagens externas, sem sons externos</p>
+      <h3 style="margin-top:20px;">Criado por VICTOR OFICIAL</h3>
+      <p>© 2026 — Todos os direitos reservados</p>
+    </div>
+  </div>
+
+  <!-- Tela de Créditos -->
+  <div id="credits-screen" class="menu-screen hidden">
+    <h1 class="menu-title">🌆 CIDADE LIVRE</h1>
+    <div class="credits-text" style="font-size:1.2rem;">
+      <h2 style="color:#ffd700; margin-bottom:20px;">Versão 1.0 — HTML5</h2>
+      <p><strong>Nome do Jogo:</strong> CIDADE LIVRE</p>
+      <p><strong>Estilo:</strong> Mundo Aberto 2D — Visão Top-Down</p>
+      <p><strong>Plataforma:</strong> Navegador Web — Sem dependências</p>
+      <br>
+      <h3>👨‍💻 Desenvolvimento, Arte, Design & Programação</h3>
+      <h2 style="color:#ffd700; font-size:1.8rem; margin:15px 0;">VICTOR OFICIAL</h2>
+      <br>
+      <p>Mapa grande com 20+ regiões • Sistema de clima e dia/noite</p>
+      <p>Veículos com física própria • NPCs com rotinas diárias</p>
+      <p>Missões, economia, casas, salvamento automático</p>
+      <p>Partículas, efeitos visuais e áudio gerado por código</p>
+      <br>
+      <p style="color:#ffd700; font-weight:bold;">© 2026 — Todos os direitos reservados</p>
+      <p>Jogo original — Nenhuma parte foi copiada de outros projetos</p>
+    </div>
+    <button class="menu-btn" onclick="hideCredits()" style="margin-top:30px;">← Voltar</button>
+  </div>
+
+  <!-- Tela de Configurações -->
+  <div id="settings-screen" class="menu-screen hidden">
+    <h1 class="menu-title">⚙️ Configurações</h1>
+    <div style="color:white; font-size:1.1rem; line-height:2.5; margin:20px 0;">
+      <label>🔊 Volume: <input type="range" id="volume-slider" min="0" max="100" value="50" style="width:200px;"></label><br>
+      <label>🌧️ Efeitos climáticos: <input type="checkbox" id="weather-toggle" checked></label><br>
+      <label>👤 Mostrar NPCs: <input type="checkbox" id="npc-toggle" checked></label><br>
+      <label>📊 Qualidade gráfica: 
+        <select id="quality-select" style="padding:5px; border-radius:5px; background:#333; color:white;">
+          <option value="low">Baixa</option>
+          <option value="medium" selected>Média</option>
+          <option value="high">Alta</option>
+        </select>
+      </label>
+    </div>
+    <button class="menu-btn" onclick="saveSettings()">💾 Salvar Configurações</button>
+    <button class="menu-btn secondary" onclick="hideSettings()">← Voltar</button>
+  </div>
+
+  <!-- Menu de Pausa -->
+  <div id="pause-menu" class="pause-menu">
+    <h2 class="pause-title">⏸️ Jogo Pausado</h2>
+    <button class="menu-btn" onclick="resumeGame()">▶️ Continuar Jogo</button>
+    <button class="menu-btn" onclick="saveGame()">💾 Salvar Progresso</button>
+    <button class="menu-btn" onclick="showSettings()">⚙️ Configurações</button>
+    <button class="menu-btn" onclick="showCredits()">⭐ Créditos</button>
+    <button class="menu-btn secondary" onclick="quitToMenu()">🚪 Sair para o Menu Principal</button>
+  </div>
+
+  <!-- Tela de Missões -->
+  <div id="mission-panel" class="menu-screen hidden">
+    <h1 class="menu-title">📋 Missões</h1>
+    <div id="mission-list" style="color:white; font-size:1.1rem; line-height:2; max-width:600px; text-align:left; background:rgba(0,0,0,0.5); padding:20px; border-radius:10px; margin:20px 0;">
+      <p>🔹 Explore a cidade e fale com NPCs para receber missões</p>
+      <p>🔹 Corridas, entregas, táxi, resgates, investigações...</p>
+      <p>🔹 Cada missão recompensa dinheiro e experiência</p>
+    </div>
+    <button class="menu-btn" onclick="closeMissionPanel()">← Fechar</button>
+  </div>
+
+  <!-- Painel de Inventário -->
+  <div id="inventory-panel" class="menu-screen hidden">
+    <h1 class="menu-title">📦 Inventário</h1>
+    <div id="inventory-content" style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:20px 0; max-width:500px;">
+    </div>
+    <button class="menu-btn" onclick="closeInventory()">← Fechar</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ⚙️ CONFIGURAÇÕES E CONSTANTES
+// ═══════════════════════════════════════════════════════════
+const CONFIG = {
+  TILE_SIZE: 64,
+  MAP_WIDTH: 200,
+  MAP_HEIGHT: 200,
+  PLAYER_SPEED: 3.5,
+  PLAYER_RUN_SPEED: 6.5,
+  DAY_LENGTH: 240000, // ms por dia (4 min = 24h)
+  CLIMATE_CHANCE: 0.0008,
+  SAVE_INTERVAL: 30000, // Salva a cada 30s
+  version: "1.0"
+};
+
+// Estados do jogo
+const GameState = {
+  MENU: 'menu',
+  PLAYING: 'playing',
+  PAUSED: 'paused',
+  DIALOG: 'dialog',
+  BUILDING: 'building'
+};
+
+// Clima
+const WeatherType = {
+  SUNNY: { id:0, name:'☀️ Ensolarado', rain:0, fog:0, light:1.0 },
+  CLOUDY: { id:1, name:'☁️ Nublado', rain:0, fog:0.1, light:0.8 },
+  RAINY: { id:2, name:'🌧️ Chuva', rain:1, fog:0.2, light:0.6 },
+  STORM: { id:3, name:'⛈️ Tempestade', rain:2, fog:0.4, light:0.4 },
+  FOGGY: { id:4, name:'🌫️ Neblina', rain:0, fog:0.8, light:0.5 }
+};
+
+// Regiões do mapa
+const REGIONS = {
+  CENTER: { name:'Centro', color:'#ffd700', x:90, y:90, w:20, h:20 },
+  RESIDENTIAL: { name:'Bairro Residencial', color:'#4caf50', x:50, y:50, w:25, h:25 },
+  INDUSTRIAL: { name:'Área Industrial', color:'#607d8b', x:130, y:50, w:20, h:25 },
+  FAVELA: { name:'Comunidade', color:'#e91e63', x:30, y:100, w:18, h:18 },
+  HARBOR: { name:'Porto', color:'#03a9f4', x:160, y:30, w:25, h:20 },
+  AIRPORT: { name:'Aeroporto', color:'#9c27b0', x:150, y:150, w:22, h:18 },
+  FARM: { name:'Fazenda', color:'#8bc34a', x:30, y:150, w:20, h:20 },
+  FOREST: { name:'Floresta', color:'#2e7d32', x:80, y:160, w:30, h:25 },
+  BEACH: { name:'Praia', color:'#ffeb3b', x:0, y:80, w:15, h:40 },
+  LAKE: { name:'Lago', color:'#2196f3', x:120, y:130, w:12, h:10, water:true },
+  RIVER: { name:'Rio', color:'#0288d1', x:60, y:130, w:5, h:40, water:true },
+  MOUNTAINS: { name:'Montanhas', color:'#795548', x:170, y:100, w:25, h:35 },
+  DESERT: { name:'Deserto', color:'#ffc107', x:0, y:140, w:25, h:30 },
+  MILITARY: { name:'Base Militar', color:'#556b2f', x:170, y:5, w:20, h:20 },
+  PARK: { name:'Parque', color:'#32c55f', x:70, y:85, w:15, h:15 },
+  HOSPITAL: { name:'Hospital', color:'#ffffff', x:85, y:85, w:6, h:6, building:true },
+  POLICE: { name:'Delegacia', color:'#2196f3', x:95, y:85, w:5, h:5, building:true },
+  FIRE: { name:'Corpo de Bombeiros', color:'#f44336', x:85, y:95, w:5, h:5, building:true },
+  STORE: { name:'Loja', color:'#ff9800', x:92, y:92, w:4, h:4, building:true },
+  GAS: { name:'Posto de Combustível', color:'#ff5722', x:100, y:90, w:5, h:5, building:true },
+  WORKSHOP: { name:'Oficina', color:'#795548', x:105, y:95, w:5, h:5, building:true },
+  RESTAURANT: { name:'Restaurante', color:'#e91e63', x:88, y:88, w:4, h:4, building:true },
+  BANK: { name:'Banco', color:'#3f51b5', x:98, y:92, w:4, h:4, building:true },
+  HOUSE: { name:'Casa', color:'#9c27b0', x:55, y:55, w:4, h:4, building:true, buyable:true }
+};
+
+// Tipos de veículos
+const VEHICLE_TYPES = {
+  CAR: { name:'Carro', speed:5, accel:0.15, friction:0.92, color:'#f44336', width:40, height:24, fuel:100 },
+  MOTORCYCLE: { name:'Moto', speed:7, accel:0.25, friction:0.90, color:'#ff9800', width:28, height:16, fuel:60 },
+  TRUCK: { name:'Caminhão', speed:3.5, accel:0.08, friction:0.95, color:'#607d8b', width:56, height:28, fuel:200 },
+  BUS: { name:'Ônibus', speed:4, accel:0.10, friction:0.94, color:'#2196f3', width:64, height:28, fuel:150 },
+  BIKE: { name:'Bicicleta', speed:3, accel:0.20, friction:0.97, color:'#4caf50', width:24, height:12, fuel:999 },
+  BOAT: { name:'Barco', speed:4.5, accel:0.12, friction:0.93, color:'#00bcd4', width:44, height:20, fuel:80, waterOnly:true }
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🎵 SISTEMA DE ÁUDIO (gerado por código — sem arquivos externos)
+// ═══════════════════════════════════════════════════════════
+class AudioSystem {
+  constructor() {
+    this.ctx = null;
+    this.volume = 0.5;
+    this.enabled = true;
+  }
+  
+  init() {
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) { console.log('Áudio não disponível'); }
+  }
+  
+  setVolume(v) { this.volume = Math.max(0, Math.min(1, v)); }
+  
+  playTone(freq, duration, type='sine', vol=0.3) {
+    if (!this.ctx || !this.enabled) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol * this.volume, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    } catch(e) {}
+  }
+  
+  step() { this.playTone(200 + Math.random()*50, 0.04, 'square', 0.08); }
+  engine() { this.playTone(80 + Math.random()*40, 0.08, 'sawtooth', 0.12); }
+  collision() { this.playTone(100, 0.2, 'sawtooth', 0.3); }
+  rain() { this.playTone(300 + Math.random()*400, 0.02, 'sine', 0.05); }
+  pickup() { this.playTone(523, 0.1, 'sine', 0.2); this.playTone(659, 0.1, 'sine', 0.2); }
+  coin() { this.playTone(880, 0.15, 'sine', 0.25); }
+  door() { this.playTone(150, 0.15, 'triangle', 0.15); }
+}
+
+const audio = new AudioSystem();
+
+// ═══════════════════════════════════════════════════════════
+// 🗺️ GERADOR DE MAPA PROCEDURAL
+// ═══════════════════════════════════════════════════════════
+class WorldMap {
+  constructor() {
+    this.width = CONFIG.MAP_WIDTH;
+    this.height = CONFIG.MAP_HEIGHT;
+    this.tiles = new Uint8Array(this.width * this.height);
+    this.objects = [];
+    this.buildings = [];
+    this.generate();
+  }
+  
+  generate() {
+    // 0 = grama, 1 = asfalto, 2 = calçada, 3 = água, 4 = areia, 5 = terra, 6 = montanha, 7 = floresta
+    // 8 = edifício, 9 = estrada principal
+    
+    // Base: grama
+    for (let i=0; i<this.tiles.length; i++) this.tiles[i] = 0;
+    
+    // Praia e deserto (lado oeste)
+    for (let y=0; y<this.height; y++) {
+      for (let x=0; x<15; x++) this.tiles[y*this.width+x] = 4;
+      for (let x=0; x<25 && y>140; x++) this.tiles[y*this.width+x] = y>160 ? 5 : 4;
+    }
+    
+    // Montanhas (lado leste)
+    for (let y=100; y<this.height; y++) {
+      for (let x=170; x<this.width; x++) {
+        const d = Math.hypot(x-180, y-120)/25;
+        this.tiles[y*this.width+x] = d<1 ? 6 : (d<1.3 ? 5 : 0);
+      }
+    }
+    
+    // Floresta
+    for (let y=160; y<this.height; y++) {
+      for (let x=80; x<110; x++) {
+        if (Math.random()<0.7) this.tiles[y*this.width+x] = 7;
+      }
+    }
+    
+    // Rio
+    for (let y=130; y<this.height; y++) {
+      for (let x=60; x<65; x++) this.tiles[y*this.width+x] = 3;
+    }
+    
+    // Lago
+    for (let y=130; y<140; y++) {
+      for (let x=120; x<132; x++) {
+        if (Math.hypot(x-126, y-135)/8 < 1) this.tiles[y*this.width+x] = 3;
+      }
+    }
+    
+    // Malha viária — ruas horizontais e verticais
+    for (let i=0; i<this.width; i+=10) {
+      for (let y=0; y<this.height; y++) {
+        if (y%4===0) this.tiles[y*this.width+i] = 1;
+        if (i%10===0) this.tiles[i*this.width+y] = 1;
+      }
+    }
+    
+    // Avenidas principais (mais largas)
+    for (let x=85; x<=95; x++) for (let y=0; y<this.height; y++) this.tiles[y*this.width+x] = 9;
+    for (let y=85; y<=95; y++) for (let x=0; x<this.width; x++) this.tiles[y*this.width+x] = 9;
+    
+    // Calçadas ao redor das ruas
+    for (let y=0; y<this.height; y++) {
+      for (let x=0; x<this.width; x++) {
+        const t = this.tiles[y*this.width+x];
+        if (t===1 || t===9) {
+          [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy]) => {
+            const nx=x+dx, ny=y+dy;
+            if (nx>=0 && nx<this.width && ny>=0 && ny<this.height) {
+              if (this.tiles[ny*this.width+nx] === 0) this.tiles[ny*this.width+nx] = 2;
             }
+          });
         }
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', checkOrientation);
-        window.addEventListener('load', checkOrientation);
-
-        // Sistema de Áudio Sintético via Web Audio API
-        class SoundSystem {
-            constructor() {
-                this.ctx = null;
-            }
-            init() {
-                if (!this.ctx) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioCtx();
-                }
-            }
-            playTone(freq, type, duration) {
-                if (!this.ctx) return;
-                try {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = type;
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start();
-                    osc.stop(this.ctx.currentTime + duration);
-                } catch(e) {}
-            }
-            step() { this.playTone(150, 'triangle', 0.05); }
-            engine() { this.playTone(60, 'sawtooth', 0.1); }
-            crash() { this.playTone(80, 'square', 0.2); }
-            explosion() { this.playTone(40, 'sawtooth', 0.5); }
-        }
-
-        // Classe Principal do Jogo
-        class Game {
-            constructor() {
-                this.canvas = document.getElementById('gameCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.minimapCanvas = document.getElementById('minimap-canvas');
-                this.mCtx = this.minimapCanvas.getContext('2d');
-
-                this.width = window.innerWidth;
-                this.height = window.innerHeight;
-                this.canvas.width = this.width;
-                this.canvas.height = this.height;
-                this.minimapCanvas.width = 140;
-                this.minimapCanvas.height = 140;
-
-                this.state = 'MENU'; // MENU, PLAYING, PAUSED, CREDITS
-                this.audio = new SoundSystem();
-                this.worldSize = 4000;
-
-                // Tempo e Clima
-                this.time = 480; // 08:00 em minutos
-                this.weatherTypes = ['Sol', 'Chuva', 'Tempestade', 'Neblina'];
-                this.weather = 'Sol';
-                this.weatherTimer = 0;
-
-                // Câmera
-                this.camera = { x: 0, y: 0, shake: 0 };
-
-                // Entidades do Mundo
-                this.player = null;
-                this.vehicles = [];
-                this.npcs = [];
-                this.buildings = [];
-                this.particles = [];
-
-                this.keys = {};
-                this.initInputs();
-                this.initWorld();
-            }
-
-            resize() {
-                this.width = window.innerWidth;
-                this.height = window.innerHeight;
-                this.canvas.width = this.width;
-                this.canvas.height = this.height;
-            }
-
-            initInputs() {
-                window.addEventListener('keydown', e => this.keys[e.key.toLowerCase()] = true);
-                window.addEventListener('keyup', e => this.keys[e.key.toLowerCase()] = false);
-
-                // Touch / Joystick simples
-                let joystickActive = false;
-                let startX = 0, startY = 0;
-                const base = document.getElementById('joystick-base');
-                const stick = document.getElementById('joystick-stick');
-
-                base.addEventListener('touchstart', e => {
-                    joystickActive = true;
-                    const touch = e.touches[0];
-                    startX = touch.clientX;
-                    startY = touch.clientY;
-                });
-
-                window.addEventListener('touchmove', e => {
-                    if (!joystickActive) return;
-                    const touch = e.touches[0];
-                    let dx = touch.clientX - startX;
-                    let dy = touch.clientY - startY;
-                    const dist = Math.hypot(dx, dy);
-                    const maxDist = 40;
-                    if (dist > maxDist) {
-                        dx = (dx / dist) * maxDist;
-                        dy = (dy / dist) * maxDist;
-                    }
-                    stick.style.transform = `translate(${dx}px, ${dy}px)`;
-                    this.joystickVal = { x: dx / maxDist, y: dy / maxDist };
-                });
-
-                window.addEventListener('touchend', () => {
-                    if (joystickActive) {
-                        joystickActive = false;
-                        stick.style.transform = `translate(0px, 0px)`;
-                        this.joystickVal = { x: 0, y: 0 };
-                    }
-                });
-
-                this.joystickVal = { x: 0, y: 0 };
-            }
-
-            initWorld() {
-                // Criar Prédios e Locais Importantes (Centro, Hospital, Delegacia, Lojas, Casas)
-                this.buildings = [
-                    { x: 1800, y: 1800, w: 400, h: 300, name: 'Centro da Cidade', color: '#7f8c8d', type: 'commercial' },
-                    { x: 1200, y: 1200, w: 250, h: 200, name: 'Hospital', color: '#e74c3c', type: 'hospital' },
-                    { x: 2500, y: 1200, w: 250, h: 200, name: 'Delegacia', color: '#2980b9', type: 'police' },
-                    { x: 800, y: 2200, w: 300, h: 300, name: 'Área Industrial', color: '#d35400', type: 'industrial' },
-                    { x: 3000, y: 800, w: 400, h: 300, name: 'Base Militar', color: '#27ae60', type: 'military' },
-                    { x: 500, y: 500, w: 300, h: 250, name: 'Aeroporto', color: '#95a5a6', type: 'airport' }
-                ];
-
-                // Criar Veículos Iniciais
-                for (let i = 0; i < 15; i++) {
-                    this.vehicles.push(new Vehicle(
-                        Math.random() * (this.worldSize - 400) + 200,
-                        Math.random() * (this.worldSize - 400) + 200,
-                        i % 2 === 0 ? 'car' : 'moto'
-                    ));
-                }
-
-                // Criar NPCs Pedestres
-                for (let i = 0; i < 30; i++) {
-                    this.npcs.push(new NPC(
-                        Math.random() * (this.worldSize - 400) + 200,
-                        Math.random() * (this.worldSize - 400) + 200
-                    ));
-                }
-
-                // Criar Jogador
-                this.player = new Player(2000, 2000, this);
-            }
-
-            start() {
-                this.audio.init();
-                document.getElementById('menu-screen').classList.add('hidden');
-                document.getElementById('hud').classList.remove('hidden');
-                if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                    document.getElementById('mobile-controls').style.display = 'block';
-                }
-                this.state = 'PLAYING';
-                this.loop();
-            }
-
-            togglePause() {
-                if (this.state === 'PLAYING') {
-                    this.state = 'PAUSED';
-                    document.getElementById('pause-screen').classList.remove('hidden');
-                } else if (this.state === 'PAUSED') {
-                    this.state = 'PLAYING';
-                    document.getElementById('pause-screen').classList.add('hidden');
-                }
-            }
-
-            showCredits() {
-                document.getElementById('menu-screen').classList.add('hidden');
-                document.getElementById('credits-screen').classList.remove('hidden');
-            }
-
-            hideCredits() {
-                document.getElementById('credits-screen').classList.add('hidden');
-                document.getElementById('menu-screen').classList.remove('hidden');
-            }
-
-            restart() {
-                document.getElementById('pause-screen').classList.add('hidden');
-                this.initWorld();
-                this.state = 'PLAYING';
-            }
-
-            showMenu() {
-                document.getElementById('pause-screen').classList.add('hidden');
-                document.getElementById('hud').classList.add('hidden');
-                document.getElementById('mobile-controls').style.display = 'none';
-                document.getElementById('menu-screen').classList.remove('hidden');
-                this.state = 'MENU';
-            }
-
-            update() {
-                if (this.state !== 'PLAYING') return;
-
-                // Atualizar Tempo (Ciclo Dia/Noite)
-                this.time += 0.2;
-                if (this.time >= 1440) this.time = 0;
-
-                // Atualizar Clima
-                this.weatherTimer++;
-                if (this.weatherTimer > 1500) {
-                    this.weather = this.weatherTypes[Math.floor(Math.random() * this.weatherTypes.length)];
-                    this.weatherTimer = 0;
-                }
-
-                // Atualizar Jogador
-                this.player.update(this);
-
-                // Atualizar Veículos
-                this.vehicles.forEach(v => v.update(this));
-
-                // Atualizar NPCs
-                this.npcs.forEach(n => n.update(this));
-
-                // Atualizar Câmera suavemente em direção ao alvo (Player ou Veículo atual)
-                let target = this.player.inVehicle ? this.player.currentVehicle : this.player;
-                this.camera.x += (target.x - this.width / 2 - this.camera.x) * 0.1;
-                this.camera.y += (target.y - this.height / 2 - this.camera.y) * 0.1;
-
-                // Limitar câmera aos limites do mundo
-                this.camera.x = Math.max(0, Math.min(this.worldSize - this.width, this.camera.x));
-                this.camera.y = Math.max(0, Math.min(this.worldSize - this.height, this.camera.y));
-
-                // Atualizar HUD
-                document.getElementById('txt-hp').innerText = Math.round(this.player.hp);
-                document.getElementById('health-fill.style.width') = this.player.hp + '%';
-                document.getElementById('txt-en').innerText = Math.round(this.player.energy);
-                
-                let hours = Math.floor(this.time / 60);
-                let mins = Math.floor(this.time % 60);
-                document.getElementById('txt-time').innerText = `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}`;
-                document.getElementById('txt-weather').innerText = this.weather;
-            }
-
-            draw() {
-                this.ctx.clearRect(0, 0, this.width, this.height);
-                if (this.state === 'MENU') return;
-
-                this.ctx.save();
-                this.ctx.translate(-this.camera.x, -this.camera.y);
-
-                // Desenhar Chão / Terreno (Grama / Deserto / Ruas)
-                this.ctx.fillStyle = '#27ae60'; // Grama base
-                this.ctx.fillRect(0, 0, this.worldSize, this.worldSize);
-
-                // Desenhar Ruas (Malha urbana simples)
-                this.ctx.fillStyle = '#34495e';
-                for (let i = 400; i < this.worldSize; i += 800) {
-                    this.ctx.fillRect(i, 0, 100, this.worldSize);
-                    this.ctx.fillRect(0, i, this.worldSize, 100);
-                }
-
-                // Desenhar Prédios
-                this.buildings.forEach(b => {
-                    this.ctx.fillStyle = b.color;
-                    this.ctx.fillRect(b.x, b.y, b.w, b.h);
-                    this.ctx.fillStyle = '#fff';
-                    this.ctx.font = '14px sans-serif';
-                    this.ctx.fillText(b.name, b.x + 15, b.y + 25);
-                });
-
-                // Desenhar Veículos
-                this.vehicles.forEach(v => v.draw(this.ctx));
-
-                // Desenhar NPCs
-                this.npcs.forEach(n => n.draw(this.ctx));
-
-                // Desenhar Jogador
-                this.player.draw(this.ctx);
-
-                this.ctx.restore();
-
-                // Desenhar Minimapa
-                this.drawMinimap();
-            }
-
-            drawMinimap() {
-                this.mCtx.clearRect(0, 0, 140, 140);
-                this.mCtx.fillStyle = '#111';
-                this.mCtx.fillRect(0, 0, 140, 140);
-
-                let scale = 140 / this.worldSize;
-                
-                // Desenhar Prédios no Minimapa
-                this.mCtx.fillStyle = '#7f8c8d';
-                this.buildings.forEach(b => {
-                    this.mCtx.fillRect(b.x * scale, b.y * scale, b.w * scale, b.h * scale);
-                });
-
-                // Desenhar Jogador no Minimapa
-                this.mCtx.fillStyle = '#e74c3c';
-                this.mCtx.beginPath();
-                this.mCtx.arc(this.player.x * scale, this.player.y * scale, 3, 0, Math.PI * 2);
-                this.mCtx.fill();
-            }
-
-            loop() {
-                if (this.state === 'PLAYING') {
-                    this.update();
-                    this.draw();
-                }
-                requestAnimationFrame(() => this.loop());
-            }
-        }
-
-        // Classe Jogador
-        class Player {
-            constructor(x, y, game) {
-                this.x = x;
-                this.y = y;
-                this.radius = 12;
-                this.speed = 3.5;
-                this.hp = 100;
-                this.energy = 100;
-                this.angle = 0;
-                this.running = false;
-                this.inVehicle = false;
-                this.currentVehicle = null;
-                this.game = game;
-            }
-
-            setRun(val) {
-                this.running = val;
-            }
-
-            update(game) {
-                if (this.inVehicle) {
-                    this.x = this.currentVehicle.x;
-                    this.y = this.currentVehicle.y;
-                    return;
-                }
-
-                let dx = 0, dy = 0;
-                let currentSpeed = this.running && this.energy > 0 ? this.speed * 1.6 : this.speed;
-
-                if (game.keys['w'] || game.keys['arrowup']) dy -= 1;
-                if (game.keys['s'] || game.keys['arrowdown']) dy += 1;
-                if (game.keys['a'] || game.keys['arrowleft']) dx -= 1;
-                if (game.keys['d'] || game.keys['arrowright']) dx += 1;
-
-                if (game.joystickVal && (game.joystickVal.x !== 0 || game.joystickVal.y !== 0)) {
-                    dx = game.joystickVal.x;
-                    dy = game.joystickVal.y;
-                }
-
-                if (dx !== 0 || dy !== 0) {
-                    let len = Math.hypot(dx, dy);
-                    this.x += (dx / len) * currentSpeed;
-                    this.y += (dy / len) * currentSpeed;
-                    this.angle = Math.atan2(dy, dx);
-
-                    if (this.running) {
-                        this.energy = Math.max(0, this.energy - 0.2);
-                    }
-                } else {
-                    this.energy = Math.min(100, this.energy + 0.1);
-                }
-
-                // Limites do mundo
-                this.x = Math.max(20, Math.min(game.worldSize - 20, this.x));
-                this.y = Math.max(20, Math.min(game.worldSize - 20, this.y));
-            }
-
-            interact() {
-                if (this.inVehicle) {
-                    // Sair do veículo
-                    this.inVehicle = false;
-                    this.currentVehicle.driver = null;
-                    this.x = this.currentVehicle.x + 40;
-                    this.y = this.currentVehicle.y;
-                    this.currentVehicle = null;
-                } else {
-                    // Procurar veículo próximo para entrar
-                    for (let v of this.game.vehicles) {
-                        if (Math.hypot(this.x - v.x, this.y - v.y) < 50) {
-                            this.inVehicle = true;
-                            this.currentVehicle = v;
-                            v.driver = this;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            draw(ctx) {
-                if (this.inVehicle) return; // Não desenhar jogador se estiver dentro do carro
-
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle);
-
-                // Corpo do Personagem
-                ctx.fillStyle = '#3498db';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Direção (Cabeça / Olhos)
-                ctx.fillStyle = '#f1c40f';
-                ctx.fillRect(4, -4, 8, 8);
-
-                ctx.restore();
-            }
-        }
-
-        // Classe Veículo
-        class Vehicle {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type;
-                this.w = type === 'car' ? 50 : 35;
-                this.h = type === 'car' ? 25 : 18;
-                this.speed = 0;
-                this.maxSpeed = type === 'car' ? 8 : 10;
-                this.accel = 0.2;
-                this.angle = Math.random() * Math.PI * 2;
-                this.driver = null;
-                this.color = ['#e74c3c', '#f39c12', '#8e44ad', '#34495e'][Math.floor(Math.random()*4)];
-            }
-
-            update(game) {
-                if (this.driver && this.driver === game.player) {
-                    // Controles do Jogador no Veículo
-                    let move = 0;
-                    if (game.keys['w'] || game.keys['arrowup']) move = 1;
-                    if (game.keys['s'] || game.keys['arrowdown']) move = -1;
-
-                    if (game.keys['a'] || game.keys['arrowleft']) this.angle -= 0.05;
-                    if (game.keys['d'] || game.keys['arrowright']) this.angle += 0.05;
-
-                    if (move !== 0) {
-                        this.speed += move * this.accel;
-                        this.speed = Math.max(-3, Math.min(this.maxSpeed, this.speed));
-                    } else {
-                        this.speed *= 0.95; // Fricção
-                    }
-
-                    this.x += Math.cos(this.angle) * this.speed;
-                    this.y += Math.sin(this.angle) * this.speed;
-                } else {
-                    // IA Simples de Trânsito
-                    this.speed = 2;
-                    this.x += Math.cos(this.angle) * this.speed;
-                    this.y += Math.sin(this.angle) * this.speed;
-                    if (Math.random() < 0.02) this.angle += (Math.random() - 0.5);
-                }
-
-                // Limites do mundo
-                this.x = Math.max(50, Math.min(game.worldSize - 50, this.x));
-                this.y = Math.max(50, Math.min(game.worldSize - 50, this.y));
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle);
-
-                ctx.fillStyle = this.color;
-                ctx.fillRect(-this.w/2, -this.h/2, this.w, this.h);
-
-                // Para-brisa
-                ctx.fillStyle = '#ecf0f1';
-                ctx.fillRect(-5, -this.h/2 + 3, 15, this.h - 6);
-
-                ctx.restore();
-            }
-        }
-
-        // Classe NPC
-        class NPC {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.radius = 10;
-                this.speed = 1.2;
-                this.angle = Math.random() * Math.PI * 2;
-                this.timer = 0;
-            }
-
-            update(game) {
-                this.timer++;
-                if (this.timer > 150 + Math.random() * 100) {
-                    this.angle += (Math.random() - 0.5) * 2;
-                    this.timer = 0;
-                }
-
-                this.x += Math.cos(this.angle) * this.speed;
-                this.y += Math.sin(this.angle) * this.speed;
-
-                this.x = Math.max(50, Math.min(game.worldSize - 50, this.x));
-                this.y = Math.max(50, Math.min(game.worldSize - 50, this.y));
-            }
-
-            draw(ctx) {
-                ctx.fillStyle = '#95a5a6';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        // Inicializar Instância Global do Jogo
-        const game = new Game();
-    </script>
-</body>
-</html>
+      }
+    }
+    
+    // Edifícios
+    Object.entries(REGIONS).forEach(([key, reg]) => {
+      if (reg.building) {
+        this.buildings.push({
+          id: key, x: reg.x*CONFIG.TILE_SIZE, y: reg.y*CONFIG.TILE_SIZE,
+          width: reg.w*CONFIG.TILE_SIZE, height: reg.h*CONFIG.TILE_SIZE,
+          name: reg.name, color: reg.color, region: reg, interactable: true
+        });
+      }
+    });
+    
+    // Objetos decorativos
+    for (let i=0; i<300; i++) {
+      const x = Math.random()*this.width*CONFIG.TILE_SIZE;
+      const y = Math.random()*this.height*CONFIG.TILE_SIZE;
+      const tx = Math.floor(x/CONFIG.TILE_SIZE);
+      const ty = Math.floor(y/CONFIG.TILE_SIZE);
+      const t = this.tiles[ty*this.width+tx];
+      if (t===0 || t===7) {
+        this.objects.push({
+          x, y, type: Math.random()<0.7 ? 'tree' : 'lamp',
+          color: Math.random()<0.7 ? '#2e7d32' : '#333'
+        });
+      }
+    }
+  }
+  
+  getTileAt(worldX, worldY) {
+    const tx = Math.floor(worldX / CONFIG.TILE_SIZE);
+    const ty = Math.floor(worldY / CONFIG.TILE_SIZE);
+    if (tx<0 || tx>=this.width || ty<0 || ty>=this.height) return -1;
+    return this.tiles[ty*this.width + tx];
+  }
+  
+  isWalkable(worldX, worldY) {
+    const t = this.getTileAt(worldX, worldY);
+    return t !== 3 && t !== 6 && t !== -1;
+  }
+  
+  isWater(worldX, worldY) {
+    return this.getTileAt(worldX, worldY) === 3;
+  }
+  
+  getRegionAt(worldX, worldY) {
+    const tx = Math.floor(worldX / CONFIG.TILE_SIZE);
+    const ty = Math.floor(worldY / CONFIG.TILE_SIZE);
+    for (const r of Object.values(REGIONS)) {
+      if (tx >= r.x && tx < r.x+r.w && ty >= r.y && ty < r.y+r.h) return r;
+    }
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 👤 JOGADOR
+// ═══════════════════════════════════════════════════════════
+class Player {
+  constructor() {
+    this.x = CONFIG.MAP_WIDTH * CONFIG.TILE_SIZE / 2;
+    this.y = CONFIG.MAP_HEIGHT * CONFIG.TILE_SIZE / 2;
+    this.width = 24;
+    this.height = 24;
+    this.angle = 0;
+    this.life = 100;
+    this.maxLife = 100;
+    this.energy = 100;
+    this.maxEnergy = 100;
+    this.money = 5000;
+    this.speed = CONFIG.PLAYER_SPEED;
+    this.isRunning = false;
+    this.isMoving = false;
+    this.dx = 0; this.dy = 0;
+    this.inVehicle = null;
+    this.inventory = [];
+    this.houses = [];
+    this.vehicles = [];
+    this.missions = [];
+    this.completedMissions = [];
+    this.stats = { totalDistance:0, playTime:0, moneyEarned:0 };
+  }
+  
+  update(keys, world, dt) {
+    if (this.inVehicle) {
+      this.updateVehicle(keys, world, dt);
+      return;
+    }
+    
+    this.dx = 0; this.dy = 0;
+    const run = keys.run && this.energy > 0;
+    const speed = run ? CONFIG.PLAYER_RUN_SPEED : CONFIG.PLAYER_SPEED;
+    
+    if (keys.up) this.dy = -speed;
+    if (keys.down) this.dy = speed;
+    if (keys.left) this.dx = -speed;
+    if (keys.right) this.dx = speed;
+    
+    // Diagonal normalization
+    if (this.dx !== 0 && this.dy !== 0) {
+      this.dx *= 0.707;
+      this.dy *= 0.707;
+    }
+    
+    this.isMoving = this.dx !== 0 || this.dy !== 0;
+    
+    if (this.isMoving) {
+      this.angle = Math.atan2(this.dy, this.dx);
+      if (run) {
+        this.energy = Math.max(0, this.energy - 0.15);
+      }
+      this.stats.totalDistance += Math.hypot(this.dx, this.dy);
+      if (Math.random() < 0.1) audio.step();
+    } else {
+      this.energy = Math.min(this.maxEnergy, this.energy + 0.05);
+    }
+    
+    // Colisão e movimento
+    const newX = this.x + this.dx;
+    const newY = this.y + this.dy;
+    if (world.isWalkable(newX, this.y)) this.x = newX;
+    if (world.isWalkable(this.x, newY)) this.y = newY;
+    
+    // Limites do mundo
+    this.x = Math.max(this.width/2, Math.min(world.width*CONFIG.TILE_SIZE - this.width/2, this.x));
+    this.y = Math.max(this.height/2, Math.min(world.height*CONFIG.TILE_SIZE - this.height/2, this.y));
+  }
+  
+  updateVehicle(keys, world, dt) {
+    const v = this.inVehicle;
+    const type = VEHICLE_TYPES[v.type];
+    const waterOnly = type.waterOnly;
+    
+    if (waterOnly && !world.isWater(this.x, this.y)) {
+      this.exitVehicle();
+      return;
+    }
+    
+    const accel = keys.accel ? type.accel : (keys.brake ? -type.accel*1.5 : 0);
+    v.vx += Math.cos(v.angle) * accel;
+    v.vy += Math.sin(v.angle) * accel;
+    
+    // Direção
+    if (keys.left) v.angle -= 0.04 * (Math.hypot(v.vx, v.vy)/type.speed + 0.3);
+    if (keys.right) v.angle += 0.04 * (Math.hypot(v.vx, v.vy)/type.speed + 0.3);
+    
+    // Atrito e limite de velocidade
+    v.vx *= type.friction;
+    v.vy *= type.friction;
+    const spd = Math.hypot(v.vx, v.vy);
+    if (spd > type.speed) {
+      v.vx = (v.vx/spd) * type.speed;
+      v.vy = (v.vy/spd) * type.speed;
+    }
+    
+    // Movimento e colisão
+    const newX = v.x + v.vx;
+    const newY = v.y + v.vy;
+    const canMove = waterOnly ? world.isWater(newX, newY) : world.isWalkable(newX, newY);
+    if (canMove) {
+      v.x = newX; v.y = newY;
+    } else {
+      v.vx *= -0.3; v.vy *= -0.3;
+      audio.collision();
+    }
+    
+    // Consumo de combustível
+    if (spd > 0.5) {
+      v.fuel -= 0.01 * spd;
+      if (v.fuel <= 0) { v.fuel = 0; v.vx *= 0.5; v.vy *= 0.5; }
+      if (Math.random() < 0.15) audio.engine();
+    }
+    
+    // Sincronizar posição do jogador
+    this.x = v.x; this.y = v.y;
+    this.angle = v.angle;
+    
+    // Sair do veículo
+    if (keys.interact && !keys.interactPressed) {
+      keys.interactPressed = true;
+      if (spd < 0.2) this.exitVehicle();
+    }
+    if (!keys.interact) keys.interactPressed = false;
+  }
+  
+  enterVehicle(vehicle) {
+    this.inVehicle = vehicle;
+    this.x = vehicle.x; this.y = vehicle.y;
+    audio.door();
+  }
+  
+  exitVehicle() {
+    const v = this.inVehicle;
+    this.x = v.x - Math.cos(v.angle)*30;
+    this.y = v.y - Math.sin(v.angle)*30;
+    this.inVehicle = null;
+    audio.door();
+  }
+  
+  takeDamage(amount) {
+    this.life = Math.max(0, this.life - amount);
+    if (this.life <= 0) this.respawn();
+  }
+  
+  respawn() {
+    this.life = this.maxLife;
+    this.x = CONFIG.MAP_WIDTH*CONFIG.TILE_SIZE/2;
+    this.y = CONFIG.MAP_HEIGHT*CONFIG.TILE_SIZE/2;
+    this.inVehicle = null;
+  }
+  
+  save() {
+    return {
+      x: this.x, y: this.y, life: this.life, energy: this.energy,
+      money: this.money, inventory: this.inventory,
+      houses: this.houses, vehicles: this.vehicles,
+      missions: this.missions, completedMissions: this.completedMissions,
+      stats: this.stats
+    };
+  }
+  
+  load(data) {
+    Object.assign(this, data);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// � NPCs — INTELIGÊNCIA ARTIFICIAL
+// ═══════════════════════════════════════════════════════════
+class NPC {
+  constructor(x, y, type) {
+    this.x = x; this.y = y;
+    this.startX = x; this.startY = y;
+    this.type = type;
+    this.width = 20; this.height = 20;
+    this.speed = 0.5 + Math.random() * 1.5;
+    this.angle = Math.random() * Math.PI * 2;
+    this.state = 'idle'; // idle, walk, work, drive, sleep
+    this.stateTimer = Math.random() * 5000;
+    this.dialogue = this.getDialogue();
+    this.color = this.getColor();
+    this.homeX = x; this.homeY = y;
+    this.workX = x + (Math.random()-0.5)*300;
+    this.workY = y + (Math.random()-0.5)*300;
+  }
+  
+  getDialogue() {
+    const dialogues = {
+      pedestrian: ['Bom dia!', 'Belo dia, não é?', 'Com licença...', 'Estou com pressa!'],
+      police: ['Pare! Documentos!', 'Tudo em ordem?', 'Tenha um bom dia, cidadão.', 'Vigiar e proteger.'],
+      doctor: ['Olá! Estou de plantão.', 'Cuide da saúde!', 'Emergências no hospital.'],
+      merchant: ['Bem-vindo!', 'Temos ótimos preços hoje!', 'Pode olhar à vontade.'],
+      worker: ['Dia de trabalho!', 'Muito movimento hoje.', 'Durmo pouco, trabalho muito.'],
+      tourist: ['Que cidade linda!', 'Onde fica o ponto turístico?', 'Adorei o lugar!']
+    };
+    const list = dialogues[this.type] || dialogues.pedestrian;
+    return list[Math.floor(Math.random()*list.length)];
+  }
+  
+  getColor() {
+    const colors = {
+      pedestrian: '#ff9800', police: '#2196f3', doctor: '#ffffff',
+      merchant: '#9c27b0', worker: '#607d8b', tourist: '#4caf50'
+    };
+    return colors[this.type] || '#ff9800';
+  }
+  
+  update(world, gameTime) {
+    const hour = (gameTime / 3600000 * 24) % 24;
+    
+    // Rotina diária
+    if (hour >= 22 || hour < 6) this.state = 'sleep';
+    else if (hour >= 8 && hour < 18) this.state = this.type === 'worker' || this.type === 'doctor' || this.type === 'merchant' ? 'work' : 'walk';
+    else this.state = 'walk';
+    
+    this.stateTimer -= 16;
+    if (this.stateTimer <= 0) {
+      this.stateTimer = 2000 + Math.random() * 5000;
+      if (this.state === 'walk') {
+        this.angle += (Math.random() - 0.5) * Math.PI;
+      }
+    }
+    
+    // Movimento
+    if (this.state === 'walk') {
+      const dx = Math.cos(this.angle) * this.speed;
+      const dy = Math.sin(this.angle) * this.speed;
+      if (world.isWalkable(this.x + dx, this.y + dy)) {
+        this.x += dx; this.y += dy;
+      } else {
+        this.angle += Math.PI / 2 + Math.random();
+      }
+    } else if (this.state === 'work') {
+      const dx = this.workX - this.x;
+      const dy = this.workY - this.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 10) {
+        this.x += (dx/dist) * this.speed * 0.5;
+        this.y += (dy/dist) * this.speed * 0.5;
+      }
+    } else if (this.state === 'sleep') {
+      const dx = this.homeX - this.x;
+      const dy = this.homeY - this.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 5) {
+        this.x += (dx/dist) * this.speed;
+        this.y += (dy/dist) * this.speed;
+      }
+    }
+    
+    // Limites
+    this.x = Math.max(0, Math.min(world.width*CONFIG.TILE_SIZE, this.x));
+    this.y = Math.max(0, Math.min(world.height*CONFIG.TILE_SIZE, this.y));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🚗 VEÍCULOS NO MUNDO
+// ═══════════════════════════════════════════════════════════
+class Vehicle {
+  constructor(x, y, type) {
+    this.x = x; this.y = y;
+    this.type = type;
+    this.angle = Math.random() * Math.PI * 2;
+    this.vx = 0; this.vy = 0;
+    this.fuel = VEHICLE_TYPES[type].fuel;
+    this.owner = null;
+  }
+  
+  update(world, npcs) {
+    const type = VEHICLE_TYPES[this.type];
+    const spd = Math.hypot(this.vx, this.vy);
+    
+    if (this.owner) return; // Pertence ao jogador — controlado separadamente
+    
+    // Veículos NPC
+    if (Math.random() < 0.02) {
+      this.vx += Math.cos(this.angle) * type.accel;
+      this.vy += Math.sin(this.angle) * type.accel;
+    }
+    if (Math.random() < 0.01) {
+      this.angle += (Math.random() - 0.5) * 0.5;
+    }
+    
+    this.vx *= type.friction;
+    this.vy *= type.friction;
+    if (spd > type.speed) {
+      this.vx = (this.vx/spd) * type.speed;
+      this.vy = (this.vy/spd) * type.speed;
+    }
+    
+    const newX = this.x + this.vx;
+    const newY = this.y + this.vy;
+    if (type.waterOnly ? world.isWater(newX, newY) : world.isWalkable(newX, newY)) {
+      this.x = newX; this.y = newY;
+    } else {
+      this.vx *= -0.5; this.vy *= -0.5;
+      this.angle += Math.PI;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🎮 NÚCLEO DO JOGO
+// ═══════════════════════════════════════════════════════════
+class Game {
+  constructor() {
+    this.canvas = document.getElementById('gameCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.minimapCanvas = document.getElementById('minimap');
+    this.minimapCtx = this.minimapCanvas.getContext('2d');
+    
+    this.state = GameState.MENU;
+    this.keys = {
+      up:false, down:false, left:false, right:false,
+      run:false, interact:false, accel:false, brake:false,
+      inventory:false, pause:false
+    };
+    
+    this.world = null;
+    this.player = null;
+    this.npcs = [];
+    this.vehicles = [];
+    this.particles = [];
+    this.weather = WeatherType.SUNNY;
+    this.gameTime = 6 * 3600000; // 06:00 em ms
+    this.lastTime = 0;
+    this.cameraX = 0; this.cameraY = 0;
+    this.screenShake = 0;
+    this.raindrops = [];
+    
+    this.setupInput();
+    this.setupResize();
+    this.setupTouchControls();
+  }
+  
+  setupInput() {
+    document.addEventListener('keydown', (e) => {
+      if (this.state !== GameState.PLAYING) return;
+      switch(e.key.toLowerCase()) {
+        case 'w': case 'arrowup': this.keys.up = true; break;
+        case 's': case 'arrowdown': this.keys.down = true; break;
+        case 'a': case 'arrowleft': this.keys.left = true; break;
+        case 'd': case 'arrowright': this.keys.right = true; break;
+        case 'shift': this.keys.run = true; break;
+        case 'e': case 'f': this.keys.interact = true; this.interact(); break;
+        case ' ': this.keys.accel = true; break;
+        case 'r': this.keys.brake = true; break;
+        case 'i': this.toggleInventory(); break;
+        case 'escape': case 'p': this.togglePause(); break;
+        case 'm': this.toggleMissionPanel(); break;
+      }
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+    });
+    
+    document.addEventListener('keyup', (e) => {
+      switch(e.key.toLowerCase()) {
+        case 'w': case 'arrowup': this.keys.up = false; break;
+        case 's': case 'arrowdown': this.keys.down = false; break;
+        case 'a': case 'arrowleft': this.keys.left = false; break;
+        case 'd': case 'arrowright': this.keys.right = false; break;
+        case 'shift': this.keys.run = false; break;
+        case 'e': case 'f': this.keys.interact = false; break;
+        case ' ': this.keys.accel
