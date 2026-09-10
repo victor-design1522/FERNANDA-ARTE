@@ -3,824 +3,910 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mundo Aberto 3D - VICTOR OFICIAL</title>
+    <title>Open World 2D - VICTOR OFICIAL</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { width: 100vw; height: 100vh; overflow: hidden; background-color: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            display: block;
+            background: #112211;
+        }
+        /* Tela de Orientação (Retrato) */
+        #orientation-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        #orientation-warning h1 {
+            color: #f1c40f;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        #orientation-warning p {
+            color: #ccc;
+            font-size: 16px;
+        }
+        .icon-rotate {
+            font-size: 50px;
+            animation: rotateAnim 2s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+        @keyframes rotateAnim {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Menus e Telas UI */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+        .hidden {
+            display: none !important;
+        }
+        h1.title {
+            font-size: 42px;
+            color: #e74c3c;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8), 0 0 20px #e74c3c;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        h2.subtitle {
+            font-size: 16px;
+            color: #f1c40f;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .menu-btn {
+            background: linear-gradient(135deg, #2980b9, #2c3e50);
+            border: 2px solid #3498db;
+            color: white;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.2s;
+        }
+        .menu-btn:hover {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        .menu-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* HUD do Jogo */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .hud-element {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+        #hud-top-right {
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+        #hud-top-left {
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 180px;
+        }
+        .bar-container {
+            width: 100%;
+            background: rgba(255,255,255,0.2);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+        #health-fill { background: #e74c3c; }
+        #energy-fill { background: #f1c40f; }
         
-        /* Interface de Usuário */
-        #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; padding: 20px; color: white; text-shadow: 1px 1px 2px black; display: none; }
-        
-        .bar-container { width: 200px; height: 20px; background: rgba(0,0,0,0.5); border: 2px solid #fff; margin-bottom: 10px; border-radius: 10px; overflow: hidden; }
-        #health-bar { width: 100%; height: 100%; background: #ff3333; transition: width 0.2s; }
-        #stamina-bar { width: 100%; height: 100%; background: #33aaff; transition: width 0.2s; }
-        
-        #stats { position: absolute; top: 20px; right: 20px; text-align: right; font-size: 20px; font-weight: bold; }
-        #money { color: #55ff55; font-size: 24px; }
-        #time-weather { margin-top: 10px; font-size: 16px; color: #ddd; }
-        
-        #minimap { position: absolute; bottom: 20px; left: 20px; width: 150px; height: 150px; background: rgba(0,0,0,0.7); border: 3px solid #fff; border-radius: 50%; overflow: hidden; }
-        #minimap-player { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: red; transform: translate(-50%, -50%); border-radius: 50%; }
-        
-        #objective { position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); padding: 15px; border-left: 5px solid #ffcc00; font-size: 18px; max-width: 300px; }
-        
-        .crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; background: rgba(255,255,255,0.8); transform: translate(-50%, -50%); border-radius: 50%; }
-        
-        /* Menus */
-        .menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
-        .menu h1 { font-size: 50px; margin-bottom: 10px; color: #ffcc00; text-transform: uppercase; letter-spacing: 5px; }
-        .menu h3 { font-size: 20px; margin-bottom: 40px; font-weight: normal; color: #aaa; }
-        .btn { background: #333; color: white; border: 2px solid #555; padding: 15px 40px; font-size: 20px; margin: 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; width: 250px; text-transform: uppercase; font-weight: bold; }
-        .btn:hover { background: #ffcc00; color: black; border-color: #ffcc00; transform: scale(1.05); }
-        
-        .credits-text { max-width: 600px; margin: 20px; line-height: 1.6; font-size: 18px; display: none; }
-        .credits-text span { color: #ffcc00; font-weight: bold; font-size: 24px; }
-        
-        /* Mobile Controls */
-        #mobile-controls { display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; }
-        .joystick { position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px; background: rgba(255,255,255,0.2); border-radius: 50%; pointer-events: auto; }
-        .joystick-knob { width: 50px; height: 50px; background: rgba(255,255,255,0.6); border-radius: 50%; position: absolute; top: 35px; left: 35px; }
-        .action-btn { position: absolute; pointer-events: auto; background: rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        #btn-jump { bottom: 40px; right: 40px; width: 80px; height: 80px; font-size: 18px; }
-        #btn-interact { bottom: 130px; right: 60px; width: 60px; height: 60px; font-size: 14px; }
-        
-        @media (max-width: 768px) { #mobile-controls { display: block; } .crosshair { display: none; } }
+        #minimap-container {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            overflow: hidden;
+            background: #222;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            pointer-events: auto;
+        }
+        #minimap-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        #mission-box {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 4px solid #f1c40f;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        /* Controles Mobile */
+        #mobile-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 15;
+            display: none;
+        }
+        .touch-zone {
+            position: absolute;
+            pointer-events: auto;
+        }
+        #joystick-base {
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: absolute;
+        }
+        #joystick-stick {
+            position: absolute;
+            top: 35px;
+            left: 35px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        #action-buttons {
+            bottom: 30px;
+            right: 170px;
+            display: flex;
+            gap: 15px;
+            position: absolute;
+        }
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            pointer-events: auto;
+        }
+        .action-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+        #btn-pause {
+            position: absolute;
+            top: 15px;
+            right: 170px;
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        /* Créditos e Texto */
+        .credits-text {
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .creator-tag {
+            color: #f1c40f;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Menus -->
-    <div id="main-menu" class="menu">
-        <h1>Mundo Aberto 3D</h1>
-        <h3>Criado por VICTOR OFICIAL</h3>
-        <button class="btn" onclick="startGame()">Jogar</button>
-        <button class="btn" onclick="showCredits()">Créditos</button>
+    <div id="orientation-warning">
+        <div class="icon-rotate">📱</div>
+        <h1>Gire o seu aparelho</h1>
+        <p>Este jogo foi desenvolvido para ser jogado apenas no modo paisagem (horizontal).</p>
     </div>
 
-    <div id="pause-menu" class="menu" style="display: none;">
-        <h1>Pausado</h1>
-        <h3>Criado por VICTOR OFICIAL</h3>
-        <button class="btn" onclick="resumeGame()">Continuar</button>
-        <button class="btn" onclick="saveGame()">Salvar Progresso</button>
-        <button class="btn" onclick="location.reload()">Sair</button>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div id="hud-top-left" class="hud-element">
+                <div>Vida: <span id="txt-hp">100</span></div>
+                <div class="bar-container"><div id="health-fill" class="bar-fill"></div></div>
+                <div>Energia: <span id="txt-en">100</span></div>
+                <div class="bar-container"><div id="energy-fill" class="bar-fill"></div></div>
+            </div>
+
+            <div id="mission-box">
+                <div style="font-size: 11px; color: #f1c40f; text-transform: uppercase;">Objetivo Atual</div>
+                <div id="txt-mission" style="font-size: 13px; font-weight: bold;">Explore o vasto mundo aberto.</div>
+            </div>
+
+            <div id="hud-top-right" class="hud-element">
+                <div>Dinheiro: <span id="txt-money" style="color: #2ecc71;">$10,500</span></div>
+                <div>Hora: <span id="txt-time">12:00</span> | <span id="txt-weather">Sol</span></div>
+            </div>
+
+            <div id="minimap-container">
+                <canvas id="minimap-canvas"></canvas>
+            </div>
+
+            <div id="btn-pause" onclick="game.togglePause()">⏸</div>
+        </div>
+
+        <!-- Controles Mobile -->
+        <div id="mobile-controls">
+            <div id="joystick-base" class="touch-zone">
+                <div id="joystick-stick"></div>
+            </div>
+            <div id="action-buttons">
+                <div class="action-btn" id="btn-run" ontouchstart="game.player.setRun(true)" ontouchend="game.player.setRun(false)" onmousedown="game.player.setRun(true)" onmouseup="game.player.setRun(false)">CORR</div>
+                <div class="action-btn" id="btn-interact" onclick="game.player.interact()">ENT</div>
+            </div>
+        </div>
+
+        <!-- Menu Principal -->
+        <div id="menu-screen" class="screen">
+            <h1 class="title">OPEN WORLD 2D</h1>
+            <h2 class="subtitle">Criado por VICTOR OFICIAL</h2>
+            <button class="menu-btn" onclick="game.start()">Iniciar Jogo</button>
+            <button class="menu-btn" onclick="game.showCredits()">Créditos</button>
+            <div style="margin-top: 20px; font-size: 12px; color: #777;">Versão 1.0.0 • HTML5 Canvas Puro</div>
+        </div>
+
+        <!-- Menu de Pausa -->
+        <div id="pause-screen" class="screen hidden">
+            <h1 class="title" style="font-size: 32px;">JOGO PAUSADO</h1>
+            <h2 class="subtitle">Criado por VICTOR OFICIAL</h2>
+            <button class="menu-btn" onclick="game.togglePause()">Continuar</button>
+            <button class="menu-btn" onclick="game.restart()">Reiniciar</button>
+            <button class="menu-btn" onclick="game.showMenu()">Menu Principal</button>
+        </div>
+
+        <!-- Tela de Créditos -->
+        <div id="credits-screen" class="screen hidden">
+            <h1 class="title" style="font-size: 32px;">CRÉDITOS</h1>
+            <h2 class="subtitle">Open World 2D</h2>
+            <div class="credits-text">
+                Um jogo de mundo aberto totalmente original desenvolvido sem o uso de bibliotecas ou arquivos externos, rodando puramente em HTML5 Canvas e JavaScript.<br><br>
+                Criado por <span class="creator-tag">VICTOR OFICIAL</span>.<br><br>
+                Todos os direitos reservados. © 2026
+            </div>
+            <button class="menu-btn" onclick="game.hideCredits()">Voltar</button>
+        </div>
     </div>
 
-    <div id="credits-menu" class="menu" style="display: none;">
-        <h1>Créditos</h1>
-        <div class="credits-text" style="display: block;">
-            <p>Nome do Jogo: <span>MUNDO ABERTO 3D WEB</span></p><br>
-            <p>Desenvolvimento, Programação, Design e Áudio:</p>
-            <p><span>CRIADO POR VICTOR OFICIAL</span></p><br>
-            <p>Um jogo completo gerado em um único arquivo HTML5.</p>
-            <p>Nenhuma biblioteca externa utilizada.</p><br>
-            <p>&copy; Todos os direitos reservados.</p>
-        </div>
-        <button class="btn" style="margin-top: 30px;" onclick="hideCredits()">Voltar</button>
-    </div>
-
-    <!-- HUD -->
-    <div id="hud">
-        <div class="crosshair"></div>
-        <div>
-            <div class="bar-container"><div id="health-bar"></div></div>
-            <div class="bar-container"><div id="stamina-bar"></div></div>
-        </div>
-        
-        <div id="stats">
-            <div id="money">$ 0</div>
-            <div id="time-weather">12:00 | Ensolarado</div>
-        </div>
-
-        <div id="objective">Explore a cidade e interaja com os blocos amarelos (Dinheiro) e azuis (Veículos/Casas).</div>
-
-        <div id="minimap">
-            <div id="minimap-player"></div>
-        </div>
-    </div>
-
-    <!-- Controles Mobile -->
-    <div id="mobile-controls">
-        <div class="joystick" id="joystick">
-            <div class="joystick-knob" id="joystick-knob"></div>
-        </div>
-        <div class="action-btn" id="btn-jump">Pular</div>
-        <div class="action-btn" id="btn-interact">Ação</div>
-    </div>
-
-    <canvas id="gameCanvas"></canvas>
-
-<script>
-/* ==========================================
-   MOTOR 3D CUSTOMIZADO - WEBGL
-   CRIADO POR VICTOR OFICIAL
-========================================== */
-
-const canvas = document.getElementById('gameCanvas');
-const gl = canvas.getContext('webgl', { antialias: false });
-
-// Elementos de UI
-const ui = {
-    mainMenu: document.getElementById('main-menu'),
-    pauseMenu: document.getElementById('pause-menu'),
-    creditsMenu: document.getElementById('credits-menu'),
-    hud: document.getElementById('hud'),
-    health: document.getElementById('health-bar'),
-    stamina: document.getElementById('stamina-bar'),
-    money: document.getElementById('money'),
-    timeWeather: document.getElementById('time-weather'),
-    objective: document.getElementById('objective')
-};
-
-// Estados do Jogo
-let gameState = 'MENU'; // MENU, PLAYING, PAUSED
-let lastTime = 0;
-let keys = {};
-let mouse = { x: 0, y: 0, movementX: 0, movementY: 0, isLocked: false };
-
-// --- MATEMÁTICA E MATRIZES ---
-const Mat4 = {
-    create: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
-    multiply: (a, b, out) => {
-        for(let i=0; i<4; i++) {
-            for(let j=0; j<4; j++) {
-                out[i*4+j] = a[i*4+0]*b[0*4+j] + a[i*4+1]*b[1*4+j] + a[i*4+2]*b[2*4+j] + a[i*4+3]*b[3*4+j];
+    <script>
+        // Verificação de Orientação
+        function checkOrientation() {
+            const warning = document.getElementById('orientation-warning');
+            if (window.innerHeight > window.innerWidth && window.innerWidth < 768) {
+                warning.style.display = 'flex';
+            } else {
+                warning.style.display = 'none';
             }
         }
-        return out;
-    },
-    perspective: (fov, aspect, near, far, out) => {
-        let f = 1.0 / Math.tan(fov / 2);
-        let nf = 1 / (near - far);
-        out[0] = f / aspect; out[1] = 0; out[2] = 0; out[3] = 0;
-        out[4] = 0; out[5] = f; out[6] = 0; out[7] = 0;
-        out[8] = 0; out[9] = 0; out[10] = (far + near) * nf; out[11] = -1;
-        out[12] = 0; out[13] = 0; out[14] = (2 * far * near) * nf; out[15] = 0;
-        return out;
-    },
-    rotateY: (m, angle, out) => {
-        let s = Math.sin(angle), c = Math.cos(angle);
-        let m00 = m[0], m01 = m[1], m02 = m[2], m03 = m[3];
-        let m20 = m[8], m21 = m[9], m22 = m[10], m23 = m[11];
-        out[0] = m00 * c - m20 * s; out[1] = m01 * c - m21 * s; out[2] = m02 * c - m22 * s; out[3] = m03 * c - m23 * s;
-        out[8] = m00 * s + m20 * c; out[9] = m01 * s + m21 * c; out[10]= m02 * s + m22 * c; out[11]= m03 * s + m23 * c;
-        return out;
-    },
-    rotateX: (m, angle, out) => {
-        let s = Math.sin(angle), c = Math.cos(angle);
-        let m10 = m[4], m11 = m[5], m12 = m[6], m13 = m[7];
-        let m20 = m[8], m21 = m[9], m22 = m[10], m23 = m[11];
-        out[4] = m10 * c + m20 * s; out[5] = m11 * c + m21 * s; out[6] = m12 * c + m22 * s; out[7] = m13 * c + m23 * s;
-        out[8] = m20 * c - m10 * s; out[9] = m21 * c - m11 * s; out[10]= m22 * c - m12 * s; out[11]= m23 * c - m13 * s;
-        return out;
-    },
-    translate: (m, x, y, z, out) => {
-        for(let i=0; i<4; i++) out[i] = m[i];
-        for(let i=4; i<8; i++) out[i] = m[i];
-        for(let i=8; i<12; i++) out[i] = m[i];
-        out[12] = m[0]*x + m[4]*y + m[8]*z + m[12];
-        out[13] = m[1]*x + m[5]*y + m[9]*z + m[13];
-        out[14] = m[2]*x + m[6]*y + m[10]*z + m[14];
-        out[15] = m[3]*x + m[7]*y + m[11]*z + m[15];
-        return out;
-    },
-    scale: (m, x, y, z, out) => {
-        out[0] = m[0]*x; out[1] = m[1]*x; out[2] = m[2]*x; out[3] = m[3]*x;
-        out[4] = m[4]*y; out[5] = m[5]*y; out[6] = m[6]*y; out[7] = m[7]*y;
-        out[8] = m[8]*z; out[9] = m[9]*z; out[10]= m[10]*z; out[11]= m[11]*z;
-        out[12]= m[12]; out[13]= m[13]; out[14]= m[14]; out[15]= m[15];
-        return out;
-    }
-};
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        window.addEventListener('load', checkOrientation);
 
-// --- SHADERS ---
-const vsSource = `
-    attribute vec3 aPosition;
-    attribute vec3 aNormal;
-    uniform mat4 uProjectionMatrix;
-    uniform mat4 uViewMatrix;
-    uniform mat4 uModelMatrix;
-    varying vec3 vNormal;
-    varying vec3 vFragPos;
-    void main() {
-        vec4 worldPos = uModelMatrix * vec4(aPosition, 1.0);
-        gl_Position = uProjectionMatrix * uViewMatrix * worldPos;
-        vFragPos = worldPos.xyz;
-        vNormal = mat3(uModelMatrix) * aNormal;
-    }
-`;
-
-const fsSource = `
-    precision mediump float;
-    varying vec3 vNormal;
-    varying vec3 vFragPos;
-    uniform vec3 uColor;
-    uniform vec3 uLightDir;
-    uniform vec3 uLightColor;
-    uniform vec3 uAmbientColor;
-    uniform vec3 uFogColor;
-    uniform float uFogNear;
-    uniform float uFogFar;
-    uniform vec3 uViewPos;
-    void main() {
-        vec3 norm = normalize(vNormal);
-        vec3 lightDir = normalize(uLightDir);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * uLightColor;
-        vec3 result = (uAmbientColor + diffuse) * uColor;
-        
-        float distance = length(uViewPos - vFragPos);
-        float fogFactor = smoothstep(uFogNear, uFogFar, distance);
-        gl_FragColor = vec4(mix(result, uFogColor, fogFactor), 1.0);
-    }
-`;
-
-function compileShader(gl, type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(shader));
-        return null;
-    }
-    return shader;
-}
-
-const shaderProgram = gl.createProgram();
-gl.attachShader(shaderProgram, compileShader(gl, gl.VERTEX_SHADER, vsSource));
-gl.attachShader(shaderProgram, compileShader(gl, gl.FRAGMENT_SHADER, fsSource));
-gl.linkProgram(shaderProgram);
-gl.useProgram(shaderProgram);
-
-// Localização de variáveis WebGL
-const programInfo = {
-    attribs: {
-        position: gl.getAttribLocation(shaderProgram, 'aPosition'),
-        normal: gl.getAttribLocation(shaderProgram, 'aNormal')
-    },
-    uniforms: {
-        proj: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-        view: gl.getUniformLocation(shaderProgram, 'uViewMatrix'),
-        model: gl.getUniformLocation(shaderProgram, 'uModelMatrix'),
-        color: gl.getUniformLocation(shaderProgram, 'uColor'),
-        lightDir: gl.getUniformLocation(shaderProgram, 'uLightDir'),
-        lightColor: gl.getUniformLocation(shaderProgram, 'uLightColor'),
-        ambientColor: gl.getUniformLocation(shaderProgram, 'uAmbientColor'),
-        fogColor: gl.getUniformLocation(shaderProgram, 'uFogColor'),
-        fogNear: gl.getUniformLocation(shaderProgram, 'uFogNear'),
-        fogFar: gl.getUniformLocation(shaderProgram, 'uFogFar'),
-        viewPos: gl.getUniformLocation(shaderProgram, 'uViewPos')
-    }
-};
-
-// --- DADOS DO CUBO (Geometria Base) ---
-const cubeVertices = new Float32Array([
-    // Frente
-    -0.5,-0.5,0.5, 0.5,-0.5,0.5, 0.5,0.5,0.5, -0.5,-0.5,0.5, 0.5,0.5,0.5, -0.5,0.5,0.5,
-    // Trás
-    -0.5,-0.5,-0.5, -0.5,0.5,-0.5, 0.5,0.5,-0.5, -0.5,-0.5,-0.5, 0.5,0.5,-0.5, 0.5,-0.5,-0.5,
-    // Cima
-    -0.5,0.5,-0.5, -0.5,0.5,0.5, 0.5,0.5,0.5, -0.5,0.5,-0.5, 0.5,0.5,0.5, 0.5,0.5,-0.5,
-    // Baixo
-    -0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,-0.5,0.5, -0.5,-0.5,-0.5, 0.5,-0.5,0.5, -0.5,-0.5,0.5,
-    // Direita
-    0.5,-0.5,-0.5, 0.5,0.5,-0.5, 0.5,0.5,0.5, 0.5,-0.5,-0.5, 0.5,0.5,0.5, 0.5,-0.5,0.5,
-    // Esquerda
-    -0.5,-0.5,-0.5, -0.5,-0.5,0.5, -0.5,0.5,0.5, -0.5,-0.5,-0.5, -0.5,0.5,0.5, -0.5,0.5,-0.5
-]);
-
-const cubeNormals = new Float32Array([
-    0,0,1, 0,0,1, 0,0,1, 0,0,1, 0,0,1, 0,0,1,
-    0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1,
-    0,1,0, 0,1,0, 0,1,0, 0,1,0, 0,1,0, 0,1,0,
-    0,-1,0, 0,-1,0, 0,-1,0, 0,-1,0, 0,-1,0, 0,-1,0,
-    1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0,
-    -1,0,0, -1,0,0, -1,0,0, -1,0,0, -1,0,0, -1,0,0
-]);
-
-const posBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, cubeVertices, gl.STATIC_DRAW);
-
-const normBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, cubeNormals, gl.STATIC_DRAW);
-
-// --- SISTEMA DE ÁUDIO PROCEDURAL ---
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSound(type) {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    if(type === 'jump') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-    } else if(type === 'coin') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-    } else if(type === 'engine') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(50 + Math.random()*20, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-}
-
-// --- VARIÁVEIS DE MUNDO E JOGADOR ---
-const player = {
-    x: 0, y: 2, z: 0,
-    vx: 0, vy: 0, vz: 0,
-    yaw: 0, pitch: 0,
-    health: 100, stamina: 100, money: 0,
-    speed: 10, runSpeed: 20, jumpForce: 8,
-    isGrounded: false, inVehicle: false,
-    radius: 0.5, height: 1.8
-};
-
-const world = {
-    time: 12, // 0-24 horas
-    gravity: -20,
-    objects: [], // {x, y, z, sx, sy, sz, color, type}
-    npcs: [],
-    vehicles: [],
-    missions: []
-};
-
-// --- GERAÇÃO PROCEDURAL DO MUNDO ---
-function generateWorld() {
-    world.objects = [];
-    world.npcs = [];
-    world.vehicles = [];
-    
-    // Chão gigante
-    world.objects.push({ x: 0, y: -0.5, z: 0, sx: 1000, sy: 1, sz: 1000, color: [0.2, 0.6, 0.2], type: 'ground' });
-    
-    // Ruas
-    world.objects.push({ x: 0, y: 0.01, z: 0, sx: 20, sy: 0.1, sz: 1000, color: [0.2, 0.2, 0.2], type: 'road' });
-    world.objects.push({ x: 0, y: 0.01, z: 0, sx: 1000, sy: 0.1, sz: 20, color: [0.2, 0.2, 0.2], type: 'road' });
-
-    // Cidade / Prédios
-    for(let i=0; i<150; i++) {
-        let px = (Math.random() - 0.5) * 800;
-        let pz = (Math.random() - 0.5) * 800;
-        if(Math.abs(px) < 15 || Math.abs(pz) < 15) continue; // Livrar estradas
-        let h = 10 + Math.random() * 50;
-        let w = 5 + Math.random() * 10;
-        let r = 0.3+Math.random()*0.5, g = 0.3+Math.random()*0.5, b = 0.3+Math.random()*0.5;
-        world.objects.push({ x: px, y: h/2, z: pz, sx: w, sy: h, sz: w, color: [r,g,b], type: 'building' });
-    }
-
-    // Florestas / Árvores
-    for(let i=0; i<200; i++) {
-        let px = (Math.random() - 0.5) * 900;
-        let pz = (Math.random() - 0.5) * 900;
-        if(Math.abs(px) < 30 && Math.abs(pz) < 30) continue;
-        world.objects.push({ x: px, y: 1, z: pz, sx: 1, sy: 2, sz: 1, color: [0.4, 0.2, 0.1], type: 'tree_trunk' });
-        world.objects.push({ x: px, y: 3, z: pz, sx: 3, sy: 3, sz: 3, color: [0.1, 0.8, 0.1], type: 'tree_leaf' });
-    }
-
-    // Montanhas nas bordas
-    for(let i=0; i<100; i++) {
-        let angle = Math.random() * Math.PI * 2;
-        let dist = 400 + Math.random() * 80;
-        let h = 30 + Math.random() * 60;
-        world.objects.push({ 
-            x: Math.cos(angle)*dist, y: h/2, z: Math.sin(angle)*dist, 
-            sx: 30, sy: h, sz: 30, color: [0.4, 0.4, 0.4], type: 'mountain' 
-        });
-    }
-
-    // Itens coletáveis (Economia / Missões)
-    for(let i=0; i<50; i++) {
-        world.objects.push({
-            x: (Math.random()-0.5)*200, y: 1, z: (Math.random()-0.5)*200,
-            sx: 1, sy: 1, sz: 1, color: [1, 1, 0], type: 'money', value: Math.floor(Math.random()*100)+10
-        });
-    }
-
-    // Veículos (Carros primitivos)
-    for(let i=0; i<10; i++) {
-        world.vehicles.push({
-            x: (Math.random()-0.5)*100, y: 1, z: (Math.random()-0.5)*100,
-            sx: 2, sy: 1.5, sz: 4, color: [0.1, 0.1, 0.8], type: 'car',
-            yaw: Math.random()*Math.PI*2, active: false
-        });
-    }
-
-    // NPCs
-    for(let i=0; i<30; i++) {
-        world.npcs.push({
-            x: (Math.random()-0.5)*100, y: 1, z: (Math.random()-0.5)*100,
-            sx: 0.8, sy: 1.8, sz: 0.8, color: [1, 0.5, 0.5],
-            vx: (Math.random()-0.5)*2, vz: (Math.random()-0.5)*2
-        });
-    }
-}
-
-// --- FÍSICA E COLISÕES ---
-function aabb(pX, pY, pZ, pW, pH, pD, oX, oY, oZ, oW, oH, oD) {
-    return (Math.abs(pX - oX) * 2 < (pW + oW)) &&
-           (Math.abs(pY - oY) * 2 < (pH + oH)) &&
-           (Math.abs(pZ - oZ) * 2 < (pD + oD));
-}
-
-function checkCollisions(newX, newY, newZ) {
-    let hit = { x: false, y: false, z: false, obj: null };
-    for(let obj of world.objects) {
-        if(obj.type === 'money' || obj.type === 'ground' || obj.type === 'road') continue;
-        // Colisão X
-        if(aabb(newX, player.y, player.z, player.radius, player.height, player.radius, obj.x, obj.y, obj.z, obj.sx, obj.sy, obj.sz)) hit.x = true;
-        // Colisão Y
-        if(aabb(player.x, newY, player.z, player.radius, player.height, player.radius, obj.x, obj.y, obj.z, obj.sx, obj.sy, obj.sz)) hit.y = true;
-        // Colisão Z
-        if(aabb(player.x, player.y, newZ, player.radius, player.height, player.radius, obj.x, obj.y, obj.z, obj.sx, obj.sy, obj.sz)) hit.z = true;
-    }
-    return hit;
-}
-
-// --- CONTROLES E EVENTOS ---
-window.addEventListener('keydown', e => keys[e.code] = true);
-window.addEventListener('keyup', e => keys[e.code] = false);
-
-document.addEventListener('pointerlockchange', () => {
-    mouse.isLocked = document.pointerLockElement === document.body;
-    if(!mouse.isLocked && gameState === 'PLAYING') pauseGame();
-});
-
-document.addEventListener('mousemove', e => {
-    if(mouse.isLocked && gameState === 'PLAYING') {
-        player.yaw -= e.movementX * 0.002;
-        player.pitch -= e.movementY * 0.002;
-        player.pitch = Math.max(-Math.PI/2.1, Math.min(Math.PI/2.1, player.pitch));
-    }
-});
-
-canvas.addEventListener('click', () => {
-    if(gameState === 'PLAYING' && !mouse.isLocked) document.body.requestPointerLock();
-});
-
-// Controles Mobile
-const joystick = document.getElementById('joystick');
-const knob = document.getElementById('joystick-knob');
-let touchID = null;
-let joyVec = {x:0, y:0};
-
-joystick.addEventListener('touchstart', e => {
-    e.preventDefault();
-    let touch = e.changedTouches[0];
-    touchID = touch.identifier;
-    updateJoystick(touch);
-}, {passive: false});
-
-joystick.addEventListener('touchmove', e => {
-    e.preventDefault();
-    for(let i=0; i<e.changedTouches.length; i++) {
-        if(e.changedTouches[i].identifier === touchID) updateJoystick(e.changedTouches[i]);
-    }
-}, {passive: false});
-
-joystick.addEventListener('touchend', e => {
-    for(let i=0; i<e.changedTouches.length; i++) {
-        if(e.changedTouches[i].identifier === touchID) {
-            touchID = null;
-            knob.style.transform = `translate(0px, 0px)`;
-            joyVec = {x:0, y:0};
-        }
-    }
-});
-
-function updateJoystick(touch) {
-    let rect = joystick.getBoundingClientRect();
-    let cx = rect.left + rect.width/2;
-    let cy = rect.top + rect.height/2;
-    let dx = touch.clientX - cx;
-    let dy = touch.clientY - cy;
-    let dist = Math.sqrt(dx*dx + dy*dy);
-    let maxDist = rect.width/2 - 25;
-    if(dist > maxDist) { dx = (dx/dist)*maxDist; dy = (dy/dist)*maxDist; }
-    knob.style.transform = `translate(${dx}px, ${dy}px)`;
-    joyVec.x = dx / maxDist;
-    joyVec.y = dy / maxDist;
-}
-
-document.getElementById('btn-jump').addEventListener('touchstart', (e) => { e.preventDefault(); if(player.isGrounded) { player.vy = player.jumpForce; playSound('jump'); } });
-document.getElementById('btn-interact').addEventListener('touchstart', (e) => { e.preventDefault(); tryInteract(); });
-
-// Interação / Tecla E
-window.addEventListener('keydown', e => {
-    if(e.code === 'KeyE' && gameState === 'PLAYING') tryInteract();
-    if(e.code === 'Escape' && gameState === 'PLAYING') pauseGame();
-});
-
-function tryInteract() {
-    // Entrar/Sair de veículo
-    if(player.inVehicle) {
-        player.inVehicle = false;
-        player.y += 1; // Sair por cima
-        return;
-    }
-    
-    for(let v of world.vehicles) {
-        let dist = Math.sqrt((player.x-v.x)**2 + (player.y-v.y)**2 + (player.z-v.z)**2);
-        if(dist < 4) {
-            player.inVehicle = true;
-            player.activeVehicle = v;
-            return;
-        }
-    }
-}
-
-// --- LOOP PRINCIPAL E ATUALIZAÇÕES ---
-function update(dt) {
-    if(gameState !== 'PLAYING') return;
-
-    // Ciclo de dia e noite
-    world.time += dt * 0.05; // Velocidade do tempo
-    if(world.time > 24) world.time = 0;
-
-    let moveSpeed = (keys['ShiftLeft'] ? player.runSpeed : player.speed);
-    if(player.inVehicle) moveSpeed = 30; // Velocidade do carro
-    
-    // Desgaste de stamina
-    if(keys['ShiftLeft'] && (keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'])) {
-        player.stamina -= dt * 20;
-        if(player.stamina < 0) { player.stamina = 0; moveSpeed = player.speed; }
-    } else {
-        player.stamina = Math.min(100, player.stamina + dt * 10);
-    }
-
-    // Movimentação
-    let fw = 0, rt = 0;
-    if(keys['KeyW']) fw = 1; if(keys['KeyS']) fw = -1;
-    if(keys['KeyA']) rt = -1; if(keys['KeyD']) rt = 1;
-    
-    // Mobile
-    if(joyVec.y !== 0) fw = -joyVec.y;
-    if(joyVec.x !== 0) rt = joyVec.x;
-
-    // Controles Touch de Visão
-    // Implementação básica de swipe ignorada para focar em joystick. No celular o olhar é misto.
-    // Simular rotação com A/D no mobile se joystick X estiver ativado
-    if(joyVec.x !== 0 && !mouse.isLocked) {
-        player.yaw -= joyVec.x * 2 * dt;
-    }
-
-    if(player.inVehicle) {
-        // Lógica simples do veículo
-        let v = player.activeVehicle;
-        if(fw !== 0) {
-            v.x += Math.sin(v.yaw) * moveSpeed * fw * dt;
-            v.z -= Math.cos(v.yaw) * moveSpeed * fw * dt;
-            playSound('engine');
-        }
-        if(rt !== 0 && fw !== 0) v.yaw -= rt * 2 * dt * Math.sign(fw);
-        
-        player.x = v.x; player.y = v.y + 0.5; player.z = v.z;
-        player.yaw = v.yaw;
-    } else {
-        // Movimento a pé
-        let dx = (Math.sin(player.yaw) * fw + Math.cos(player.yaw) * rt) * moveSpeed * dt;
-        let dz = (-Math.cos(player.yaw) * fw + Math.sin(player.yaw) * rt) * moveSpeed * dt;
-
-        let col = checkCollisions(player.x + dx, player.y, player.z + dz);
-        if(!col.x) player.x += dx;
-        if(!col.z) player.z += dz;
-
-        // Pulo e Gravidade
-        player.vy += world.gravity * dt;
-        let colY = checkCollisions(player.x, player.y + player.vy * dt, player.z);
-        if(colY.y) {
-            if(player.vy < 0) player.isGrounded = true;
-            player.vy = 0;
-        } else {
-            player.y += player.vy * dt;
-            player.isGrounded = false;
+        // Sistema de Áudio Sintético via Web Audio API
+        class SoundSystem {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+            }
+            playTone(freq, type, duration) {
+                if (!this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+            step() { this.playTone(150, 'triangle', 0.05); }
+            engine() { this.playTone(60, 'sawtooth', 0.1); }
+            crash() { this.playTone(80, 'square', 0.2); }
+            explosion() { this.playTone(40, 'sawtooth', 0.5); }
         }
 
-        // Chão absoluto
-        if(player.y < 1) { player.y = 1; player.vy = 0; player.isGrounded = true; }
+        // Classe Principal do Jogo
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.minimapCanvas = document.getElementById('minimap-canvas');
+                this.mCtx = this.minimapCanvas.getContext('2d');
 
-        if(keys['Space'] && player.isGrounded) {
-            player.vy = player.jumpForce;
-            playSound('jump');
-            keys['Space'] = false; // Anti-spam
-        }
-    }
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.minimapCanvas.width = 140;
+                this.minimapCanvas.height = 140;
 
-    // Coleta de itens
-    for(let i=world.objects.length-1; i>=0; i--) {
-        let obj = world.objects[i];
-        if(obj.type === 'money') {
-            obj.yaw = (obj.yaw || 0) + dt*2; // Gira
-            if(Math.sqrt((player.x-obj.x)**2 + (player.y-obj.y)**2 + (player.z-obj.z)**2) < 2) {
-                player.money += obj.value;
-                world.objects.splice(i, 1);
-                playSound('coin');
-                ui.objective.innerText = "Dinheiro coletado: +$" + obj.value;
+                this.state = 'MENU'; // MENU, PLAYING, PAUSED, CREDITS
+                this.audio = new SoundSystem();
+                this.worldSize = 4000;
+
+                // Tempo e Clima
+                this.time = 480; // 08:00 em minutos
+                this.weatherTypes = ['Sol', 'Chuva', 'Tempestade', 'Neblina'];
+                this.weather = 'Sol';
+                this.weatherTimer = 0;
+
+                // Câmera
+                this.camera = { x: 0, y: 0, shake: 0 };
+
+                // Entidades do Mundo
+                this.player = null;
+                this.vehicles = [];
+                this.npcs = [];
+                this.buildings = [];
+                this.particles = [];
+
+                this.keys = {};
+                this.initInputs();
+                this.initWorld();
+            }
+
+            resize() {
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+            }
+
+            initInputs() {
+                window.addEventListener('keydown', e => this.keys[e.key.toLowerCase()] = true);
+                window.addEventListener('keyup', e => this.keys[e.key.toLowerCase()] = false);
+
+                // Touch / Joystick simples
+                let joystickActive = false;
+                let startX = 0, startY = 0;
+                const base = document.getElementById('joystick-base');
+                const stick = document.getElementById('joystick-stick');
+
+                base.addEventListener('touchstart', e => {
+                    joystickActive = true;
+                    const touch = e.touches[0];
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                });
+
+                window.addEventListener('touchmove', e => {
+                    if (!joystickActive) return;
+                    const touch = e.touches[0];
+                    let dx = touch.clientX - startX;
+                    let dy = touch.clientY - startY;
+                    const dist = Math.hypot(dx, dy);
+                    const maxDist = 40;
+                    if (dist > maxDist) {
+                        dx = (dx / dist) * maxDist;
+                        dy = (dy / dist) * maxDist;
+                    }
+                    stick.style.transform = `translate(${dx}px, ${dy}px)`;
+                    this.joystickVal = { x: dx / maxDist, y: dy / maxDist };
+                });
+
+                window.addEventListener('touchend', () => {
+                    if (joystickActive) {
+                        joystickActive = false;
+                        stick.style.transform = `translate(0px, 0px)`;
+                        this.joystickVal = { x: 0, y: 0 };
+                    }
+                });
+
+                this.joystickVal = { x: 0, y: 0 };
+            }
+
+            initWorld() {
+                // Criar Prédios e Locais Importantes (Centro, Hospital, Delegacia, Lojas, Casas)
+                this.buildings = [
+                    { x: 1800, y: 1800, w: 400, h: 300, name: 'Centro da Cidade', color: '#7f8c8d', type: 'commercial' },
+                    { x: 1200, y: 1200, w: 250, h: 200, name: 'Hospital', color: '#e74c3c', type: 'hospital' },
+                    { x: 2500, y: 1200, w: 250, h: 200, name: 'Delegacia', color: '#2980b9', type: 'police' },
+                    { x: 800, y: 2200, w: 300, h: 300, name: 'Área Industrial', color: '#d35400', type: 'industrial' },
+                    { x: 3000, y: 800, w: 400, h: 300, name: 'Base Militar', color: '#27ae60', type: 'military' },
+                    { x: 500, y: 500, w: 300, h: 250, name: 'Aeroporto', color: '#95a5a6', type: 'airport' }
+                ];
+
+                // Criar Veículos Iniciais
+                for (let i = 0; i < 15; i++) {
+                    this.vehicles.push(new Vehicle(
+                        Math.random() * (this.worldSize - 400) + 200,
+                        Math.random() * (this.worldSize - 400) + 200,
+                        i % 2 === 0 ? 'car' : 'moto'
+                    ));
+                }
+
+                // Criar NPCs Pedestres
+                for (let i = 0; i < 30; i++) {
+                    this.npcs.push(new NPC(
+                        Math.random() * (this.worldSize - 400) + 200,
+                        Math.random() * (this.worldSize - 400) + 200
+                    ));
+                }
+
+                // Criar Jogador
+                this.player = new Player(2000, 2000, this);
+            }
+
+            start() {
+                this.audio.init();
+                document.getElementById('menu-screen').classList.add('hidden');
+                document.getElementById('hud').classList.remove('hidden');
+                if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                    document.getElementById('mobile-controls').style.display = 'block';
+                }
+                this.state = 'PLAYING';
+                this.loop();
+            }
+
+            togglePause() {
+                if (this.state === 'PLAYING') {
+                    this.state = 'PAUSED';
+                    document.getElementById('pause-screen').classList.remove('hidden');
+                } else if (this.state === 'PAUSED') {
+                    this.state = 'PLAYING';
+                    document.getElementById('pause-screen').classList.add('hidden');
+                }
+            }
+
+            showCredits() {
+                document.getElementById('menu-screen').classList.add('hidden');
+                document.getElementById('credits-screen').classList.remove('hidden');
+            }
+
+            hideCredits() {
+                document.getElementById('credits-screen').classList.add('hidden');
+                document.getElementById('menu-screen').classList.remove('hidden');
+            }
+
+            restart() {
+                document.getElementById('pause-screen').classList.add('hidden');
+                this.initWorld();
+                this.state = 'PLAYING';
+            }
+
+            showMenu() {
+                document.getElementById('pause-screen').classList.add('hidden');
+                document.getElementById('hud').classList.add('hidden');
+                document.getElementById('mobile-controls').style.display = 'none';
+                document.getElementById('menu-screen').classList.remove('hidden');
+                this.state = 'MENU';
+            }
+
+            update() {
+                if (this.state !== 'PLAYING') return;
+
+                // Atualizar Tempo (Ciclo Dia/Noite)
+                this.time += 0.2;
+                if (this.time >= 1440) this.time = 0;
+
+                // Atualizar Clima
+                this.weatherTimer++;
+                if (this.weatherTimer > 1500) {
+                    this.weather = this.weatherTypes[Math.floor(Math.random() * this.weatherTypes.length)];
+                    this.weatherTimer = 0;
+                }
+
+                // Atualizar Jogador
+                this.player.update(this);
+
+                // Atualizar Veículos
+                this.vehicles.forEach(v => v.update(this));
+
+                // Atualizar NPCs
+                this.npcs.forEach(n => n.update(this));
+
+                // Atualizar Câmera suavemente em direção ao alvo (Player ou Veículo atual)
+                let target = this.player.inVehicle ? this.player.currentVehicle : this.player;
+                this.camera.x += (target.x - this.width / 2 - this.camera.x) * 0.1;
+                this.camera.y += (target.y - this.height / 2 - this.camera.y) * 0.1;
+
+                // Limitar câmera aos limites do mundo
+                this.camera.x = Math.max(0, Math.min(this.worldSize - this.width, this.camera.x));
+                this.camera.y = Math.max(0, Math.min(this.worldSize - this.height, this.camera.y));
+
+                // Atualizar HUD
+                document.getElementById('txt-hp').innerText = Math.round(this.player.hp);
+                document.getElementById('health-fill.style.width') = this.player.hp + '%';
+                document.getElementById('txt-en').innerText = Math.round(this.player.energy);
+                
+                let hours = Math.floor(this.time / 60);
+                let mins = Math.floor(this.time % 60);
+                document.getElementById('txt-time').innerText = `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}`;
+                document.getElementById('txt-weather').innerText = this.weather;
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+                if (this.state === 'MENU') return;
+
+                this.ctx.save();
+                this.ctx.translate(-this.camera.x, -this.camera.y);
+
+                // Desenhar Chão / Terreno (Grama / Deserto / Ruas)
+                this.ctx.fillStyle = '#27ae60'; // Grama base
+                this.ctx.fillRect(0, 0, this.worldSize, this.worldSize);
+
+                // Desenhar Ruas (Malha urbana simples)
+                this.ctx.fillStyle = '#34495e';
+                for (let i = 400; i < this.worldSize; i += 800) {
+                    this.ctx.fillRect(i, 0, 100, this.worldSize);
+                    this.ctx.fillRect(0, i, this.worldSize, 100);
+                }
+
+                // Desenhar Prédios
+                this.buildings.forEach(b => {
+                    this.ctx.fillStyle = b.color;
+                    this.ctx.fillRect(b.x, b.y, b.w, b.h);
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = '14px sans-serif';
+                    this.ctx.fillText(b.name, b.x + 15, b.y + 25);
+                });
+
+                // Desenhar Veículos
+                this.vehicles.forEach(v => v.draw(this.ctx));
+
+                // Desenhar NPCs
+                this.npcs.forEach(n => n.draw(this.ctx));
+
+                // Desenhar Jogador
+                this.player.draw(this.ctx);
+
+                this.ctx.restore();
+
+                // Desenhar Minimapa
+                this.drawMinimap();
+            }
+
+            drawMinimap() {
+                this.mCtx.clearRect(0, 0, 140, 140);
+                this.mCtx.fillStyle = '#111';
+                this.mCtx.fillRect(0, 0, 140, 140);
+
+                let scale = 140 / this.worldSize;
+                
+                // Desenhar Prédios no Minimapa
+                this.mCtx.fillStyle = '#7f8c8d';
+                this.buildings.forEach(b => {
+                    this.mCtx.fillRect(b.x * scale, b.y * scale, b.w * scale, b.h * scale);
+                });
+
+                // Desenhar Jogador no Minimapa
+                this.mCtx.fillStyle = '#e74c3c';
+                this.mCtx.beginPath();
+                this.mCtx.arc(this.player.x * scale, this.player.y * scale, 3, 0, Math.PI * 2);
+                this.mCtx.fill();
+            }
+
+            loop() {
+                if (this.state === 'PLAYING') {
+                    this.update();
+                    this.draw();
+                }
+                requestAnimationFrame(() => this.loop());
             }
         }
-    }
 
-    // IA NPCs
-    for(let npc of world.npcs) {
-        npc.x += npc.vx * dt;
-        npc.z += npc.vz * dt;
-        // Bate na "parede" invisível
-        if(Math.abs(npc.x) > 100) npc.vx *= -1;
-        if(Math.abs(npc.z) > 100) npc.vz *= -1;
-    }
+        // Classe Jogador
+        class Player {
+            constructor(x, y, game) {
+                this.x = x;
+                this.y = y;
+                this.radius = 12;
+                this.speed = 3.5;
+                this.hp = 100;
+                this.energy = 100;
+                this.angle = 0;
+                this.running = false;
+                this.inVehicle = false;
+                this.currentVehicle = null;
+                this.game = game;
+            }
 
-    updateUI();
-}
+            setRun(val) {
+                this.running = val;
+            }
 
-function updateUI() {
-    ui.health.style.width = player.health + '%';
-    ui.stamina.style.width = player.stamina + '%';
-    ui.money.innerText = '$ ' + player.money;
-    
-    let hours = Math.floor(world.time);
-    let mins = Math.floor((world.time - hours) * 60);
-    let clima = (world.time > 6 && world.time < 18) ? 'Ensolarado' : 'Noite Escura';
-    ui.timeWeather.innerText = `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')} | ${clima}`;
+            update(game) {
+                if (this.inVehicle) {
+                    this.x = this.currentVehicle.x;
+                    this.y = this.currentVehicle.y;
+                    return;
+                }
 
-    // Atualiza Minimapa
-    let mapPlayer = document.getElementById('minimap-player');
-    mapPlayer.style.transform = `translate(-50%, -50%) rotate(${player.yaw}rad)`;
-}
+                let dx = 0, dy = 0;
+                let currentSpeed = this.running && this.energy > 0 ? this.speed * 1.6 : this.speed;
 
-// --- RENDERIZAÇÃO WEBGL ---
-function drawScene() {
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+                if (game.keys['w'] || game.keys['arrowup']) dy -= 1;
+                if (game.keys['s'] || game.keys['arrowdown']) dy += 1;
+                if (game.keys['a'] || game.keys['arrowleft']) dx -= 1;
+                if (game.keys['d'] || game.keys['arrowright']) dx += 1;
 
-    // Cor do céu baseada no horário
-    let r=0, g=0, b=0;
-    if(world.time >= 6 && world.time <= 18) { r=0.5; g=0.7; b=1.0; } // Dia
-    else if(world.time > 18 && world.time < 20) { r=0.8; g=0.4; b=0.2; } // Pôr do sol
-    else { r=0.05; g=0.05; b=0.1; } // Noite
-    
-    gl.clearColor(r, g, b, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                if (game.joystickVal && (game.joystickVal.x !== 0 || game.joystickVal.y !== 0)) {
+                    dx = game.joystickVal.x;
+                    dy = game.joystickVal.y;
+                }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-    gl.vertexAttribPointer(programInfo.attribs.position, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attribs.position);
+                if (dx !== 0 || dy !== 0) {
+                    let len = Math.hypot(dx, dy);
+                    this.x += (dx / len) * currentSpeed;
+                    this.y += (dy / len) * currentSpeed;
+                    this.angle = Math.atan2(dy, dx);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
-    gl.vertexAttribPointer(programInfo.attribs.normal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attribs.normal);
+                    if (this.running) {
+                        this.energy = Math.max(0, this.energy - 0.2);
+                    }
+                } else {
+                    this.energy = Math.min(100, this.energy + 0.1);
+                }
 
-    let projMatrix = Mat4.create();
-    Mat4.perspective(Math.PI/3, canvas.width/canvas.height, 0.1, 1000.0, projMatrix);
+                // Limites do mundo
+                this.x = Math.max(20, Math.min(game.worldSize - 20, this.x));
+                this.y = Math.max(20, Math.min(game.worldSize - 20, this.y));
+            }
 
-    let viewMatrix = Mat4.create();
-    
-    // Câmera (Primeira pessoa ou Terceira Pessoa se no carro)
-    let camX = player.x, camY = player.y + 0.6, camZ = player.z;
-    if(player.inVehicle) {
-        camX -= Math.sin(player.yaw) * 6;
-        camY += 2;
-        camZ += Math.cos(player.yaw) * 6;
-    }
+            interact() {
+                if (this.inVehicle) {
+                    // Sair do veículo
+                    this.inVehicle = false;
+                    this.currentVehicle.driver = null;
+                    this.x = this.currentVehicle.x + 40;
+                    this.y = this.currentVehicle.y;
+                    this.currentVehicle = null;
+                } else {
+                    // Procurar veículo próximo para entrar
+                    for (let v of this.game.vehicles) {
+                        if (Math.hypot(this.x - v.x, this.y - v.y) < 50) {
+                            this.inVehicle = true;
+                            this.currentVehicle = v;
+                            v.driver = this;
+                            break;
+                        }
+                    }
+                }
+            }
 
-    Mat4.rotateX(viewMatrix, -player.pitch, viewMatrix);
-    Mat4.rotateY(viewMatrix, -player.yaw, viewMatrix);
-    Mat4.translate(viewMatrix, -camX, -camY, -camZ, viewMatrix);
+            draw(ctx) {
+                if (this.inVehicle) return; // Não desenhar jogador se estiver dentro do carro
 
-    gl.uniformMatrix4fv(programInfo.uniforms.proj, false, projMatrix);
-    gl.uniformMatrix4fv(programInfo.uniforms.view, false, viewMatrix);
-    
-    // Iluminação e Neblina
-    gl.uniform3f(programInfo.uniforms.lightDir, 0.5, 1.0, 0.5); // Luz do sol
-    gl.uniform3f(programInfo.uniforms.lightColor, 1.0, 1.0, 0.9);
-    gl.uniform3f(programInfo.uniforms.ambientColor, 0.3, 0.3, 0.4);
-    gl.uniform3f(programInfo.uniforms.fogColor, r, g, b);
-    gl.uniform1f(programInfo.uniforms.fogNear, 50.0);
-    gl.uniform1f(programInfo.uniforms.fogFar, 300.0);
-    gl.uniform3f(programInfo.uniforms.viewPos, camX, camY, camZ);
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
 
-    // Função auxiliar para desenhar cubos
-    function drawCube(x, y, z, sx, sy, sz, color, ry = 0) {
-        let model = Mat4.create();
-        Mat4.translate(model, x, y, z, model);
-        if(ry !== 0) Mat4.rotateY(model, ry, model);
-        Mat4.scale(model, sx, sy, sz, model);
-        gl.uniformMatrix4fv(programInfo.uniforms.model, false, model);
-        gl.uniform3f(programInfo.uniforms.color, color[0], color[1], color[2]);
-        gl.drawArrays(gl.TRIANGLES, 0, 36);
-    }
+                // Corpo do Personagem
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
 
-    // Desenhar Mundo Otimizado (Frustum Culling simples por distância)
-    for(let obj of world.objects) {
-        let distSq = (obj.x-camX)**2 + (obj.z-camZ)**2;
-        if(distSq < 150000) { // Distância de renderização
-            let rot = obj.type === 'money' ? obj.yaw || 0 : 0;
-            drawCube(obj.x, obj.y, obj.z, obj.sx, obj.sy, obj.sz, obj.color, rot);
+                // Direção (Cabeça / Olhos)
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(4, -4, 8, 8);
+
+                ctx.restore();
+            }
         }
-    }
 
-    // Desenhar Veículos
-    for(let v of world.vehicles) {
-        drawCube(v.x, v.y, v.z, v.sx, v.sy, v.sz, v.color, v.yaw);
-    }
+        // Classe Veículo
+        class Vehicle {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.w = type === 'car' ? 50 : 35;
+                this.h = type === 'car' ? 25 : 18;
+                this.speed = 0;
+                this.maxSpeed = type === 'car' ? 8 : 10;
+                this.accel = 0.2;
+                this.angle = Math.random() * Math.PI * 2;
+                this.driver = null;
+                this.color = ['#e74c3c', '#f39c12', '#8e44ad', '#34495e'][Math.floor(Math.random()*4)];
+            }
 
-    // Desenhar NPCs
-    for(let npc of world.npcs) {
-        let nDir = Math.atan2(npc.vx, npc.vz);
-        drawCube(npc.x, npc.y, npc.z, npc.sx, npc.sy, npc.sz, npc.color, nDir);
-    }
-}
+            update(game) {
+                if (this.driver && this.driver === game.player) {
+                    // Controles do Jogador no Veículo
+                    let move = 0;
+                    if (game.keys['w'] || game.keys['arrowup']) move = 1;
+                    if (game.keys['s'] || game.keys['arrowdown']) move = -1;
 
-// --- LOOP DO JOGO ---
-function loop(timestamp) {
-    let dt = (timestamp - lastTime) / 1000;
-    lastTime = timestamp;
-    if(dt > 0.1) dt = 0.1; // Limite para lag
+                    if (game.keys['a'] || game.keys['arrowleft']) this.angle -= 0.05;
+                    if (game.keys['d'] || game.keys['arrowright']) this.angle += 0.05;
 
-    update(dt);
-    drawScene();
+                    if (move !== 0) {
+                        this.speed += move * this.accel;
+                        this.speed = Math.max(-3, Math.min(this.maxSpeed, this.speed));
+                    } else {
+                        this.speed *= 0.95; // Fricção
+                    }
 
-    requestAnimationFrame(loop);
-}
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed;
+                } else {
+                    // IA Simples de Trânsito
+                    this.speed = 2;
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed;
+                    if (Math.random() < 0.02) this.angle += (Math.random() - 0.5);
+                }
 
-// --- REDIMENSIONAMENTO ---
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
+                // Limites do mundo
+                this.x = Math.max(50, Math.min(game.worldSize - 50, this.x));
+                this.y = Math.max(50, Math.min(game.worldSize - 50, this.y));
+            }
 
-// --- CONTROLE DE MENUS E ESTADOS ---
-function startGame() {
-    ui.mainMenu.style.display = 'none';
-    ui.hud.style.display = 'block';
-    gameState = 'PLAYING';
-    generateWorld();
-    loadGame();
-    if(window.innerWidth > 768) document.body.requestPointerLock();
-    lastTime = performance.now();
-    requestAnimationFrame(loop);
-}
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
 
-function pauseGame() {
-    gameState = 'PAUSED';
-    ui.pauseMenu.style.display = 'flex';
-    document.exitPointerLock();
-}
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.w/2, -this.h/2, this.w, this.h);
 
-function resumeGame() {
-    gameState = 'PLAYING';
-    ui.pauseMenu.style.display = 'none';
-    if(window.innerWidth > 768) document.body.requestPointerLock();
-    lastTime = performance.now();
-}
+                // Para-brisa
+                ctx.fillStyle = '#ecf0f1';
+                ctx.fillRect(-5, -this.h/2 + 3, 15, this.h - 6);
 
-function showCredits() {
-    ui.mainMenu.style.display = 'none';
-    ui.creditsMenu.style.display = 'flex';
-}
+                ctx.restore();
+            }
+        }
 
-function hideCredits() {
-    ui.creditsMenu.style.display = 'none';
-    ui.mainMenu.style.display = 'flex';
-}
+        // Classe NPC
+        class NPC {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 10;
+                this.speed = 1.2;
+                this.angle = Math.random() * Math.PI * 2;
+                this.timer = 0;
+            }
 
-// --- SISTEMA DE SAVE (LOCALSTORAGE) ---
-function saveGame() {
-    const saveData = { x: player.x, y: player.y, z: player.z, money: player.money, time: world.time };
-    localStorage.setItem('victor_openworld_save', JSON.stringify(saveData));
-    alert("Progresso Salvo com Sucesso!");
-    resumeGame();
-}
+            update(game) {
+                this.timer++;
+                if (this.timer > 150 + Math.random() * 100) {
+                    this.angle += (Math.random() - 0.5) * 2;
+                    this.timer = 0;
+                }
 
-function loadGame() {
-    const data = localStorage.getItem('victor_openworld_save');
-    if(data) {
-        try {
-            const parsed = JSON.parse(data);
-            player.x = parsed.x; player.y = parsed.y; player.z = parsed.z;
-            player.money = parsed.money; world.time = parsed.time;
-        } catch(e) { console.log("Save corrompido, iniciando novo."); }
-    }
-}
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
 
-// Auto-save a cada 60 segundos
-setInterval(() => { if(gameState === 'PLAYING') { localStorage.setItem('victor_openworld_save', JSON.stringify({x: player.x, y: player.y, z: player.z, money: player.money, time: world.time})); } }, 60000);
+                this.x = Math.max(50, Math.min(game.worldSize - 50, this.x));
+                this.y = Math.max(50, Math.min(game.worldSize - 50, this.y));
+            }
 
-</script>
+            draw(ctx) {
+                ctx.fillStyle = '#95a5a6';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Inicializar Instância Global do Jogo
+        const game = new Game();
+    </script>
 </body>
 </html>
